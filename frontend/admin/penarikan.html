@@ -26,7 +26,7 @@
       <!-- Admin Identity -->
       <div class="mb-2">
         <span style="font-size:11px;font-weight:700;color:#003820;background:#f0fdf4;padding:4px 10px;border-radius:8px;border:1px solid #dcfce7;letter-spacing:0.05em;text-transform:uppercase;">Petugas Kolektor BPH</span>
-        <h1 class="font-bold text-xl" style="margin-top:6px;color:#0f172a;">Penarikan Hari Ini 📋</h1>
+        <h1 class="page-title font-bold text-xl" style="color:var(--on-surface);">Penarikan Hari Ini</h1>
         <p class="text-xs text-muted mt-1" id="todayDate"></p>
       </div>
 
@@ -36,7 +36,7 @@
         <div class="hero-card__decoration" style="bottom:0;left:0;width:96px;height:96px;background:rgba(255,255,255,0.05);border-radius:50%;filter:none;transform:translate(-20px,40px);pointer-events:none;position:absolute;"></div>
         <div class="relative z-10">
           <div class="flex justify-between items-center mb-2">
-            <h2 style="font-size:12px;color:var(--primary-fixed-dim);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Total Kas Masuk Hari Ini</h2>
+            <h2 style="font-size:12px;color:var(--primary-fixed-dim);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Total Setoran Hari Ini</h2>
             <div id="completeBadge" style="font-size:11px;font-weight:700;padding:4px 12px;border-radius:9999px;background:rgba(255,255,255,0.12);color:#ffffff;border:1px solid rgba(255,255,255,0.15);display:inline-flex;align-items:center;gap:4px;">
               <span id="completeBadgeText">0/2 Unit</span>
             </div>
@@ -56,7 +56,7 @@
           <div class="stats-row" style="background:rgba(0,0,0,0.15);border:1px solid rgba(255,255,255,0.1);backdrop-filter:blur(4px);border-radius:16px;">
             <div class="stats-row__item">
               <span class="stats-row__value text-white font-bold" id="countSetorText">0</span>
-              <span class="stats-row__label" style="color:var(--primary-fixed-dim);">Setor Tunai</span>
+              <span class="stats-row__label" style="color:var(--primary-fixed-dim);">Sudah Setor</span>
             </div>
             <div class="stats-row__divider" style="background:rgba(255,255,255,0.1);"></div>
             <div class="stats-row__item">
@@ -66,7 +66,7 @@
             <div class="stats-row__divider" style="background:rgba(255,255,255,0.1);"></div>
             <div class="stats-row__item">
               <span class="stats-row__value text-white font-bold" id="countBelumText">0</span>
-              <span class="stats-row__label" style="color:var(--primary-fixed-dim);">Belum Dicatat</span>
+              <span class="stats-row__label" style="color:var(--primary-fixed-dim);">Belum Setor</span>
             </div>
           </div>
         </div>
