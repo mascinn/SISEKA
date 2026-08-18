@@ -206,7 +206,11 @@ router.get('/tenant/monthly-history', authenticateToken, requireRole('tenant'), 
 
     const tarifSewa = kiosk.tarif_sewa || 1000000;
 
-    const monthlySummaries = monthsInYear.map(mCode => {
+    // Chronological processing (from oldest month to newest month) for auto compensation
+    const chronologicalMonths = [...monthsInYear].reverse();
+    let carriedSurplus = 0; // Surplus carried over from previous months
+    
+    const monthlyProcessed = chronologicalMonths.map(mCode => {
       const depositsInMonth = allDeposits.filter(d => d.tanggal.startsWith(mCode));
       let totalSetor = 0;
       let hariAktif = 0;
@@ -222,14 +226,27 @@ router.get('/tenant/monthly-history', authenticateToken, requireRole('tenant'), 
       });
 
       const isCurrent = mCode === currentMonth;
-      const selisih = totalSetor - tarifSewa;
+      const rawSelisih = totalSetor - tarifSewa;
+      
       let status = 'kurang';
       if (isCurrent) {
         status = 'berjalan';
-      } else if (selisih > 0) {
+      } else if (rawSelisih > 0) {
         status = 'surplus';
-      } else if (selisih === 0) {
+      } else if (rawSelisih === 0) {
         status = 'lunas';
+      }
+
+      // Kompensasi Otomatis Surplus Masa Lalu ke Kekurangan
+      let kompensasiDiterima = 0;
+      let sisaKewajibanBersih = Math.max(0, tarifSewa - totalSetor);
+
+      if (rawSelisih < 0 && carriedSurplus > 0) {
+        kompensasiDiterima = Math.min(carriedSurplus, sisaKewajibanBersih);
+        sisaKewajibanBersih -= kompensasiDiterima;
+        carriedSurplus -= kompensasiDiterima;
+      } else if (rawSelisih > 0 && !isCurrent) {
+        carriedSurplus += rawSelisih;
       }
 
       return {
@@ -238,14 +255,35 @@ router.get('/tenant/monthly-history', authenticateToken, requireRole('tenant'), 
         is_current: isCurrent,
         total_setor: totalSetor,
         tarif_sewa: tarifSewa,
-        selisih: selisih,
+        selisih: rawSelisih,
         status: status, // 'berjalan' | 'surplus' | 'lunas' | 'kurang'
         progress_percent: tarifSewa > 0 ? Math.min(100, Math.round((totalSetor / tarifSewa) * 100)) : 0,
         kekurangan: Math.max(0, tarifSewa - totalSetor),
+        kompensasi_surplus_diterima: kompensasiDiterima,
+        sisa_kewajiban_setelah_kompensasi: sisaKewajibanBersih,
+        surplus_tersisa: carriedSurplus,
         hari_aktif: hariAktif,
         hari_libur: hariLibur
       };
     });
+
+    // Return in reverse (newest month first for display)
+    const monthlySummaries = monthlyProcessed.reverse();
+
+    // Summary Akumulasi Tahunan & Saldo Bersih
+    let totalTahunanSetor = 0;
+    let totalTahunanTarget = 0;
+    let totalTahunanSurplus = 0;
+    let totalTahunanKekurangan = 0;
+
+    monthlySummaries.forEach(m => {
+      totalTahunanSetor += m.total_setor;
+      totalTahunanTarget += m.tarif_sewa;
+      if (m.selisih > 0) totalTahunanSurplus += m.selisih;
+      if (m.selisih < 0) totalTahunanKekurangan += Math.abs(m.selisih);
+    });
+
+    const saldoBersihAkun = totalTahunanSetor - totalTahunanTarget;
 
     res.json({
       success: true,
@@ -255,6 +293,17 @@ router.get('/tenant/monthly-history', authenticateToken, requireRole('tenant'), 
         nama_kantin: kiosk.nama_kantin,
         nama_penyewa: kiosk.nama_penyewa,
         tarif_sewa: tarifSewa
+      },
+      summary_akumulasi: {
+        total_setor: totalTahunanSetor,
+        total_target: totalTahunanTarget,
+        total_surplus: totalTahunanSurplus,
+        total_kekurangan: totalTahunanKekurangan,
+        saldo_bersih: saldoBersihAkun,
+        is_surplus: saldoBersihAkun > 0,
+        is_lunas: saldoBersihAkun === 0,
+        is_kurang: saldoBersihAkun < 0,
+        surplus_tersedia_saat_ini: carriedSurplus
       },
       data: monthlySummaries
     });

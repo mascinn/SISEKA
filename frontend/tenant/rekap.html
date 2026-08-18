@@ -21,21 +21,43 @@
       <div class="avatar avatar--primary" id="userAvatar">BA</div>
     </header>
 
-    <main style="padding:24px 16px 0;" class="space-y-6">
+    <main style="padding:20px 16px 0;" class="space-y-4">
       <!-- Header -->
       <section>
-        <h2 class="font-headline-lg-mobile font-bold" style="font-size:20px;color:#0f172a;">Rekap Pembayaran Bulanan</h2>
-        <p class="text-sm font-medium text-on-surface-variant mt-1">Riwayat pencatatan dan status sewa per periode</p>
+        <h2 class="font-bold text-xl" style="color:#0f172a;margin:0 0 2px 0;">Rekap Pembayaran Bulanan</h2>
+        <p class="text-xs text-muted" style="margin:0;">Riwayat pencatatan sewa & saldo kompensasi otomatis</p>
+      </section>
+
+      <!-- Saldo Akumulasi & Status Finansial Akun Banner -->
+      <section id="saldoAkumulasiBanner" style="background:#003820;border-radius:24px;padding:20px;color:#fff;position:relative;overflow:hidden;box-shadow:var(--shadow-hero);">
+        <div class="hero-card__decoration" style="top:0;right:0;width:120px;height:120px;background:rgba(255,255,255,0.05);border-radius:50%;position:absolute;pointer-events:none;transform:translate(30px,-30px);"></div>
+        <div class="hero-card__decoration" style="bottom:0;left:0;width:90px;height:90px;background:rgba(255,255,255,0.05);border-radius:50%;position:absolute;pointer-events:none;transform:translate(-20px,30px);"></div>
+        <div class="relative z-10">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <span style="font-size:11px;font-weight:700;color:var(--primary-fixed-dim);text-transform:uppercase;letter-spacing:0.05em;">Saldo Bersih Akun</span>
+            <span id="saldoStatusBadge" style="font-size:10px;font-weight:700;padding:4px 10px;border-radius:9999px;background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.15);">
+              Memuat...
+            </span>
+          </div>
+          <div style="font-size:32px;font-weight:800;letter-spacing:-0.025em;margin-bottom:12px;color:#ffffff;" id="saldoBersihNominal">
+            Rp 0
+          </div>
+          
+          <div style="background:rgba(0,0,0,0.15);border:1px solid rgba(255,255,255,0.1);backdrop-filter:blur(4px);border-radius:14px;padding:10px 12px;font-size:11px;line-height:1.45;color:rgba(255,255,255,0.9);" id="saldoKompensasiInfo">
+            <span class="material-symbols-outlined" style="font-size:14px;vertical-align:text-bottom;color:var(--primary-fixed);">swap_horizontal_circle</span>
+            <strong>Kompensasi Otomatis:</strong> Saldo surplus bulan sebelumnya otomatis dialokasikan untuk meringankan sisa kewajiban sewa bulan berjalan.
+          </div>
+        </div>
       </section>
 
       <!-- Year Filter -->
       <section class="filter-chips" id="yearFilterChips">
-        <button class="chip chip--primary" data-year="2026" style="padding:10px 20px;font-size:14px;">Tahun 2026</button>
-        <button class="chip" data-year="2025" style="padding:10px 20px;font-size:14px;background:rgba(255,255,255,0.8);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.6);color:var(--on-surface-variant);">Tahun 2025</button>
+        <button class="chip chip--active" data-year="2026" style="padding:8px 18px;font-size:13px;">Tahun 2026</button>
+        <button class="chip chip--default" data-year="2025" style="padding:8px 18px;font-size:13px;">Tahun 2025</button>
       </section>
 
       <!-- Monthly Cards Container -->
-      <section class="space-y-4" id="monthlyCardsContainer">
+      <section class="space-y-3" id="monthlyCardsContainer">
         <div style="text-align:center;padding:24px;color:var(--on-surface-variant);">Memuat data rekap bulanan...</div>
       </section>
     </main>
@@ -77,6 +99,7 @@
         const result = await res.json();
 
         if (result.success) {
+          renderAccountSummary(result.summary_akumulasi);
           renderTenantMonthlyCards(result.data);
         } else {
           fallbackLocalTenantRecap();
@@ -87,17 +110,68 @@
       }
     }
 
+    function renderAccountSummary(summary) {
+      if (!summary) return;
+      const nominalEl = document.getElementById('saldoBersihNominal');
+      const badgeEl = document.getElementById('saldoStatusBadge');
+      const infoEl = document.getElementById('saldoKompensasiInfo');
+
+      const saldo = summary.saldo_bersih || 0;
+      if (saldo > 0) {
+        nominalEl.textContent = `+${formatRupiah(saldo)}`;
+        badgeEl.textContent = 'Surplus Tersedia';
+        badgeEl.style.background = 'rgba(255,255,255,0.2)';
+        infoEl.innerHTML = `
+          <span class="material-symbols-outlined" style="font-size:14px;vertical-align:text-bottom;color:var(--primary-fixed);">check_circle</span>
+          Anda memiliki saldo surplus sebesar <strong>+${formatRupiah(saldo)}</strong> yang akan otomatis dipotongkan untuk tagihan sewa bulan depan.
+        `;
+      } else if (saldo === 0) {
+        nominalEl.textContent = 'Rp 0 (Lunas Pas)';
+        badgeEl.textContent = 'Lunas Pas';
+        infoEl.innerHTML = `
+          <span class="material-symbols-outlined" style="font-size:14px;vertical-align:text-bottom;color:var(--primary-fixed);">check</span>
+          Seluruh kewajiban sewa periode ini telah lunas tercatat.
+        `;
+      } else {
+        nominalEl.textContent = `-${formatRupiah(Math.abs(saldo))}`;
+        badgeEl.textContent = 'Sisa Kewajiban Bersih';
+        const kompensasi = summary.total_surplus || 0;
+        if (kompensasi > 0) {
+          infoEl.innerHTML = `
+            <span class="material-symbols-outlined" style="font-size:14px;vertical-align:text-bottom;color:var(--primary-fixed);">swap_horizontal_circle</span>
+            Surplus periode sebelumnya (<strong>+${formatRupiah(kompensasi)}</strong>) telah otomatis meringankan sisa kewajiban sewa Anda menjadi <strong>${formatRupiah(Math.abs(saldo))}</strong>.
+          `;
+        } else {
+          infoEl.innerHTML = `
+            <span class="material-symbols-outlined" style="font-size:14px;vertical-align:text-bottom;color:var(--primary-fixed);">info</span>
+            Total sisa kewajiban sewa berjalan yang belum terpenuhi adalah <strong>${formatRupiah(Math.abs(saldo))}</strong>.
+          `;
+        }
+      }
+    }
+
     function fallbackLocalTenantRecap() {
+      const sampleSummary = {
+        total_setor: 1850000,
+        total_target: 2000000,
+        total_surplus: 100000,
+        total_kekurangan: 250000,
+        saldo_bersih: -150000
+      };
+      renderAccountSummary(sampleSummary);
+
       renderTenantMonthlyCards([
         {
           bulan_code: '2026-08',
           bulan_label: 'Agustus 2026',
           status: 'berjalan',
-          total_setor: 850000,
+          total_setor: 750000,
           tarif_sewa: 1000000,
-          progress_percent: 85,
-          kekurangan: 150000,
-          hari_aktif: 17,
+          progress_percent: 75,
+          kekurangan: 250000,
+          kompensasi_surplus_diterima: 100000,
+          sisa_kewajiban_setelah_kompensasi: 150000,
+          hari_aktif: 15,
           hari_libur: 2
         },
         {
@@ -122,89 +196,112 @@
 
       container.innerHTML = list.map(item => {
         let badgeHtml = '';
-        let thirdBoxHtml = '';
+        let statusBoxTitle = 'SISA SEWA';
+        let statusBoxValue = formatRupiah(item.kekurangan || 0);
+        let statusBg = 'background:#f8fafc;border:1px solid #e2e8f0;';
+        let statusLabelColor = '#64748b';
+        let statusValColor = '#003820';
+        let noticeKompensasi = '';
+
+        const progressPercent = item.tarif_sewa > 0 ? Math.min(100, Math.round((item.total_setor / item.tarif_sewa) * 100)) : 0;
 
         if (item.status === 'surplus' || item.status === 'lunas') {
           badgeHtml = `
-            <span style="background:#003820;color:#ffffff;border-radius:9999px;padding:6px 14px;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;">
-              <span class="material-symbols-outlined" style="font-size:16px;">check_circle</span> Lunas (Surplus)
+            <span style="background:#003820;color:#ffffff;border-radius:9999px;padding:4px 12px;font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:4px;">
+              <span class="material-symbols-outlined" style="font-size:14px;">check_circle</span> Lunas (Surplus)
             </span>
           `;
-          thirdBoxHtml = `
-            <div style="background:#f0fdf4;border:1px solid #dcfce7;border-radius:12px;padding:8px 12px;text-align:left;">
-              <p style="font-size:10px;font-weight:700;color:#047857;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;">SALDO</p>
-              <p style="font-size:14px;font-weight:800;color:#047857;">+${formatRupiahShort(item.selisih || 0)}</p>
-            </div>
-          `;
+          statusBoxTitle = 'SURPLUS';
+          statusBoxValue = `+${formatRupiah(item.selisih || 0)}`;
+          statusBg = 'background:#f0fdf4;border:1px solid #dcfce7;';
+          statusLabelColor = '#003820';
+          statusValColor = '#003820';
         } else if (item.status === 'berjalan') {
           badgeHtml = `
-            <span style="background:#f0fdf4;color:#047857;border:1px solid #bbf7d0;border-radius:9999px;padding:6px 14px;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;">
-              <span class="material-symbols-outlined" style="font-size:16px;">schedule</span> Berjalan (${item.progress_percent}%)
+            <span style="background:#f0fdf4;color:#003820;border:1px solid #dcfce7;border-radius:9999px;padding:4px 12px;font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:4px;">
+              <span class="material-symbols-outlined" style="font-size:14px;">schedule</span> Berjalan (${progressPercent}%)
             </span>
           `;
-          thirdBoxHtml = `
-            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:8px 12px;text-align:left;">
-              <p style="font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;">SISA</p>
-              <p style="font-size:14px;font-weight:800;color:#003820;">${formatRupiahShort(item.kekurangan || 0)}</p>
-            </div>
-          `;
+          
+          if (item.kompensasi_surplus_diterima > 0) {
+            statusBoxTitle = 'SISA SETELAH KOMPENSASI';
+            statusBoxValue = formatRupiah(item.sisa_kewajiban_setelah_kompensasi);
+            statusBg = 'background:#f0fdf4;border:1px solid #dcfce7;';
+            statusLabelColor = '#003820';
+            statusValColor = '#003820';
+
+            noticeKompensasi = `
+              <div style="background:#f0fdf4;border:1px solid #dcfce7;border-radius:12px;padding:8px 12px;margin-bottom:12px;font-size:11px;color:#003820;display:flex;align-items:center;gap:6px;">
+                <span class="material-symbols-outlined" style="font-size:16px;">auto_awesome</span>
+                <span>Ditutupi surplus bulan lalu <strong>+${formatRupiah(item.kompensasi_surplus_diterima)}</strong> (Sisa riil: <strong>${formatRupiah(item.sisa_kewajiban_setelah_kompensasi)}</strong>)</span>
+              </div>
+            `;
+          }
         } else { // Kurang
           badgeHtml = `
-            <span style="background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;border-radius:9999px;padding:6px 14px;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;">
-              <span class="material-symbols-outlined" style="font-size:16px;">error_outline</span> Kurang ${formatRupiahShort(Math.abs(item.selisih))}
+            <span style="background:#fef2f2;color:#991b1b;border:1px solid #fee2e2;border-radius:9999px;padding:4px 12px;font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:4px;">
+              <span class="material-symbols-outlined" style="font-size:14px;">error_outline</span> Kurang ${formatRupiah(Math.abs(item.selisih))}
             </span>
           `;
-          thirdBoxHtml = `
-            <div style="background:#fef2f2;border:1px solid #fee2e2;border-radius:12px;padding:8px 12px;text-align:left;">
-              <p style="font-size:10px;font-weight:700;color:#b91c1c;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;">SELISIH</p>
-              <p style="font-size:14px;font-weight:800;color:#b91c1c;">-${formatRupiahShort(Math.abs(item.selisih))}</p>
-            </div>
-          `;
+          statusBoxTitle = 'SELISIH KURANG';
+          statusBoxValue = `-${formatRupiah(Math.abs(item.selisih))}`;
+          statusBg = 'background:#fef2f2;border:1px solid #fee2e2;';
+          statusLabelColor = '#991b1b';
+          statusValColor = '#991b1b';
         }
 
         return `
-          <div class="card" style="border-radius:24px;padding:20px;background:#ffffff;box-shadow:var(--shadow-sm);border:1px solid rgba(192,201,192,0.3);">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-              <h3 style="font-size:18px;font-weight:800;color:#003820;margin:0;">${item.bulan_label}</h3>
+          <div style="background:#ffffff;border:1px solid rgba(192,201,192,0.4);border-radius:20px;padding:18px;box-shadow:var(--shadow-sm);margin-bottom:14px;">
+            <!-- Card Header -->
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+              <div>
+                <h3 style="font-size:16px;font-weight:800;color:#0f172a;margin:0 0 2px 0;">${item.bulan_label}</h3>
+                <p style="font-size:11px;color:#64748b;margin:0;">${item.hari_aktif || 0} Hari Setor • ${item.hari_libur || 0} Hari Libur</p>
+              </div>
               ${badgeHtml}
             </div>
 
-            <div style="display:grid;grid-template-columns:1fr 1fr 1.1fr;gap:10px;align-items:center;margin-bottom:16px;">
-              <div>
-                <p style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">TERKUMPUL</p>
-                <p style="font-size:15px;font-weight:800;color:#003820;">${formatRupiahShort(item.total_setor)}</p>
+            <!-- Financial 3-Grid -->
+            <div style="display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:8px;margin-bottom:12px;">
+              <div style="background:#f8fafc;border:1px solid #f1f5f9;border-radius:14px;padding:10px;text-align:left;">
+                <span style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:2px;">Terkumpul</span>
+                <span style="font-size:13px;font-weight:800;color:#003820;display:block;">${formatRupiah(item.total_setor)}</span>
               </div>
-              <div>
-                <p style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">SEWA</p>
-                <p style="font-size:15px;font-weight:800;color:#334155;">${formatRupiahShort(item.tarif_sewa)}</p>
+              <div style="background:#f8fafc;border:1px solid #f1f5f9;border-radius:14px;padding:10px;text-align:left;">
+                <span style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:2px;">Target Sewa</span>
+                <span style="font-size:13px;font-weight:800;color:#0f172a;display:block;">${formatRupiah(item.tarif_sewa)}</span>
               </div>
-              ${thirdBoxHtml}
+              <div style="${statusBg};border-radius:14px;padding:10px;text-align:left;">
+                <span style="font-size:10px;font-weight:700;color:${statusLabelColor};text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:2px;">${statusBoxTitle}</span>
+                <span style="font-size:13px;font-weight:800;color:${statusValColor};display:block;">${statusBoxValue}</span>
+              </div>
             </div>
 
-            <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#64748b;font-weight:500;margin-bottom:16px;">
-              <span class="material-symbols-outlined" style="font-size:16px;">info</span>
-              <span>${item.hari_aktif} Hari Aktif Setor • ${item.hari_libur} Hari Libur</span>
+            ${noticeKompensasi}
+
+            <!-- Progress Bar -->
+            <div style="width:100%;background:#f1f5f9;border-radius:9999px;height:6px;overflow:hidden;margin-bottom:14px;">
+              <div style="width:${progressPercent}%;background:#003820;height:100%;border-radius:9999px;transition:width 0.6s ease;"></div>
             </div>
 
-            <a href="rekap-detail.html?month=${item.bulan_code}" class="btn btn--block" style="background:#003820;color:#ffffff;border-radius:9999px;padding:12px;font-size:14px;font-weight:700;text-align:center;text-decoration:none;box-shadow:var(--shadow-sm);transition:opacity 0.2s;">
-              Lihat Rekap Detail
+            <!-- Action Link Button -->
+            <a href="rekap-detail.html?month=${item.bulan_code}" style="display:flex;align-items:center;justify-content:center;gap:6px;background:#f0fdf4;color:#003820;border:1px solid #dcfce7;border-radius:12px;padding:10px;font-size:12px;font-weight:700;text-decoration:none;transition:background 0.15s ease;">
+              Lihat Rekap Detail <span class="material-symbols-outlined" style="font-size:16px;">chevron_right</span>
             </a>
           </div>
         `;
       }).join('');
     }
 
-    // Year Filter Buttons
+    // Filter Year Handler
     document.querySelectorAll('#yearFilterChips .chip').forEach(btn => {
       btn.addEventListener('click', function() {
         document.querySelectorAll('#yearFilterChips .chip').forEach(b => {
-          b.classList.remove('chip--primary');
-          b.style.background = 'rgba(255,255,255,0.8)';
-          b.style.color = 'var(--on-surface-variant)';
+          b.classList.remove('chip--active');
+          b.classList.add('chip--default');
         });
-        this.classList.add('chip--primary');
-        this.style.background = '';
-        this.style.color = '';
+        this.classList.remove('chip--default');
+        this.classList.add('chip--active');
 
         const yr = this.getAttribute('data-year');
         loadTenantRecap(yr);
