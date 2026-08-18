@@ -99,94 +99,21 @@ async function initDatabase(forceReset = false) {
     // Cek apakah data sudah ada
     const userCount = await getAsync('SELECT COUNT(*) as count FROM users');
     if (userCount.count === 0) {
-      console.log('🌱 Melakukan seeding data: 1 Admin, 2 Tenant (Setoran s/d 17 Agustus, 18 Agustus kosong)...');
+      console.log('🌱 Melakukan inisialisasi akun tunggal Admin BPH...');
 
       const salt = await bcrypt.genSalt(10);
-      const hash1234 = await bcrypt.hash('1234', salt);
+      const hashPassword = await bcrypt.hash('barengbareng', salt);
 
-      // 1. SEED USERS: 1 Admin + 2 Tenant
-      const adminRes = await runAsync(
-        'INSERT INTO users (username, password, role, name, initials) VALUES (?, ?, ?, ?, ?)',
-        ['admin', hash1234, 'admin', 'Admin BPH', 'AD']
-      );
-
-      const tenant1Res = await runAsync(
-        'INSERT INTO users (username, password, role, name, initials) VALUES (?, ?, ?, ?, ?)',
-        ['aminah', hash1234, 'tenant', 'Bu Aminah', 'BA']
-      );
-
-      const tenant2Res = await runAsync(
-        'INSERT INTO users (username, password, role, name, initials) VALUES (?, ?, ?, ?, ?)',
-        ['hidayat', hash1234, 'tenant', 'Pak Hidayat', 'PH']
-      );
-
-      // 2. SEED UNIT USAHA
-      // Unit 1: Kantin Berkah (Bu Aminah)
+      // 1. SEED SINGLE ADMIN: bph / barengbareng
       await runAsync(
-        `INSERT INTO kiosks (id, user_id, nama_kantin, nama_penyewa, nomor_hp, tarif_sewa, status, sejak) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        ['1', tenant1Res.lastID, 'Kantin Berkah', 'Bu Aminah', '0812-3456-7890', 1000000, 'aktif', '2024']
+        'INSERT INTO users (username, password, role, name, initials) VALUES (?, ?, ?, ?, ?)',
+        ['bph', hashPassword, 'admin', "Pengurus BPH Masjid Al-Wasi'i", 'BP']
       );
 
-      // Unit 2: Fotocopy & Percetakan Al-Wasi'i (Pak Hidayat)
-      await runAsync(
-        `INSERT INTO kiosks (id, user_id, nama_kantin, nama_penyewa, nomor_hp, tarif_sewa, status, sejak) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        ['2', tenant2Res.lastID, 'Fotocopy & Percetakan Al-Wasi\'i', 'Pak Hidayat', '0813-7890-1234', 1000000, 'aktif', '2025']
-      );
-
-      // 3. SEED SETORAN 2 BULAN UNTUK KEDUA UNIT USAHA (Unit 1 & Unit 2):
-      const unitIds = ['1', '2'];
-
-      for (const uid of unitIds) {
-        // 📅 BULAN 1: JULI 2026 (22 Hari Setor x 50.000 = Rp 1.100.000 + 9 Hari Libur -> SURPLUS +Rp 100.000)
-        const juliLibur = [5, 6, 12, 13, 19, 20, 26, 27, 31];
-        for (let day = 1; day <= 31; day++) {
-          const dayStr = String(day).padStart(2, '0');
-          const dateStr = `2026-07-${dayStr}`;
-
-          if (juliLibur.includes(day)) {
-            await runAsync(
-              `INSERT INTO deposits (kiosk_id, tanggal, waktu, nominal, status, metode, catatan) 
-               VALUES (?, ?, ?, ?, ?, ?, ?)`,
-              [uid, dateStr, null, 0, 'libur', null, 'Libur Akhir Pekan']
-            );
-          } else {
-            await runAsync(
-              `INSERT INTO deposits (kiosk_id, tanggal, waktu, nominal, status, metode, catatan) 
-               VALUES (?, ?, ?, ?, ?, ?, ?)`,
-              [uid, dateStr, '14:30', 50000, 'setor', 'Tunai', 'Setoran harian lancar']
-            );
-          }
-        }
-
-        // 📅 BULAN 2: AGUSTUS 2026 (Tanggal 1 s/d 17 Agustus: 15 Hari Setor x 50.000 = Rp 750.000 + 2 Hari Libur)
-        // Tanggal 18 Agustus (HARI INI) SENGAJA KOSONG agar admin bisa input setoran baru!
-        const agustusLibur = [9, 16];
-        for (let day = 1; day <= 17; day++) {
-          const dayStr = String(day).padStart(2, '0');
-          const dateStr = `2026-08-${dayStr}`;
-
-          if (agustusLibur.includes(day)) {
-            await runAsync(
-              `INSERT INTO deposits (kiosk_id, tanggal, waktu, nominal, status, metode, catatan) 
-               VALUES (?, ?, ?, ?, ?, ?, ?)`,
-              [uid, dateStr, null, 0, 'libur', null, 'Libur Akhir Pekan']
-            );
-          } else {
-            await runAsync(
-              `INSERT INTO deposits (kiosk_id, tanggal, waktu, nominal, status, metode, catatan) 
-               VALUES (?, ?, ?, ?, ?, ?, ?)`,
-              [uid, dateStr, '10:15', 50000, 'setor', 'Tunai', 'Setoran harian']
-            );
-          }
-        }
-      }
-
-      console.log('✅ Seeding database 1 Admin & 2 Tenant (Hari ini siap diinput) selesai!');
+      console.log("✅ Inisialisasi database bersih selesai: Akun Admin 'bph' siap digunakan.");
     }
   } catch (error) {
-    console.error('❌ Error inisialisasi database:', error);
+    console.error('❌ Error saat inisialisasi database:', error);
   }
 }
 

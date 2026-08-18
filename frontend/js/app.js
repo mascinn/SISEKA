@@ -3,11 +3,9 @@
    Auth, utilities, route guard
    ============================================================ */
 
-// ---- Dummy Users ----
+// ---- Users Credentials ----
 const USERS = [
-  { username: 'admin', password: '1234', role: 'admin', name: 'Admin BPH', initials: 'AD' },
-  { username: 'aminah', password: '1234', role: 'tenant', name: 'Bu Aminah', initials: 'BA', kios: 'Kantin Berkah' },
-  { username: 'hidayat', password: '1234', role: 'tenant', name: 'Pak Hidayat', initials: 'PH', kios: 'Fotocopy & Percetakan Al-Wasi\'i' },
+  { username: 'bph', password: 'barengbareng', role: 'admin', name: "Pengurus BPH Masjid Al-Wasi'i", initials: 'BP' }
 ];
 
 // ---- Dummy Data: Kios ----
