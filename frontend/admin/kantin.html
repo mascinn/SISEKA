@@ -10,15 +10,18 @@
 <body style="background:var(--surface);">
   <div class="page-container">
     <!-- Top App Bar -->
-    <header class="top-app-bar" style="position:fixed;top:16px;left:50%;transform:translateX(-50%);width:90%;max-width:440px;">
+    <header class="top-app-bar">
       <div class="top-app-bar__brand">
-        <span class="material-symbols-outlined icon-fill" style="color:var(--primary);">storefront</span>
-        <span class="font-headline-lg-mobile font-bold" style="color:var(--primary);font-size:16px;">SISEKA WASI'I</span>
+        <span class="material-symbols-outlined icon-fill top-app-bar__brand-icon">storefront</span>
+        <div class="top-app-bar__brand-text">
+          <span class="top-app-bar__title">SISEKA WASI'I</span>
+          <span class="top-app-bar__subtitle">Sistem Informasi Sewa Kantin Wasi'i</span>
+        </div>
       </div>
-      <div class="avatar avatar--primary-container" style="width:40px;height:40px;font-size:14px;">AD</div>
+      <div class="avatar avatar--primary" id="userAvatar">AD</div>
     </header>
 
-    <main style="padding:100px 24px 0;">
+    <main style="padding:24px 16px 0;">
       <!-- Page Title -->
       <div class="flex justify-between items-start gap-4 mb-6" style="flex-wrap:wrap;">
         <div>
