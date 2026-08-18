@@ -15,8 +15,8 @@
         <span class="material-symbols-outlined">arrow_back</span>
       </a>
       <div>
-        <h1 class="font-bold" style="font-size:16px;color:var(--on-surface);">Rekap Agustus 2026</h1>
-        <p class="text-xs text-muted">Kantin Berkah</p>
+        <h1 class="font-bold" style="font-size:16px;color:var(--on-surface);" id="headerMonthTitle">Rekap Bulanan</h1>
+        <p class="text-xs text-muted" id="headerKioskTitle">Kantin</p>
       </div>
     </header>
 
@@ -26,143 +26,183 @@
         <div class="flex justify-between items-start mb-4">
           <div>
             <p class="font-label-caps text-on-surface-variant" style="font-size:10px;">AKUMULASI SETORAN</p>
-            <p class="font-financial-xl" style="font-size:28px;color:var(--primary);margin-top:4px;">Rp 850.000</p>
+            <p class="font-financial-xl" style="font-size:28px;color:var(--primary);margin-top:4px;" id="totalAkumulasiText">Rp 0</p>
           </div>
-          <span class="badge badge--running">
-            <span class="badge__dot badge__dot--pulse"></span> Berjalan
+          <span class="badge badge--running" id="recapBadge">
+            <span class="badge__dot badge__dot--pulse" id="recapBadgeDot"></span> <span id="recapBadgeText">Berjalan</span>
           </span>
         </div>
 
         <div class="space-y-2 mb-4">
           <div class="flex justify-between" style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--on-surface-variant);">
-            <span>Progress (85%)</span>
-            <span style="color:var(--error);">Kurang Rp 150.000</span>
+            <span id="progressPercentLabel">Progress (0%)</span>
+            <span style="color:var(--error);" id="progressSisaLabel">Kurang Rp 0</span>
           </div>
           <div class="progress-bar progress-bar--light" style="height:8px;">
-            <div class="progress-bar__fill" style="width:85%;background:var(--primary);"></div>
+            <div class="progress-bar__fill" id="progressBarFill" style="width:0%;background:var(--primary);"></div>
           </div>
         </div>
 
         <div class="flex gap-3" style="padding-top:12px;border-top:1px solid var(--border-subtle);">
           <div class="flex-1">
             <p class="text-xs text-on-surface-variant">Biaya Sewa</p>
-            <p class="font-financial-sm">Rp 1.000.000</p>
+            <p class="font-financial-sm" id="tarifSewaText">Rp 0</p>
           </div>
           <div class="flex-1">
             <p class="text-xs text-on-surface-variant">Hari Aktif</p>
-            <p class="font-financial-sm">17 Hari</p>
+            <p class="font-financial-sm" id="hariAktifText">0 Hari</p>
           </div>
           <div class="flex-1">
             <p class="text-xs text-on-surface-variant">Hari Libur</p>
-            <p class="font-financial-sm">0 Hari</p>
+            <p class="font-financial-sm" id="hariLiburText">0 Hari</p>
           </div>
         </div>
       </div>
 
       <!-- Daily List -->
       <h3 class="font-bold text-sm mb-3" style="color:var(--on-surface);">Rincian Harian</h3>
-      <div class="card card--flush space-y-1">
-        <div class="list-item">
-          <div class="list-item__left">
-            <div class="list-item__icon list-item__icon--success list-item__icon--lg">
-              <span class="material-symbols-outlined" style="font-size:20px;">payments</span>
-            </div>
-            <div>
-              <p class="list-item__title">Senin, 17 Agu</p>
-              <p class="list-item__subtitle">Tunai • 14:30 WIB</p>
-            </div>
-          </div>
-          <span class="font-financial-sm" style="color:var(--primary-container);">+Rp 50.000</span>
-        </div>
-        <hr class="list-divider">
-
-        <div class="list-item" style="opacity:0.7;">
-          <div class="list-item__left">
-            <div class="list-item__icon list-item__icon--neutral list-item__icon--lg">
-              <span class="material-symbols-outlined" style="font-size:20px;">weekend</span>
-            </div>
-            <div>
-              <p class="list-item__title">Minggu, 16 Agu</p>
-              <p class="list-item__subtitle">Libur Akhir Pekan</p>
-            </div>
-          </div>
-          <span class="font-financial-sm text-muted">Rp 0</span>
-        </div>
-        <hr class="list-divider">
-
-        <div class="list-item">
-          <div class="list-item__left">
-            <div class="list-item__icon list-item__icon--success list-item__icon--lg">
-              <span class="material-symbols-outlined" style="font-size:20px;">payments</span>
-            </div>
-            <div>
-              <p class="list-item__title">Sabtu, 15 Agu</p>
-              <p class="list-item__subtitle">Tunai • 13:15 WIB</p>
-            </div>
-          </div>
-          <span class="font-financial-sm" style="color:var(--primary-container);">+Rp 50.000</span>
-        </div>
-        <hr class="list-divider">
-
-        <div class="list-item">
-          <div class="list-item__left">
-            <div class="list-item__icon list-item__icon--success list-item__icon--lg">
-              <span class="material-symbols-outlined" style="font-size:20px;">payments</span>
-            </div>
-            <div>
-              <p class="list-item__title">Jumat, 14 Agu</p>
-              <p class="list-item__subtitle">Tunai • 10:15 WIB</p>
-            </div>
-          </div>
-          <span class="font-financial-sm" style="color:var(--primary-container);">+Rp 50.000</span>
-        </div>
-        <hr class="list-divider">
-
-        <div class="list-item">
-          <div class="list-item__left">
-            <div class="list-item__icon list-item__icon--success list-item__icon--lg">
-              <span class="material-symbols-outlined" style="font-size:20px;">payments</span>
-            </div>
-            <div>
-              <p class="list-item__title">Kamis, 13 Agu</p>
-              <p class="list-item__subtitle">Tunai • 11:00 WIB</p>
-            </div>
-          </div>
-          <span class="font-financial-sm" style="color:var(--primary-container);">+Rp 50.000</span>
-        </div>
-        <hr class="list-divider">
-
-        <div class="list-item">
-          <div class="list-item__left">
-            <div class="list-item__icon list-item__icon--success list-item__icon--lg">
-              <span class="material-symbols-outlined" style="font-size:20px;">payments</span>
-            </div>
-            <div>
-              <p class="list-item__title">Rabu, 12 Agu</p>
-              <p class="list-item__subtitle">Tunai • 09:30 WIB</p>
-            </div>
-          </div>
-          <span class="font-financial-sm" style="color:var(--primary-container);">+Rp 50.000</span>
-        </div>
-        <hr class="list-divider">
-
-        <div class="list-item">
-          <div class="list-item__left">
-            <div class="list-item__icon list-item__icon--success list-item__icon--lg">
-              <span class="material-symbols-outlined" style="font-size:20px;">payments</span>
-            </div>
-            <div>
-              <p class="list-item__title">Selasa, 11 Agu</p>
-              <p class="list-item__subtitle">Transfer • 10:00 WIB</p>
-            </div>
-          </div>
-          <span class="font-financial-sm" style="color:var(--primary-container);">+Rp 50.000</span>
-        </div>
+      <div class="card card--flush space-y-1" id="dailyListContainer">
+        <div style="text-align:center;padding:24px;color:var(--on-surface-variant);">Memuat rincian harian...</div>
       </div>
     </main>
   </div>
 
   <script src="../js/app.js"></script>
-  <script>requireAuth('tenant');</script>
+  <script>
+    const user = requireAuth('tenant');
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const month = urlParams.get('month') || '2026-08';
+
+    async function loadTenantMonthDetail() {
+      const token = getAuthToken();
+      try {
+        const res = await fetch(`${API_BASE_URL}/recap/tenant/month-detail?month=${month}`, {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          renderTenantMonthDetail(result);
+        } else {
+          fallbackLocalDetail();
+        }
+      } catch (err) {
+        console.warn('Backend offline, fallback lokal:', err);
+        fallbackLocalDetail();
+      }
+    }
+
+    function fallbackLocalDetail() {
+      renderTenantMonthDetail({
+        kiosk: { nama_kantin: user.kios || 'Kantin Berkah', tarif_sewa: 1000000 },
+        bulan_label: 'Agustus 2026',
+        summary: {
+          total_setor: 850000,
+          tarif_sewa: 1000000,
+          progress_percent: 85,
+          kekurangan: 150000,
+          hari_aktif: 17,
+          hari_libur: 0,
+          status: 'berjalan'
+        },
+        riwayat: TENANT_RIWAYAT
+      });
+    }
+
+    function renderTenantMonthDetail(data) {
+      const { kiosk, summary, riwayat, bulan_label } = data;
+
+      document.getElementById('headerMonthTitle').textContent = `Rekap ${bulan_label}`;
+      document.getElementById('headerKioskTitle').textContent = kiosk.nama_kantin || 'Kantin';
+
+      document.getElementById('totalAkumulasiText').textContent = formatRupiah(summary.total_setor);
+      document.getElementById('tarifSewaText').textContent = formatRupiah(summary.tarif_sewa);
+      document.getElementById('hariAktifText').textContent = `${summary.hari_aktif} Hari`;
+      document.getElementById('hariLiburText').textContent = `${summary.hari_libur} Hari`;
+
+      document.getElementById('progressPercentLabel').textContent = `Progress (${summary.progress_percent}%)`;
+      document.getElementById('progressBarFill').style.width = `${summary.progress_percent}%`;
+
+      const sisaEl = document.getElementById('progressSisaLabel');
+      if (summary.status === 'surplus') {
+        sisaEl.textContent = `Surplus +${formatRupiah(summary.selisih)}`;
+        sisaEl.style.color = 'var(--emerald-600)';
+      } else if (summary.status === 'lunas') {
+        sisaEl.textContent = 'Lunas Pas';
+        sisaEl.style.color = 'var(--primary)';
+      } else {
+        sisaEl.textContent = `Kurang ${formatRupiah(summary.kekurangan)}`;
+        sisaEl.style.color = 'var(--error)';
+      }
+
+      const badge = document.getElementById('recapBadge');
+      const badgeText = document.getElementById('recapBadgeText');
+      const badgeDot = document.getElementById('recapBadgeDot');
+
+      if (summary.status === 'berjalan') {
+        badge.className = 'badge badge--running';
+        badgeText.textContent = 'Berjalan';
+        badgeDot.style.display = 'inline-block';
+      } else if (summary.status === 'surplus' || summary.status === 'lunas') {
+        badge.className = 'badge badge--lunas';
+        badgeText.textContent = 'Lunas';
+        badgeDot.style.display = 'none';
+      } else {
+        badge.className = 'badge badge--kurang';
+        badgeText.textContent = 'Kurang';
+        badgeDot.style.display = 'none';
+      }
+
+      const container = document.getElementById('dailyListContainer');
+      if (!riwayat || riwayat.length === 0) {
+        container.innerHTML = '<div style="text-align:center;padding:24px;color:#94a3b8;">Belum ada setoran pada bulan ini</div>';
+        return;
+      }
+
+      container.innerHTML = riwayat.map((item, idx) => {
+        const isLast = idx === riwayat.length - 1;
+        const isSetor = item.status === 'setor' || item.tipe === 'setor';
+        const displayDate = item.tanggal || 'Tanggal';
+        const displaySub = isSetor ? `${item.metode || 'Tunai'} • ${item.waktu || ''} WIB` : (item.catatan || item.keterangan || 'Libur / Tutup');
+
+        if (isSetor) {
+          return `
+            <div class="list-item">
+              <div class="list-item__left">
+                <div class="list-item__icon list-item__icon--success list-item__icon--lg">
+                  <span class="material-symbols-outlined" style="font-size:20px;">payments</span>
+                </div>
+                <div>
+                  <p class="list-item__title">${displayDate}</p>
+                  <p class="list-item__subtitle">${displaySub}</p>
+                </div>
+              </div>
+              <span class="font-financial-sm" style="color:var(--primary-container);font-weight:700;">+${formatRupiah(item.nominal)}</span>
+            </div>
+            ${isLast ? '' : '<hr class="list-divider">'}
+          `;
+        } else {
+          return `
+            <div class="list-item" style="opacity:0.75;">
+              <div class="list-item__left">
+                <div class="list-item__icon list-item__icon--surface list-item__icon--lg">
+                  <span class="material-symbols-outlined" style="font-size:20px;">weekend</span>
+                </div>
+                <div>
+                  <p class="list-item__title">${displayDate}</p>
+                  <p class="list-item__subtitle">${displaySub}</p>
+                </div>
+              </div>
+              <span class="font-financial-sm text-muted">Rp 0</span>
+            </div>
+            ${isLast ? '' : '<hr class="list-divider">'}
+          `;
+        }
+      }).join('');
+    }
+
+    loadTenantMonthDetail();
+  </script>
 </body>
 </html>

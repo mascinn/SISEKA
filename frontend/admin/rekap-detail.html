@@ -15,102 +15,178 @@
         <span class="material-symbols-outlined">arrow_back</span>
       </a>
       <div>
-        <h1 class="font-bold" style="font-size:16px;color:var(--on-surface);">Detail Rekap: Kantin Berkah</h1>
-        <p class="text-xs text-muted">Agustus 2026</p>
+        <h1 class="font-bold" style="font-size:16px;color:var(--on-surface);" id="headerKioskTitle">Detail Rekap Kios</h1>
+        <p class="text-xs text-muted" id="headerMonthTitle">Periode</p>
       </div>
     </header>
 
     <main style="padding:20px 16px;">
       <!-- Summary Card -->
-      <div style="background:var(--surface-mint);border-radius:var(--radius-3xl);padding:20px;border:1px solid rgba(0,56,32,0.1);margin-bottom:24px;">
+      <div style="background:var(--surface-mint);border-radius:var(--radius-3xl);padding:20px;border:1px solid rgba(0,56,32,0.1);margin-bottom:24px;" id="summaryBox">
         <div class="flex justify-between items-start mb-3">
           <div>
             <p class="font-label-caps text-on-surface-variant" style="font-size:10px;">TOTAL SETORAN BULAN INI</p>
-            <p class="font-financial-xl" style="font-size:28px;color:var(--primary);margin-top:4px;">Rp 1.100.000</p>
+            <p class="font-financial-xl" style="font-size:28px;color:var(--primary);margin-top:4px;" id="totalSetoranText">Rp 0</p>
           </div>
-          <span class="badge badge--success">
-            <span class="material-symbols-outlined" style="font-size:14px;">arrow_upward</span> Surplus
+          <span class="badge badge--success" id="recapBadge">
+            <span id="recapBadgeIcon" class="material-symbols-outlined" style="font-size:14px;">arrow_upward</span> <span id="recapBadgeText">Surplus</span>
           </span>
         </div>
         <div class="flex gap-4" style="padding-top:12px;border-top:1px solid rgba(0,56,32,0.1);">
           <div class="flex-1">
             <p class="text-xs text-on-surface-variant">Biaya Sewa</p>
-            <p class="font-financial-sm">Rp 1.000.000</p>
+            <p class="font-financial-sm" id="tarifSewaText">Rp 0</p>
           </div>
           <div class="flex-1">
             <p class="text-xs text-on-surface-variant">Selisih</p>
-            <p class="font-financial-sm" style="color:var(--primary);">+Rp 100.000</p>
+            <p class="font-financial-sm" id="selisihText">Rp 0</p>
           </div>
           <div class="flex-1">
             <p class="text-xs text-on-surface-variant">Hari Aktif</p>
-            <p class="font-financial-sm">22 Hari</p>
+            <p class="font-financial-sm" id="hariAktifText">0 Hari</p>
           </div>
         </div>
       </div>
 
       <!-- Daily Breakdown -->
       <h3 class="font-bold text-sm mb-3" style="color:var(--on-surface);">Rincian Harian</h3>
-      <div class="card card--flush space-y-1">
-        <div class="list-item">
-          <div class="list-item__left">
-            <div class="list-item__icon list-item__icon--success"><span class="material-symbols-outlined" style="font-size:18px;">check</span></div>
-            <div><p class="list-item__title">Senin, 17 Agu</p><p class="list-item__subtitle">Tunai • 14:30 WIB</p></div>
-          </div>
-          <span class="list-item__amount list-item__amount--positive">+Rp 50.000</span>
-        </div>
-        <hr class="list-divider">
-        <div class="list-item" style="opacity:0.7;">
-          <div class="list-item__left">
-            <div class="list-item__icon list-item__icon--neutral"><span class="material-symbols-outlined" style="font-size:18px;">weekend</span></div>
-            <div><p class="list-item__title">Minggu, 16 Agu</p><p class="list-item__subtitle">Libur Akhir Pekan</p></div>
-          </div>
-          <span class="list-item__amount list-item__amount--muted">Rp 0</span>
-        </div>
-        <hr class="list-divider">
-        <div class="list-item">
-          <div class="list-item__left">
-            <div class="list-item__icon list-item__icon--success"><span class="material-symbols-outlined" style="font-size:18px;">check</span></div>
-            <div><p class="list-item__title">Sabtu, 15 Agu</p><p class="list-item__subtitle">Tunai • 13:15 WIB</p></div>
-          </div>
-          <span class="list-item__amount list-item__amount--positive">+Rp 50.000</span>
-        </div>
-        <hr class="list-divider">
-        <div class="list-item">
-          <div class="list-item__left">
-            <div class="list-item__icon list-item__icon--success"><span class="material-symbols-outlined" style="font-size:18px;">check</span></div>
-            <div><p class="list-item__title">Jumat, 14 Agu</p><p class="list-item__subtitle">Tunai • 10:15 WIB</p></div>
-          </div>
-          <span class="list-item__amount list-item__amount--positive">+Rp 50.000</span>
-        </div>
-        <hr class="list-divider">
-        <div class="list-item">
-          <div class="list-item__left">
-            <div class="list-item__icon list-item__icon--success"><span class="material-symbols-outlined" style="font-size:18px;">check</span></div>
-            <div><p class="list-item__title">Kamis, 13 Agu</p><p class="list-item__subtitle">Tunai • 11:00 WIB</p></div>
-          </div>
-          <span class="list-item__amount list-item__amount--positive">+Rp 50.000</span>
-        </div>
-        <hr class="list-divider">
-        <div class="list-item">
-          <div class="list-item__left">
-            <div class="list-item__icon list-item__icon--success"><span class="material-symbols-outlined" style="font-size:18px;">check</span></div>
-            <div><p class="list-item__title">Rabu, 12 Agu</p><p class="list-item__subtitle">Tunai • 09:30 WIB</p></div>
-          </div>
-          <span class="list-item__amount list-item__amount--positive">+Rp 50.000</span>
-        </div>
-        <hr class="list-divider">
-        <div class="list-item">
-          <div class="list-item__left">
-            <div class="list-item__icon list-item__icon--success"><span class="material-symbols-outlined" style="font-size:18px;">check</span></div>
-            <div><p class="list-item__title">Selasa, 11 Agu</p><p class="list-item__subtitle">Transfer • 10:00 WIB</p></div>
-          </div>
-          <span class="list-item__amount list-item__amount--positive">+Rp 50.000</span>
-        </div>
+      <div class="card card--flush space-y-1" id="dailyListContainer">
+        <div style="text-align:center;padding:24px;color:var(--on-surface-variant);">Memuat rincian harian...</div>
       </div>
     </main>
   </div>
 
   <script src="../js/app.js"></script>
-  <script>requireAuth('admin');</script>
+  <script>
+    requireAuth('admin');
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const kioskId = urlParams.get('kiosk') || 'K-01';
+    const month = urlParams.get('month') || '2026-08';
+
+    async function loadKioskDetail() {
+      const token = getAuthToken();
+      try {
+        const res = await fetch(`${API_BASE_URL}/recap/admin/kiosk/${kioskId}?month=${month}`, {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          renderKioskDetail(result);
+        } else {
+          fallbackLocalKioskDetail();
+        }
+      } catch (err) {
+        console.warn('Backend offline, fallback lokal:', err);
+        fallbackLocalKioskDetail();
+      }
+    }
+
+    function fallbackLocalKioskDetail() {
+      renderKioskDetail({
+        kiosk: { id: kioskId, nama_kantin: 'Kantin Berkah', tarif_sewa: 1000000 },
+        bulan_label: 'Agustus 2026',
+        summary: { total_setor: 1100000, tarif_sewa: 1000000, selisih: 100000, status: 'surplus', hari_aktif: 22 },
+        riwayat: SETORAN_HARI_INI.map(s => ({
+          tanggal: '2026-08-17',
+          waktu: '14:30',
+          nominal: s.nominal,
+          status: s.status,
+          metode: s.metode,
+          catatan: s.status === 'libur' ? 'Libur Akhir Pekan' : ''
+        }))
+      });
+    }
+
+    function renderKioskDetail(data) {
+      const { kiosk, summary, riwayat, bulan_label } = data;
+
+      document.getElementById('headerKioskTitle').textContent = `Detail Rekap: ${kiosk.id} ${kiosk.nama_kantin || ''}`;
+      document.getElementById('headerMonthTitle').textContent = bulan_label;
+
+      document.getElementById('totalSetoranText').textContent = formatRupiah(summary.total_setor);
+      document.getElementById('tarifSewaText').textContent = formatRupiah(summary.tarif_sewa);
+      document.getElementById('hariAktifText').textContent = `${summary.hari_aktif} Hari`;
+
+      const selisihEl = document.getElementById('selisihText');
+      const badge = document.getElementById('recapBadge');
+      const badgeIcon = document.getElementById('recapBadgeIcon');
+      const badgeText = document.getElementById('recapBadgeText');
+      const summaryBox = document.getElementById('summaryBox');
+
+      if (summary.status === 'surplus') {
+        selisihEl.textContent = `+${formatRupiah(summary.selisih)}`;
+        selisihEl.style.color = 'var(--primary)';
+        badge.className = 'badge badge--success';
+        badgeIcon.textContent = 'arrow_upward';
+        badgeText.textContent = 'Surplus';
+        summaryBox.style.background = 'var(--surface-mint)';
+      } else if (summary.status === 'kurang') {
+        selisihEl.textContent = formatRupiah(summary.selisih);
+        selisihEl.style.color = 'var(--error)';
+        badge.className = 'badge badge--error';
+        badgeIcon.textContent = 'arrow_downward';
+        badgeText.textContent = 'Kurang';
+        summaryBox.style.background = '#fef2f2';
+      } else {
+        selisihEl.textContent = 'Rp 0 (Pas)';
+        selisihEl.style.color = 'var(--on-surface)';
+        badge.className = 'badge badge--neutral';
+        badgeIcon.textContent = 'check';
+        badgeText.textContent = 'Lunas Pas';
+        summaryBox.style.background = 'var(--surface-container-low)';
+      }
+
+      const listContainer = document.getElementById('dailyListContainer');
+      if (!riwayat || riwayat.length === 0) {
+        listContainer.innerHTML = '<div style="text-align:center;padding:24px;color:#94a3b8;">Belum ada data setoran di periode ini</div>';
+        return;
+      }
+
+      listContainer.innerHTML = riwayat.map((item, idx) => {
+        const isLast = idx === riwayat.length - 1;
+        const isSetor = item.status === 'setor';
+        const displayDate = item.tanggal || 'Tanggal';
+        const displaySub = isSetor ? `${item.metode || 'Tunai'} • ${item.waktu || ''} WIB` : (item.catatan || 'Libur / Tutup');
+
+        if (isSetor) {
+          return `
+            <div class="list-item">
+              <div class="list-item__left">
+                <div class="list-item__icon list-item__icon--success">
+                  <span class="material-symbols-outlined" style="font-size:18px;">check</span>
+                </div>
+                <div>
+                  <p class="list-item__title">${displayDate}</p>
+                  <p class="list-item__subtitle">${displaySub}</p>
+                </div>
+              </div>
+              <span class="list-item__amount list-item__amount--positive">+${formatRupiah(item.nominal)}</span>
+            </div>
+            ${isLast ? '' : '<hr class="list-divider">'}
+          `;
+        } else {
+          return `
+            <div class="list-item" style="opacity:0.75;">
+              <div class="list-item__left">
+                <div class="list-item__icon list-item__icon--neutral">
+                  <span class="material-symbols-outlined" style="font-size:18px;">weekend</span>
+                </div>
+                <div>
+                  <p class="list-item__title">${displayDate}</p>
+                  <p class="list-item__subtitle">${displaySub}</p>
+                </div>
+              </div>
+              <span class="list-item__amount list-item__amount--muted">Rp 0</span>
+            </div>
+            ${isLast ? '' : '<hr class="list-divider">'}
+          `;
+        }
+      }).join('');
+    }
+
+    loadKioskDetail();
+  </script>
 </body>
 </html>

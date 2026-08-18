@@ -6,6 +6,7 @@ const { initDatabase } = require('./database');
 const authRoutes = require('./routes/auth');
 const kioskRoutes = require('./routes/kiosks');
 const depositRoutes = require('./routes/deposits');
+const recapRoutes = require('./routes/recap');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/kiosks', kioskRoutes);
 app.use('/api/deposits', depositRoutes);
+app.use('/api/recap', recapRoutes);
 
 // Basic Health Check Endpoint
 app.get('/api/health', (req, res) => {

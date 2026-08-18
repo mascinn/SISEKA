@@ -15,18 +15,18 @@
         <div class="avatar avatar--primary-container" style="font-size:14px;">AD</div>
         <h1 class="font-title-md font-bold" style="color:var(--on-primary-fixed-variant);font-size:16px;">SISEKA WASI'I</h1>
       </div>
-      <button style="color:var(--primary);padding:8px;">
+      <button style="color:var(--primary);padding:8px;" onclick="showToast('Tidak ada notifikasi baru')">
         <span class="material-symbols-outlined">notifications</span>
       </button>
     </header>
 
     <main style="padding:24px 20px 0;">
       <!-- Month Selector -->
-      <div class="filter-chips mb-4">
-        <button class="chip chip--primary">Agustus 2026</button>
-        <button class="chip chip--surface">Juli 2026</button>
-        <button class="chip chip--surface">Juni 2026</button>
-        <button class="chip chip--surface">Mei 2026</button>
+      <div class="filter-chips mb-4" id="monthFilterChips">
+        <button class="chip chip--primary" data-month="2026-08">Agustus 2026</button>
+        <button class="chip chip--surface" data-month="2026-07">Juli 2026</button>
+        <button class="chip chip--surface" data-month="2026-06">Juni 2026</button>
+        <button class="chip chip--surface" data-month="2026-05">Mei 2026</button>
       </div>
 
       <!-- Hero Financial Card -->
@@ -34,22 +34,22 @@
         <div style="position:absolute;top:0;right:0;width:192px;height:192px;background:var(--primary);border-radius:50%;filter:blur(48px);opacity:0.5;transform:translate(25%,-50%);pointer-events:none;"></div>
         <div class="relative z-10">
           <div class="flex justify-between items-start mb-4">
-            <h2 style="color:var(--on-primary);font-weight:500;">Rekap Setoran: Agustus 2026</h2>
-            <span class="badge badge--active" style="font-size:12px;">
-              <span class="material-symbols-outlined" style="font-size:14px;">trending_up</span> 95% Tercapai
+            <h2 style="color:var(--on-primary);font-weight:500;" id="heroRecapMonthTitle">Rekap Setoran: Agustus 2026</h2>
+            <span class="badge badge--active" style="font-size:12px;" id="heroRecapProgressBadge">
+              <span class="material-symbols-outlined" style="font-size:14px;">trending_up</span> <span id="heroRecapPercentText">0% Tercapai</span>
             </span>
           </div>
           <div class="mb-4">
-            <span class="font-financial-xl" style="color:var(--on-primary);display:block;">Rp 11.450.000</span>
-            <span class="font-financial-sm" style="opacity:0.8;display:block;margin-top:4px;">Total Target Sewa: Rp 12.000.000 (12 Kios)</span>
+            <span class="font-financial-xl" style="color:var(--on-primary);display:block;" id="heroRecapTotalText">Rp 0</span>
+            <span class="font-financial-sm" style="opacity:0.8;display:block;margin-top:4px;" id="heroRecapTargetText">Total Target Sewa: Rp 0 (0 Kios)</span>
           </div>
           <div class="flex gap-4" style="padding-top:16px;border-top:1px solid rgba(255,255,255,0.2);">
             <div class="flex-1">
-              <span class="font-financial-sm" style="color:var(--on-primary);">9 Lunas / Surplus</span>
+              <span class="font-financial-sm" style="color:var(--on-primary);" id="heroRecapLunasText">0 Lunas / Surplus</span>
             </div>
             <div style="width:1px;background:rgba(255,255,255,0.2);"></div>
             <div class="flex-1">
-              <span class="font-financial-sm" style="color:var(--secondary-fixed-dim);">3 Belum Lunas</span>
+              <span class="font-financial-sm" style="color:var(--secondary-fixed-dim);" id="heroRecapKurangText">0 Belum Lunas</span>
             </div>
           </div>
         </div>
@@ -57,14 +57,14 @@
 
       <!-- Export Bar -->
       <div class="mb-1 px-2">
-        <span class="font-label-caps text-xs text-on-surface-variant" style="opacity:0.7;">Periode: 01 - 31 Agustus 2026</span>
+        <span class="font-label-caps text-xs text-on-surface-variant" style="opacity:0.7;" id="periodeLabel">Periode: 01 - 31 Agustus 2026</span>
       </div>
       <div class="flex items-center justify-between px-2 gap-4 mb-4">
-        <button class="btn btn--sm" style="background:var(--primary-container);color:var(--on-primary-container);border-radius:var(--radius-full);font-size:12px;letter-spacing:0.05em;text-transform:uppercase;font-weight:700;">
+        <button class="btn btn--sm" style="background:var(--primary-container);color:var(--on-primary-container);border-radius:var(--radius-full);font-size:12px;letter-spacing:0.05em;text-transform:uppercase;font-weight:700;" onclick="exportMasterSpreadsheet()">
           <span class="material-symbols-outlined" style="font-size:16px;">table_chart</span>
           Buka Spreadsheet
         </button>
-        <button class="flex items-center gap-1 text-xs font-bold" style="color:var(--primary);letter-spacing:0.05em;text-transform:uppercase;">
+        <button class="flex items-center gap-1 text-xs font-bold" style="color:var(--primary);letter-spacing:0.05em;text-transform:uppercase;" onclick="exportMonthlyReport()">
           <span class="material-symbols-outlined" style="font-size:16px;">download</span> Ekspor Laporan
         </button>
       </div>
@@ -72,85 +72,8 @@
       <!-- Per Kios List -->
       <div class="space-y-3 mt-2">
         <h3 class="font-title-md font-semibold mb-2 px-2" style="font-size:18px;">Rincian Per Kios</h3>
-
-        <!-- Surplus -->
-        <div class="rekap-card">
-          <div class="rekap-card__header">
-            <div class="rekap-card__icon rekap-card__icon--surplus">
-              <span class="material-symbols-outlined">storefront</span>
-            </div>
-            <div>
-              <h4 class="font-title-md font-bold" style="font-size:16px;">Kantin Berkah</h4>
-              <p class="text-xs text-on-surface-variant mt-1" style="opacity:0.9;">
-                <span style="display:block;">Setor: <span style="color:var(--on-surface);">Rp 1.100.000</span></span>
-                <span style="display:block;">Biaya Sewa: Rp 1.000.000</span>
-              </p>
-            </div>
-          </div>
-          <span class="badge badge--success" style="align-self:flex-start;">
-            <span class="material-symbols-outlined" style="font-size:14px;">arrow_upward</span> Surplus +Rp 100k
-          </span>
-          <a href="rekap-detail.html" class="rekap-card__link">Lihat Detail <span class="material-symbols-outlined" style="font-size:14px;">chevron_right</span></a>
-        </div>
-
-        <!-- Kurang -->
-        <div class="rekap-card">
-          <div class="rekap-card__header">
-            <div class="rekap-card__icon rekap-card__icon--error">
-              <span class="material-symbols-outlined">storefront</span>
-            </div>
-            <div>
-              <h4 class="font-title-md font-bold" style="font-size:16px;">Kantin Bu Siti</h4>
-              <p class="text-xs text-on-surface-variant mt-1" style="opacity:0.9;">
-                <span style="display:block;">Setor: <span style="color:var(--error);font-weight:700;">Rp 850.000</span></span>
-                <span style="display:block;">Biaya Sewa: Rp 1.000.000</span>
-              </p>
-            </div>
-          </div>
-          <span class="badge badge--error" style="align-self:flex-start;">
-            <span class="material-symbols-outlined" style="font-size:14px;">arrow_downward</span> Kurang Rp 150k
-          </span>
-          <a href="rekap-detail.html" class="rekap-card__link">Lihat Detail <span class="material-symbols-outlined" style="font-size:14px;">chevron_right</span></a>
-        </div>
-
-        <!-- Lunas -->
-        <div class="rekap-card">
-          <div class="rekap-card__header">
-            <div class="rekap-card__icon rekap-card__icon--neutral">
-              <span class="material-symbols-outlined">storefront</span>
-            </div>
-            <div>
-              <h4 class="font-title-md font-bold" style="font-size:16px;">Warung Pak Joko</h4>
-              <p class="text-xs text-on-surface-variant mt-1" style="opacity:0.9;">
-                <span style="display:block;">Setor: <span style="color:var(--on-surface);">Rp 1.000.000</span></span>
-                <span style="display:block;">Biaya Sewa: Rp 1.000.000</span>
-              </p>
-            </div>
-          </div>
-          <span class="badge badge--neutral" style="align-self:flex-start;">
-            <span class="material-symbols-outlined" style="font-size:14px;">check</span> Lunas Pas
-          </span>
-          <a href="rekap-detail.html" class="rekap-card__link">Lihat Detail <span class="material-symbols-outlined" style="font-size:14px;">chevron_right</span></a>
-        </div>
-
-        <!-- Lunas 2 -->
-        <div class="rekap-card">
-          <div class="rekap-card__header">
-            <div class="rekap-card__icon rekap-card__icon--neutral">
-              <span class="material-symbols-outlined">storefront</span>
-            </div>
-            <div>
-              <h4 class="font-title-md font-bold" style="font-size:16px;">Minuman Segar</h4>
-              <p class="text-xs text-on-surface-variant mt-1" style="opacity:0.9;">
-                <span style="display:block;">Setor: <span style="color:var(--on-surface);">Rp 500.000</span></span>
-                <span style="display:block;">Biaya Sewa: Rp 500.000</span>
-              </p>
-            </div>
-          </div>
-          <span class="badge badge--neutral" style="align-self:flex-start;">
-            <span class="material-symbols-outlined" style="font-size:14px;">check</span> Lunas Pas
-          </span>
-          <a href="rekap-detail.html" class="rekap-card__link">Lihat Detail <span class="material-symbols-outlined" style="font-size:14px;">chevron_right</span></a>
+        <div id="recapKioskList" class="space-y-3">
+          <div style="text-align:center;padding:24px;color:var(--on-surface-variant);">Memuat rekap...</div>
         </div>
       </div>
     </main>
@@ -174,6 +97,163 @@
 
   <script src="../js/app.js"></script>
   <script src="../js/components.js"></script>
-  <script>requireAuth('admin');</script>
+  <script>
+    requireAuth('admin');
+
+    let selectedMonth = '2026-08';
+    let currentRecapData = null;
+
+    // 1. Fetch Monthly Recap
+    async function loadMonthlyRecap(month) {
+      selectedMonth = month;
+      const token = getAuthToken();
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/recap/admin/monthly?month=${month}`, {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          currentRecapData = result;
+          renderMonthlyRecap(result);
+        } else {
+          fallbackLocalRecap();
+        }
+      } catch (err) {
+        console.warn('Backend offline, fallback lokal:', err);
+        fallbackLocalRecap();
+      }
+    }
+
+    function fallbackLocalRecap() {
+      renderMonthlyRecap({
+        bulan: selectedMonth,
+        bulan_label: 'Agustus 2026',
+        summary: {
+          total_setoran: 11450000,
+          total_target: 12000000,
+          persentase_tercapai: 95,
+          jumlah_lunas_surplus: 9,
+          jumlah_kurang: 3,
+          total_kios: 12
+        },
+        data: REKAP_KIOS_BULANAN.map(r => ({
+          kiosk_id: r.kiosId,
+          nama_kantin: r.nama,
+          tarif_sewa: r.sewa,
+          total_setor: r.setor,
+          selisih: r.setor - r.sewa,
+          status: r.status
+        }))
+      });
+    }
+
+    // 2. Render UI
+    function renderMonthlyRecap(data) {
+      const { summary, data: list, bulan_label } = data;
+
+      document.getElementById('heroRecapMonthTitle').textContent = `Rekap Setoran: ${bulan_label}`;
+      document.getElementById('heroRecapPercentText').textContent = `${summary.persentase_tercapai}% Tercapai`;
+      document.getElementById('heroRecapTotalText').textContent = formatRupiah(summary.total_setoran);
+      document.getElementById('heroRecapTargetText').textContent = `Total Target Sewa: ${formatRupiah(summary.total_target)} (${summary.total_kios} Kios)`;
+      document.getElementById('heroRecapLunasText').textContent = `${summary.jumlah_lunas_surplus} Lunas / Surplus`;
+      document.getElementById('heroRecapKurangText').textContent = `${summary.jumlah_kurang} Belum Lunas`;
+      document.getElementById('periodeLabel').textContent = `Periode: 01 - 31 ${bulan_label}`;
+
+      const container = document.getElementById('recapKioskList');
+      if (!list || list.length === 0) {
+        container.innerHTML = '<div style="text-align:center;padding:24px;color:#94a3b8;">Tidak ada data kios</div>';
+        return;
+      }
+
+      container.innerHTML = list.map(item => {
+        const displayName = item.nama_kantin ? `${item.kiosk_id} ${item.nama_kantin}` : item.kiosk_id;
+        let badgeHtml = '';
+        let iconClass = 'rekap-card__icon--neutral';
+
+        if (item.status === 'surplus') {
+          badgeHtml = `
+            <span class="badge badge--success" style="align-self:flex-start;">
+              <span class="material-symbols-outlined" style="font-size:14px;">arrow_upward</span> Surplus +${formatRupiahShort(item.selisih)}
+            </span>
+          `;
+          iconClass = 'rekap-card__icon--surplus';
+        } else if (item.status === 'kurang') {
+          badgeHtml = `
+            <span class="badge badge--error" style="align-self:flex-start;">
+              <span class="material-symbols-outlined" style="font-size:14px;">arrow_downward</span> Kurang ${formatRupiahShort(Math.abs(item.selisih))}
+            </span>
+          `;
+          iconClass = 'rekap-card__icon--error';
+        } else {
+          badgeHtml = `
+            <span class="badge badge--neutral" style="align-self:flex-start;">
+              <span class="material-symbols-outlined" style="font-size:14px;">check</span> Lunas Pas
+            </span>
+          `;
+          iconClass = 'rekap-card__icon--neutral';
+        }
+
+        return `
+          <div class="rekap-card">
+            <div class="rekap-card__header">
+              <div class="rekap-card__icon ${iconClass}">
+                <span class="material-symbols-outlined">storefront</span>
+              </div>
+              <div>
+                <h4 class="font-title-md font-bold" style="font-size:16px;">${displayName}</h4>
+                <p class="text-xs text-on-surface-variant mt-1" style="opacity:0.9;">
+                  <span style="display:block;">Setor: <span style="font-weight:700;color:${item.status === 'kurang' ? 'var(--error)' : 'var(--on-surface)'};">${formatRupiah(item.total_setor)}</span></span>
+                  <span style="display:block;">Biaya Sewa: ${formatRupiah(item.tarif_sewa)}</span>
+                </p>
+              </div>
+            </div>
+            ${badgeHtml}
+            <a href="rekap-detail.html?kiosk=${item.kiosk_id}&month=${selectedMonth}" class="rekap-card__link">
+              Lihat Detail <span class="material-symbols-outlined" style="font-size:14px;">chevron_right</span>
+            </a>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // 3. Month Filter Handler
+    document.querySelectorAll('#monthFilterChips .chip').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('#monthFilterChips .chip').forEach(b => {
+          b.classList.remove('chip--primary');
+          b.classList.add('chip--surface');
+        });
+        this.classList.remove('chip--surface');
+        this.classList.add('chip--primary');
+
+        const month = this.getAttribute('data-month');
+        loadMonthlyRecap(month);
+      });
+    });
+
+    // 4. Export Helpers
+    function exportMasterSpreadsheet() {
+      showToast('Membuka master spreadsheet...');
+      window.open('https://docs.google.com/spreadsheets', '_blank');
+    }
+
+    function exportMonthlyReport() {
+      if (!currentRecapData) return;
+      const json = JSON.stringify(currentRecapData, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `rekap-siseka-${selectedMonth}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Laporan berhasil diekspor!');
+    }
+
+    // Initial Load
+    loadMonthlyRecap('2026-08');
+  </script>
 </body>
 </html>
