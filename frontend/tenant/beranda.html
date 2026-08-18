@@ -176,19 +176,24 @@
       }
 
       // Today status banner
-      document.getElementById('todayShortDate').textContent = getTodayString();
+      const todayDateStr = getTodayString();
+      const todayDateEl = document.getElementById('todayShortDate');
       const todayAmountEl = document.getElementById('todayStatusAmount');
       const todayIconBox = document.getElementById('todayStatusIconBox');
 
       if (deposit_today && deposit_today.status === 'setor') {
+        const timePrefix = deposit_today.waktu ? `${deposit_today.waktu} WIB, ` : '';
+        todayDateEl.textContent = `${timePrefix}${todayDateStr}`;
         todayIconBox.innerHTML = '<span class="material-symbols-outlined icon-fill" style="color:var(--primary-container);">check_circle</span>';
         todayAmountEl.textContent = `+${formatRupiah(deposit_today.nominal)}`;
         todayAmountEl.style.color = 'var(--primary-container)';
       } else if (deposit_today && deposit_today.status === 'libur') {
+        todayDateEl.textContent = `${todayDateStr} • Libur`;
         todayIconBox.innerHTML = '<span class="material-symbols-outlined" style="color:#64748b;">bedtime</span>';
         todayAmountEl.textContent = 'Libur (Rp 0)';
         todayAmountEl.style.color = '#64748b';
       } else {
+        todayDateEl.textContent = `${todayDateStr}`;
         todayIconBox.innerHTML = '<span class="material-symbols-outlined" style="color:#d97706;">hourglass_empty</span>';
         todayAmountEl.textContent = 'Belum Dicatat';
         todayAmountEl.style.color = '#d97706';
