@@ -196,10 +196,11 @@ router.get('/tenant/monthly-history', authenticateToken, requireRole('tenant'), 
       [kiosk.id, `${year}-%`]
     );
 
-    // Grouping per bulan (dari bulan 12 mundur ke 01, atau bulan-bulan yang relevan)
+    // Grouping per bulan (Untuk tahun 2026 mulai dari Agustus/08)
     const currentMonthNum = parseInt(currentMonth.split('-')[1]);
+    const startMonthNum = year === '2026' ? 8 : 1; // Perekapan resmi dimulai Agustus 2026
     const monthsInYear = [];
-    for (let m = currentMonthNum; m >= 1; m--) {
+    for (let m = currentMonthNum; m >= startMonthNum; m--) {
       const mStr = String(m).padStart(2, '0');
       monthsInYear.push(`${year}-${mStr}`);
     }
