@@ -58,6 +58,7 @@
   </div>
 
   <script src="../js/app.js"></script>
+  <script src="../js/components.js"></script>
   <script>
     const user = requireAuth('tenant');
     if (user) {
@@ -97,7 +98,7 @@
           progress_percent: 85,
           kekurangan: 150000,
           hari_aktif: 17,
-          hari_libur: 0
+          hari_libur: 2
         },
         {
           bulan_code: '2026-07',
@@ -108,16 +109,6 @@
           selisih: 100000,
           hari_aktif: 22,
           hari_libur: 9
-        },
-        {
-          bulan_code: '2026-06',
-          bulan_label: 'Juni 2026',
-          status: 'kurang',
-          total_setor: 950000,
-          tarif_sewa: 1000000,
-          selisih: -50000,
-          hari_aktif: 19,
-          hari_libur: 11
         }
       ]);
     }
@@ -130,105 +121,76 @@
       }
 
       container.innerHTML = list.map(item => {
-        if (item.status === 'berjalan') {
-          return `
-            <div class="card" style="border-radius:var(--radius-3xl);padding:20px;">
-              <div class="month-card__header">
-                <h3 class="month-card__title">${item.bulan_label}</h3>
-                <span class="badge badge--running">
-                  <span class="badge__dot badge__dot--pulse"></span> Berjalan
-                </span>
-              </div>
-              <div class="month-card__grid mb-5">
-                <div>
-                  <p class="month-card__stat-label">Total Setor</p>
-                  <p class="month-card__stat-value" style="color:var(--primary);">${formatRupiah(item.total_setor)}</p>
-                </div>
-                <div>
-                  <p class="month-card__stat-label">Biaya Sewa</p>
-                  <p class="month-card__stat-value">${formatRupiah(item.tarif_sewa)}</p>
-                </div>
-              </div>
-              <div class="space-y-2 mb-5">
-                <div class="flex justify-between" style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--on-surface-variant);">
-                  <span>Progress (${item.progress_percent}%)</span>
-                  <span style="color:var(--error);">${item.kekurangan > 0 ? 'Kurang ' + formatRupiah(item.kekurangan) + ' lagi' : 'Lunas'}</span>
-                </div>
-                <div class="progress-bar progress-bar--light" style="height:8px;">
-                  <div class="progress-bar__fill" style="width:${item.progress_percent}%;background:var(--primary);"></div>
-                </div>
-              </div>
-              <a href="rekap-detail.html?month=${item.bulan_code}" class="btn btn--primary btn--block btn--rounded" style="padding:12px;">
-                Lihat Rekap Detail
-                <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
-              </a>
+        let badgeHtml = '';
+        let thirdBoxHtml = '';
+
+        if (item.status === 'surplus' || item.status === 'lunas') {
+          badgeHtml = `
+            <span style="background:#003820;color:#ffffff;border-radius:9999px;padding:6px 14px;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;">
+              <span class="material-symbols-outlined" style="font-size:16px;">check_circle</span> Lunas (Surplus)
+            </span>
+          `;
+          thirdBoxHtml = `
+            <div style="background:#f0fdf4;border:1px solid #dcfce7;border-radius:12px;padding:8px 12px;text-align:left;">
+              <p style="font-size:10px;font-weight:700;color:#047857;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;">SALDO</p>
+              <p style="font-size:14px;font-weight:800;color:#047857;">+${formatRupiahShort(item.selisih || 0)}</p>
             </div>
           `;
-        } else if (item.status === 'surplus' || item.status === 'lunas') {
-          return `
-            <div class="card" style="border-radius:var(--radius-3xl);padding:20px;">
-              <div class="month-card__header">
-                <h3 class="month-card__title">${item.bulan_label}</h3>
-                <span class="badge badge--lunas">
-                  <span class="material-symbols-outlined" style="font-size:14px;">check_circle</span> Lunas (Surplus)
-                </span>
-              </div>
-              <div class="month-card__grid--3 mb-4">
-                <div>
-                  <p class="month-card__stat-label">Terkumpul</p>
-                  <p class="month-card__stat-value text-sm" style="color:var(--primary);">${formatRupiahShort(item.total_setor)}</p>
-                </div>
-                <div>
-                  <p class="month-card__stat-label">Sewa</p>
-                  <p class="month-card__stat-value text-sm">${formatRupiahShort(item.tarif_sewa)}</p>
-                </div>
-                <div style="padding-left:12px;border-left:1px solid rgba(192,201,192,0.3);background:#f0fdfa;border-radius:8px;padding:6px;">
-                  <p class="month-card__stat-label" style="color:#0f766e;">Saldo</p>
-                  <p class="month-card__stat-value text-sm font-bold" style="color:#0f766e;">+${formatRupiahShort(item.selisih || 0)}</p>
-                </div>
-              </div>
-              <div class="month-card__info mb-5">
-                <span class="material-symbols-outlined" style="font-size:14px;">info</span>
-                ${item.hari_aktif} Hari Aktif Setor • ${item.hari_libur} Hari Libur
-              </div>
-              <a href="rekap-detail.html?month=${item.bulan_code}" class="btn btn--primary btn--block btn--rounded" style="padding:12px;">
-                Lihat Rekap Detail
-              </a>
+        } else if (item.status === 'berjalan') {
+          badgeHtml = `
+            <span style="background:#f0fdf4;color:#047857;border:1px solid #bbf7d0;border-radius:9999px;padding:6px 14px;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;">
+              <span class="material-symbols-outlined" style="font-size:16px;">schedule</span> Berjalan (${item.progress_percent}%)
+            </span>
+          `;
+          thirdBoxHtml = `
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:8px 12px;text-align:left;">
+              <p style="font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;">SISA</p>
+              <p style="font-size:14px;font-weight:800;color:#003820;">${formatRupiahShort(item.kekurangan || 0)}</p>
             </div>
           `;
         } else { // Kurang
-          return `
-            <div class="card" style="border-radius:var(--radius-3xl);padding:20px;">
-              <div class="month-card__header">
-                <h3 class="month-card__title">${item.bulan_label}</h3>
-                <span class="badge badge--kurang">
-                  <span class="material-symbols-outlined" style="font-size:14px;">warning</span> Kurang ${formatRupiah(Math.abs(item.selisih))}
-                </span>
-              </div>
-              <div class="month-card__grid--3 mb-4">
-                <div>
-                  <p class="month-card__stat-label">Terkumpul</p>
-                  <p class="month-card__stat-value text-sm" style="color:var(--primary);">${formatRupiahShort(item.total_setor)}</p>
-                </div>
-                <div>
-                  <p class="month-card__stat-label">Sewa</p>
-                  <p class="month-card__stat-value text-sm">${formatRupiahShort(item.tarif_sewa)}</p>
-                </div>
-                <div style="padding-left:12px;border-left:1px solid rgba(192,201,192,0.3);background:#fef2f2;border-radius:8px;padding:6px;">
-                  <p class="month-card__stat-label" style="color:#b91c1c;">Selisih</p>
-                  <p class="month-card__stat-value text-sm font-bold" style="color:#b91c1c;">-${formatRupiahShort(Math.abs(item.selisih))}</p>
-                </div>
-              </div>
-              <div class="month-card__info mb-5">
-                <span class="material-symbols-outlined" style="font-size:14px;">info</span>
-                ${item.hari_aktif} Hari Aktif Setor • ${item.hari_libur} Hari Libur/Izin
-              </div>
-              <a href="rekap-detail.html?month=${item.bulan_code}" class="btn btn--primary btn--block btn--rounded" style="padding:12px;">
-                Lihat Rekap Detail
-              </a>
+          badgeHtml = `
+            <span style="background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;border-radius:9999px;padding:6px 14px;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;">
+              <span class="material-symbols-outlined" style="font-size:16px;">error_outline</span> Kurang ${formatRupiahShort(Math.abs(item.selisih))}
+            </span>
+          `;
+          thirdBoxHtml = `
+            <div style="background:#fef2f2;border:1px solid #fee2e2;border-radius:12px;padding:8px 12px;text-align:left;">
+              <p style="font-size:10px;font-weight:700;color:#b91c1c;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;">SELISIH</p>
+              <p style="font-size:14px;font-weight:800;color:#b91c1c;">-${formatRupiahShort(Math.abs(item.selisih))}</p>
             </div>
           `;
         }
+
+        return `
+          <div class="card" style="border-radius:24px;padding:20px;background:#ffffff;box-shadow:var(--shadow-sm);border:1px solid rgba(192,201,192,0.3);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <h3 style="font-size:18px;font-weight:800;color:#003820;margin:0;">${item.bulan_label}</h3>
+              ${badgeHtml}
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr 1.1fr;gap:10px;align-items:center;margin-bottom:16px;">
+              <div>
+                <p style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">TERKUMPUL</p>
+                <p style="font-size:15px;font-weight:800;color:#003820;">${formatRupiahShort(item.total_setor)}</p>
+              </div>
+              <div>
+                <p style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">SEWA</p>
+                <p style="font-size:15px;font-weight:800;color:#334155;">${formatRupiahShort(item.tarif_sewa)}</p>
+              </div>
+              ${thirdBoxHtml}
+            </div>
+
+            <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#64748b;font-weight:500;margin-bottom:16px;">
+              <span class="material-symbols-outlined" style="font-size:16px;">info</span>
+              <span>${item.hari_aktif} Hari Aktif Setor • ${item.hari_libur} Hari Libur</span>
+            </div>
+
+            <a href="rekap-detail.html?month=${item.bulan_code}" class="btn btn--block" style="background:#003820;color:#ffffff;border-radius:9999px;padding:12px;font-size:14px;font-weight:700;text-align:center;text-decoration:none;box-shadow:var(--shadow-sm);transition:opacity 0.2s;">
+              Lihat Rekap Detail
+            </a>
+          </div>
+        `;
       }).join('');
     }
 

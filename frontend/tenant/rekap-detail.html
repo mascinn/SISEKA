@@ -10,8 +10,8 @@
 <body class="bg-tenant">
   <div class="page-container" style="padding-bottom:40px;">
     <!-- Top Bar with Back -->
-    <header style="position:sticky;top:0;z-index:40;background:rgba(241,245,249,0.9);backdrop-filter:blur(12px);padding:12px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(192,201,192,0.2);">
-      <a href="rekap.html" style="padding:8px;border-radius:50%;display:flex;color:var(--on-surface);">
+    <header style="position:sticky;top:0;z-index:40;background:rgba(241,245,249,0.95);backdrop-filter:blur(16px);padding:12px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(192,201,192,0.3);">
+      <a href="rekap.html" style="padding:8px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--on-surface);background:#ffffff;box-shadow:var(--shadow-sm);text-decoration:none;">
         <span class="material-symbols-outlined">arrow_back</span>
       </a>
       <div>
@@ -21,41 +21,40 @@
     </header>
 
     <main style="padding:20px 16px;">
-      <!-- Summary Card -->
-      <div class="card" style="border-radius:var(--radius-3xl);padding:20px;margin-bottom:24px;">
-        <div class="flex justify-between items-start mb-4">
+      <!-- Summary Card (Clean Horizontal Layout) -->
+      <div class="card" style="border-radius:24px;padding:20px;margin-bottom:24px;background:#ffffff;box-shadow:var(--shadow-sm);border:1px solid rgba(192,201,192,0.3);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
           <div>
-            <p class="font-label-caps text-on-surface-variant" style="font-size:10px;">AKUMULASI SETORAN</p>
-            <p class="font-financial-xl" style="font-size:28px;color:var(--primary);margin-top:4px;" id="totalAkumulasiText">Rp 0</p>
+            <p style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;">AKUMULASI SETORAN</p>
+            <h2 style="font-size:26px;font-weight:800;color:#003820;margin-top:2px;" id="totalAkumulasiText">Rp 0</h2>
           </div>
-          <span class="badge badge--running" id="recapBadge">
-            <span class="badge__dot badge__dot--pulse" id="recapBadgeDot"></span> <span id="recapBadgeText">Berjalan</span>
-          </span>
-        </div>
-
-        <div class="space-y-2 mb-4">
-          <div class="flex justify-between" style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--on-surface-variant);">
-            <span id="progressPercentLabel">Progress (0%)</span>
-            <span style="color:var(--error);" id="progressSisaLabel">Kurang Rp 0</span>
-          </div>
-          <div class="progress-bar progress-bar--light" style="height:8px;">
-            <div class="progress-bar__fill" id="progressBarFill" style="width:0%;background:var(--primary);"></div>
+          <div id="recapBadgeWrapper">
+            <span style="background:#003820;color:#ffffff;border-radius:9999px;padding:6px 14px;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;">
+              <span class="material-symbols-outlined" style="font-size:16px;">check_circle</span> Lunas
+            </span>
           </div>
         </div>
 
-        <div class="flex gap-3" style="padding-top:12px;border-top:1px solid var(--border-subtle);">
-          <div class="flex-1">
-            <p class="text-xs text-on-surface-variant">Biaya Sewa</p>
-            <p class="font-financial-sm" id="tarifSewaText">Rp 0</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1.1fr;gap:10px;align-items:center;padding:12px 0;border-top:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;margin-bottom:14px;">
+          <div>
+            <p style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;">BIAYA SEWA</p>
+            <p style="font-size:14px;font-weight:800;color:#334155;" id="tarifSewaText">Rp 0</p>
           </div>
-          <div class="flex-1">
-            <p class="text-xs text-on-surface-variant">Hari Aktif</p>
-            <p class="font-financial-sm" id="hariAktifText">0 Hari</p>
+          <div>
+            <p style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;">HARI AKTIF</p>
+            <p style="font-size:14px;font-weight:800;color:#003820;" id="hariAktifText">0 Hari</p>
           </div>
-          <div class="flex-1">
-            <p class="text-xs text-on-surface-variant">Hari Libur</p>
-            <p class="font-financial-sm" id="hariLiburText">0 Hari</p>
+          <div id="summaryHighlightBox">
+            <div style="background:#f0fdf4;border:1px solid #dcfce7;border-radius:12px;padding:8px 10px;text-align:left;">
+              <p style="font-size:10px;font-weight:700;color:#047857;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;">STATUS</p>
+              <p style="font-size:13px;font-weight:800;color:#047857;" id="highlightStatusText">Lunas</p>
+            </div>
           </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#64748b;font-weight:500;">
+          <span class="material-symbols-outlined" style="font-size:16px;">info</span>
+          <span id="hariLiburInfoText">0 Hari Libur / Tutup</span>
         </div>
       </div>
 
@@ -68,6 +67,7 @@
   </div>
 
   <script src="../js/app.js"></script>
+  <script src="../js/components.js"></script>
   <script>
     const user = requireAuth('tenant');
 
@@ -77,8 +77,9 @@
     async function loadTenantMonthDetail() {
       const token = getAuthToken();
       try {
-        const res = await fetch(`${API_BASE_URL}/recap/tenant/month-detail?month=${month}`, {
-          headers: { 'Authorization': 'Bearer ' + token }
+        const res = await fetchWithTimeout(`${API_BASE_URL}/recap/tenant/month-detail?month=${month}`, {
+          headers: { 'Authorization': 'Bearer ' + token },
+          timeout: 2500
         });
         const result = await res.json();
 
@@ -103,7 +104,7 @@
           progress_percent: 85,
           kekurangan: 150000,
           hari_aktif: 17,
-          hari_libur: 0,
+          hari_libur: 2,
           status: 'berjalan'
         },
         riwayat: TENANT_RIWAYAT
@@ -119,39 +120,47 @@
       document.getElementById('totalAkumulasiText').textContent = formatRupiah(summary.total_setor);
       document.getElementById('tarifSewaText').textContent = formatRupiah(summary.tarif_sewa);
       document.getElementById('hariAktifText').textContent = `${summary.hari_aktif} Hari`;
-      document.getElementById('hariLiburText').textContent = `${summary.hari_libur} Hari`;
+      document.getElementById('hariLiburInfoText').textContent = `${summary.hari_aktif} Hari Aktif Setor • ${summary.hari_libur} Hari Libur`;
 
-      document.getElementById('progressPercentLabel').textContent = `Progress (${summary.progress_percent}%)`;
-      document.getElementById('progressBarFill').style.width = `${summary.progress_percent}%`;
+      const badgeWrapper = document.getElementById('recapBadgeWrapper');
+      const highlightBox = document.getElementById('summaryHighlightBox');
 
-      const sisaEl = document.getElementById('progressSisaLabel');
-      if (summary.status === 'surplus') {
-        sisaEl.textContent = `Surplus +${formatRupiah(summary.selisih)}`;
-        sisaEl.style.color = 'var(--emerald-600)';
-      } else if (summary.status === 'lunas') {
-        sisaEl.textContent = 'Lunas Pas';
-        sisaEl.style.color = 'var(--primary)';
+      if (summary.status === 'surplus' || summary.status === 'lunas') {
+        badgeWrapper.innerHTML = `
+          <span style="background:#003820;color:#ffffff;border-radius:9999px;padding:6px 14px;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;">
+            <span class="material-symbols-outlined" style="font-size:16px;">check_circle</span> Lunas (Surplus)
+          </span>
+        `;
+        highlightBox.innerHTML = `
+          <div style="background:#f0fdf4;border:1px solid #dcfce7;border-radius:12px;padding:8px 10px;text-align:left;">
+            <p style="font-size:10px;font-weight:700;color:#047857;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;">SALDO</p>
+            <p style="font-size:13px;font-weight:800;color:#047857;">+${formatRupiahShort(summary.selisih || 0)}</p>
+          </div>
+        `;
+      } else if (summary.status === 'berjalan') {
+        badgeWrapper.innerHTML = `
+          <span style="background:#f0fdf4;color:#047857;border:1px solid #bbf7d0;border-radius:9999px;padding:6px 14px;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;">
+            <span class="material-symbols-outlined" style="font-size:16px;">schedule</span> Berjalan (${summary.progress_percent}%)
+          </span>
+        `;
+        highlightBox.innerHTML = `
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:8px 10px;text-align:left;">
+            <p style="font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;">SISA</p>
+            <p style="font-size:13px;font-weight:800;color:#003820;">${formatRupiahShort(summary.kekurangan || 0)}</p>
+          </div>
+        `;
       } else {
-        sisaEl.textContent = `Kurang ${formatRupiah(summary.kekurangan)}`;
-        sisaEl.style.color = 'var(--error)';
-      }
-
-      const badge = document.getElementById('recapBadge');
-      const badgeText = document.getElementById('recapBadgeText');
-      const badgeDot = document.getElementById('recapBadgeDot');
-
-      if (summary.status === 'berjalan') {
-        badge.className = 'badge badge--running';
-        badgeText.textContent = 'Berjalan';
-        badgeDot.style.display = 'inline-block';
-      } else if (summary.status === 'surplus' || summary.status === 'lunas') {
-        badge.className = 'badge badge--lunas';
-        badgeText.textContent = 'Lunas';
-        badgeDot.style.display = 'none';
-      } else {
-        badge.className = 'badge badge--kurang';
-        badgeText.textContent = 'Kurang';
-        badgeDot.style.display = 'none';
+        badgeWrapper.innerHTML = `
+          <span style="background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;border-radius:9999px;padding:6px 14px;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;">
+            <span class="material-symbols-outlined" style="font-size:16px;">error_outline</span> Kurang ${formatRupiahShort(Math.abs(summary.selisih))}
+          </span>
+        `;
+        highlightBox.innerHTML = `
+          <div style="background:#fef2f2;border:1px solid #fee2e2;border-radius:12px;padding:8px 10px;text-align:left;">
+            <p style="font-size:10px;font-weight:700;color:#b91c1c;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;">SELISIH</p>
+            <p style="font-size:13px;font-weight:800;color:#b91c1c;">-${formatRupiahShort(Math.abs(summary.selisih))}</p>
+          </div>
+        `;
       }
 
       const container = document.getElementById('dailyListContainer');
