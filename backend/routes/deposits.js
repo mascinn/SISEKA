@@ -77,6 +77,8 @@ router.get('/today', authenticateToken, requireRole('admin'), async (req, res) =
           tanggal: today
         };
       }
+    });
+
     // Urutkan list:
     // 1. Kios yang "belum" diinput ditaruh paling atas agar mudah dicatat
     // 2. Kios yang "setor" diurutkan dari yang paling baru diinput (deposit_id DESC)
