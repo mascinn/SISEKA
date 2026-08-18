@@ -33,6 +33,14 @@ app.get('/api/health', (req, res) => {
 // Start Server & Initialize Database
 async function startServer() {
   await initDatabase();
+  
+  // Jalankan auto-reconcile untuk mendeteksi hari kosong otomatis
+  const { autoReconcileUnrecordedDeposits } = require('./utils/reconcile');
+  await autoReconcileUnrecordedDeposits();
+  
+  // Cek berkala setiap 1 jam
+  setInterval(autoReconcileUnrecordedDeposits, 60 * 60 * 1000);
+
   return app.listen(PORT, () => {
     console.log(`🚀 Server SISEKA WASI'I berjalan di http://localhost:${PORT}`);
     console.log(`📡 Health Check: http://localhost:${PORT}/api/health`);

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { allAsync, getAsync } = require('../database');
 const { authenticateToken, requireRole } = require('../middleware/auth');
+const { autoReconcileUnrecordedDeposits } = require('../utils/reconcile');
 
 function getCurrentMonthString() {
   const d = new Date();
@@ -25,6 +26,7 @@ function formatMonthTitle(monthCode) {
 // 1. GET /api/recap/admin/monthly - Rekap Semua Kantin per Periode Bulan (Admin only)
 router.get('/admin/monthly', authenticateToken, requireRole('admin'), async (req, res) => {
   try {
+    await autoReconcileUnrecordedDeposits();
     const month = req.query.month || getCurrentMonthString(); // e.g. '2026-08'
 
     // Ambil seluruh master kios aktif

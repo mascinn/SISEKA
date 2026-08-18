@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { allAsync, getAsync, runAsync } = require('../database');
 const { authenticateToken, requireRole } = require('../middleware/auth');
+const { autoReconcileUnrecordedDeposits } = require('../utils/reconcile');
 
 // Helper: Format tanggal YYYY-MM-DD lokal
 function getTodayDateString() {
@@ -23,6 +24,7 @@ function getCurrentTimeString() {
 // GET /api/deposits/today - Ambil rekap & status setoran hari ini (Admin only)
 router.get('/today', authenticateToken, requireRole('admin'), async (req, res) => {
   try {
+    await autoReconcileUnrecordedDeposits();
     const today = req.query.date || getTodayDateString();
 
     // 1. Ambil semua kios aktif
