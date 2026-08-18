@@ -206,11 +206,8 @@ router.get('/tenant/monthly-history', authenticateToken, requireRole('tenant'), 
 
     const tarifSewa = kiosk.tarif_sewa || 1000000;
 
-    // Chronological processing (from oldest month to newest month) for auto compensation
-    const chronologicalMonths = [...monthsInYear].reverse();
-    let carriedSurplus = 0; // Surplus carried over from previous months
-    
-    const monthlyProcessed = chronologicalMonths.map(mCode => {
+    // 1. Hitung data dasar tiap bulan dalam tahun
+    const rawMonths = monthsInYear.map(mCode => {
       const depositsInMonth = allDeposits.filter(d => d.tanggal.startsWith(mCode));
       let totalSetor = 0;
       let hariAktif = 0;
@@ -237,21 +234,6 @@ router.get('/tenant/monthly-history', authenticateToken, requireRole('tenant'), 
         status = 'lunas';
       }
 
-      // Kompensasi Otomatis Surplus HANYA untuk bulan-bulan yang sudah selesai/tutup periode (!isCurrent)
-      let kompensasiDiterima = 0;
-      let sisaKewajibanBersih = Math.max(0, tarifSewa - totalSetor);
-
-      if (!isCurrent) {
-        if (rawSelisih < 0 && carriedSurplus > 0) {
-          // Ada kekurangan di bulan lalu dan ada surplus saldo
-          kompensasiDiterima = Math.min(carriedSurplus, sisaKewajibanBersih);
-          sisaKewajibanBersih -= kompensasiDiterima;
-          carriedSurplus -= kompensasiDiterima;
-        } else if (rawSelisih > 0) {
-          carriedSurplus += rawSelisih;
-        }
-      }
-
       return {
         bulan_code: mCode,
         bulan_label: formatMonthTitle(mCode),
@@ -259,19 +241,50 @@ router.get('/tenant/monthly-history', authenticateToken, requireRole('tenant'), 
         total_setor: totalSetor,
         tarif_sewa: tarifSewa,
         selisih: rawSelisih,
-        status: status, // 'berjalan' | 'surplus' | 'lunas' | 'kurang'
+        status: status,
         progress_percent: tarifSewa > 0 ? Math.min(100, Math.round((totalSetor / tarifSewa) * 100)) : 0,
         kekurangan: Math.max(0, tarifSewa - totalSetor),
-        kompensasi_surplus_diterima: isCurrent ? 0 : kompensasiDiterima,
-        sisa_kewajiban_setelah_kompensasi: isCurrent ? Math.max(0, tarifSewa - totalSetor) : sisaKewajibanBersih,
-        surplus_tersisa: carriedSurplus,
+        kompensasi_surplus_diterima: 0,
+        sisa_kewajiban_setelah_kompensasi: Math.max(0, tarifSewa - totalSetor),
+        surplus_yang_dialokasikan: 0,
+        surplus_tersisa: 0,
         hari_aktif: hariAktif,
         hari_libur: hariLibur
       };
     });
 
-    // Return in reverse (newest month first for display)
-    const monthlySummaries = monthlyProcessed.reverse();
+    // 2. Kumpulkan total surplus dari SELURUH bulan masa lalu yang sudah tutup
+    let totalSurplusPool = 0;
+    rawMonths.forEach(m => {
+      if (!m.is_current && m.selisih > 0) {
+        totalSurplusPool += m.selisih;
+      }
+    });
+
+    const initialSurplusPool = totalSurplusPool;
+
+    // 3. Alokasikan surplus untuk melunasi bulan-bulan masa lalu yang minus (dari bulan terdekat/terlama)
+    rawMonths.forEach(m => {
+      if (!m.is_current && m.selisih < 0) {
+        if (totalSurplusPool > 0) {
+          const comp = Math.min(totalSurplusPool, m.kekurangan);
+          m.kompensasi_surplus_diterima = comp;
+          m.sisa_kewajiban_setelah_kompensasi = m.kekurangan - comp;
+          totalSurplusPool -= comp;
+        }
+      }
+    });
+
+    // 4. Catat berapa surplus tiap bulan yang telah terpakai melunasi utang
+    let usedSurplus = initialSurplusPool - totalSurplusPool;
+    rawMonths.forEach(m => {
+      if (!m.is_current && m.selisih > 0) {
+        const allocated = Math.min(m.selisih, usedSurplus);
+        m.surplus_yang_dialokasikan = allocated;
+        m.surplus_tersisa = m.selisih - allocated;
+        usedSurplus -= allocated;
+      }
+    });
 
     // Summary Akumulasi Tahunan & Saldo Bersih
     let totalTahunanSetor = 0;
@@ -279,7 +292,7 @@ router.get('/tenant/monthly-history', authenticateToken, requireRole('tenant'), 
     let totalTahunanSurplus = 0;
     let totalTahunanKekurangan = 0;
 
-    monthlySummaries.forEach(m => {
+    rawMonths.forEach(m => {
       totalTahunanSetor += m.total_setor;
       totalTahunanTarget += m.tarif_sewa;
       if (m.selisih > 0) totalTahunanSurplus += m.selisih;
@@ -306,9 +319,9 @@ router.get('/tenant/monthly-history', authenticateToken, requireRole('tenant'), 
         is_surplus: saldoBersihAkun > 0,
         is_lunas: saldoBersihAkun === 0,
         is_kurang: saldoBersihAkun < 0,
-        surplus_tersedia_saat_ini: carriedSurplus
+        surplus_tersedia_saat_ini: totalSurplusPool
       },
-      data: monthlySummaries
+      data: rawMonths
     });
   } catch (error) {
     console.error('Error GET /api/recap/tenant/monthly-history:', error);

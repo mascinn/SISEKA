@@ -239,10 +239,14 @@
           statusValColor = '#003820';
 
           if (item.selisih > 0) {
+            let surplusNote = `Surplus <strong>+${formatRupiah(item.selisih)}</strong> tersimpan sebagai saldo kompensasi untuk periode mendatang.`;
+            if (item.surplus_yang_dialokasikan > 0) {
+              surplusNote = `Surplus <strong>+${formatRupiah(item.selisih)}</strong> (+${formatRupiah(item.surplus_yang_dialokasikan)} dialokasikan melunasi kekurangan sewa periode lain${item.surplus_tersisa > 0 ? `, sisa +${formatRupiah(item.surplus_tersisa)} tersimpan` : ''}).`;
+            }
             noticeKompensasi = `
               <div style="background:#f0fdf4;border:1px solid #dcfce7;border-radius:12px;padding:8px 12px;margin-bottom:12px;font-size:11px;color:#003820;display:flex;align-items:center;gap:6px;">
                 <span class="material-symbols-outlined" style="font-size:16px;">savings</span>
-                <span>Surplus <strong>+${formatRupiah(item.selisih)}</strong> tersimpan sebagai saldo kompensasi untuk periode mendatang.</span>
+                <span>${surplusNote}</span>
               </div>
             `;
           }
@@ -262,7 +266,7 @@
           noticeKompensasi = `
             <div style="background:#f0fdf4;border:1px solid #dcfce7;border-radius:12px;padding:8px 12px;margin-bottom:12px;font-size:11px;color:#003820;display:flex;align-items:center;gap:6px;">
               <span class="material-symbols-outlined" style="font-size:16px;">auto_awesome</span>
-              <span>Kekurangan sewa periode lalu (<strong>${formatRupiah(item.kekurangan)}</strong>) telah <strong>100% lunas ditutupi</strong> oleh saldo surplus akun!</span>
+              <span>Kekurangan sewa periode lalu (<strong>${formatRupiah(item.kekurangan)}</strong>) telah <strong>100% lunas ditutupi</strong> oleh saldo surplus periode lain!</span>
             </div>
           `;
         } else if (item.status === 'berjalan' || item.is_current) {
@@ -295,7 +299,7 @@
             noticeKompensasi = `
               <div style="background:#f0fdf4;border:1px solid #dcfce7;border-radius:12px;padding:8px 12px;margin-bottom:12px;font-size:11px;color:#003820;display:flex;align-items:center;gap:6px;">
                 <span class="material-symbols-outlined" style="font-size:16px;">auto_awesome</span>
-                <span>Sebagian kekurangan diringankan surplus <strong>+${formatRupiah(item.kompensasi_surplus_diterima)}</strong> (Sisa: <strong>${formatRupiah(item.sisa_kewajiban_setelah_kompensasi)}</strong>)</span>
+                <span>Kekurangan ${formatRupiah(item.kekurangan)} diringankan surplus <strong>+${formatRupiah(item.kompensasi_surplus_diterima)}</strong> dari periode lain (Sisa riil: <strong>${formatRupiah(item.sisa_kewajiban_setelah_kompensasi)}</strong>).</span>
               </div>
             `;
           }
