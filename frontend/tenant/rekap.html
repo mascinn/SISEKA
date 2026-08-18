@@ -165,11 +165,12 @@
 
     function fallbackLocalTenantRecap() {
       const sampleSummary = {
-        total_setor: 1850000,
+        total_setor: 1950000,
         total_target: 2000000,
         total_surplus: 100000,
-        total_kekurangan: 250000,
-        saldo_bersih: -150000
+        total_kekurangan: 150000,
+        saldo_bersih: 100000,
+        surplus_tersedia_saat_ini: 100000
       };
       renderAccountSummary(sampleSummary);
 
@@ -178,19 +179,21 @@
           bulan_code: '2026-08',
           bulan_label: 'Agustus 2026',
           status: 'berjalan',
-          total_setor: 750000,
+          is_current: true,
+          total_setor: 850000,
           tarif_sewa: 1000000,
-          progress_percent: 75,
-          kekurangan: 250000,
-          kompensasi_surplus_diterima: 100000,
+          progress_percent: 85,
+          kekurangan: 150000,
+          kompensasi_surplus_diterima: 0,
           sisa_kewajiban_setelah_kompensasi: 150000,
-          hari_aktif: 15,
+          hari_aktif: 16,
           hari_libur: 2
         },
         {
           bulan_code: '2026-07',
           bulan_label: 'Juli 2026',
           status: 'surplus',
+          is_current: false,
           total_setor: 1100000,
           tarif_sewa: 1000000,
           selisih: 100000,
@@ -218,9 +221,10 @@
 
         const progressPercent = item.tarif_sewa > 0 ? Math.min(100, Math.round((item.total_setor / item.tarif_sewa) * 100)) : 0;
 
-        // Cek apakah ada kompensasi surplus
-        const isFullyCovered = item.kompensasi_surplus_diterima > 0 && item.sisa_kewajiban_setelah_kompensasi === 0;
-        const isPartiallyCovered = item.kompensasi_surplus_diterima > 0 && item.sisa_kewajiban_setelah_kompensasi > 0;
+        // Kompensasi hanya diperhitungkan untuk bulan yang SUDAH SELESAI / BUKAN bulan berjalan
+        const isPastClosedMonth = !item.is_current && item.status !== 'berjalan';
+        const isFullyCovered = isPastClosedMonth && item.kompensasi_surplus_diterima > 0 && item.sisa_kewajiban_setelah_kompensasi === 0;
+        const isPartiallyCovered = isPastClosedMonth && item.kompensasi_surplus_diterima > 0 && item.sisa_kewajiban_setelah_kompensasi > 0;
 
         if (item.status === 'surplus' || item.status === 'lunas') {
           badgeHtml = `
@@ -238,12 +242,12 @@
             noticeKompensasi = `
               <div style="background:#f0fdf4;border:1px solid #dcfce7;border-radius:12px;padding:8px 12px;margin-bottom:12px;font-size:11px;color:#003820;display:flex;align-items:center;gap:6px;">
                 <span class="material-symbols-outlined" style="font-size:16px;">savings</span>
-                <span>Surplus <strong>+${formatRupiah(item.selisih)}</strong> tersimpan otomatis untuk menutupi sisa sewa periode lain.</span>
+                <span>Surplus <strong>+${formatRupiah(item.selisih)}</strong> tersimpan sebagai saldo kompensasi untuk periode mendatang.</span>
               </div>
             `;
           }
         } else if (isFullyCovered) {
-          // Minus tapi 100% lunas ditutupi saldo surplus
+          // Bulan lalu minus tapi 100% lunas ditutupi saldo surplus
           badgeHtml = `
             <span style="background:#003820;color:#ffffff;border-radius:9999px;padding:4px 12px;font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:4px;">
               <span class="material-symbols-outlined" style="font-size:14px;">check_circle</span> Dilunasi Saldo Surplus
@@ -258,31 +262,24 @@
           noticeKompensasi = `
             <div style="background:#f0fdf4;border:1px solid #dcfce7;border-radius:12px;padding:8px 12px;margin-bottom:12px;font-size:11px;color:#003820;display:flex;align-items:center;gap:6px;">
               <span class="material-symbols-outlined" style="font-size:16px;">auto_awesome</span>
-              <span>Kekurangan sewa <strong>${formatRupiah(item.kekurangan)}</strong> telah <strong>100% lunas ditutupi</strong> oleh saldo surplus akun!</span>
+              <span>Kekurangan sewa periode lalu (<strong>${formatRupiah(item.kekurangan)}</strong>) telah <strong>100% lunas ditutupi</strong> oleh saldo surplus akun!</span>
             </div>
           `;
-        } else if (item.status === 'berjalan') {
+        } else if (item.status === 'berjalan' || item.is_current) {
+          // Bulan Berjalan: Tampilkan progres alami murni sampai periode selesai
           badgeHtml = `
             <span style="background:#f0fdf4;color:#003820;border:1px solid #dcfce7;border-radius:9999px;padding:4px 12px;font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:4px;">
               <span class="material-symbols-outlined" style="font-size:14px;">schedule</span> Berjalan (${progressPercent}%)
             </span>
           `;
-          
-          if (isPartiallyCovered) {
-            statusBoxTitle = 'SISA SETELAH KOMPENSASI';
-            statusBoxValue = formatRupiah(item.sisa_kewajiban_setelah_kompensasi);
-            statusBg = 'background:#f0fdf4;border:1px solid #dcfce7;';
-            statusLabelColor = '#003820';
-            statusValColor = '#003820';
-
-            noticeKompensasi = `
-              <div style="background:#f0fdf4;border:1px solid #dcfce7;border-radius:12px;padding:8px 12px;margin-bottom:12px;font-size:11px;color:#003820;display:flex;align-items:center;gap:6px;">
-                <span class="material-symbols-outlined" style="font-size:16px;">auto_awesome</span>
-                <span>Kekurangan ${formatRupiah(item.kekurangan)} diringankan surplus <strong>+${formatRupiah(item.kompensasi_surplus_diterima)}</strong> (Sisa riil: <strong>${formatRupiah(item.sisa_kewajiban_setelah_kompensasi)}</strong>)</span>
-              </div>
-            `;
-          }
-        } else { // Kurang tanpa kompensasi penuh
+          statusBoxTitle = 'SISA SEWA';
+          statusBoxValue = formatRupiah(item.kekurangan || 0);
+          statusBg = 'background:#f8fafc;border:1px solid #e2e8f0;';
+          statusLabelColor = '#64748b';
+          statusValColor = '#003820';
+          noticeKompensasi = ''; // Tidak diganggu surplus selama periode berjalan
+        } else { 
+          // Bulan lalu yang masih kurang
           badgeHtml = `
             <span style="background:#fef2f2;color:#991b1b;border:1px solid #fee2e2;border-radius:9999px;padding:4px 12px;font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:4px;">
               <span class="material-symbols-outlined" style="font-size:14px;">error_outline</span> Kurang ${formatRupiah(item.sisa_kewajiban_setelah_kompensasi || Math.abs(item.selisih))}

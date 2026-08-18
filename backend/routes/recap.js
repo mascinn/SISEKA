@@ -237,16 +237,19 @@ router.get('/tenant/monthly-history', authenticateToken, requireRole('tenant'), 
         status = 'lunas';
       }
 
-      // Kompensasi Otomatis Surplus Masa Lalu ke Kekurangan
+      // Kompensasi Otomatis Surplus HANYA untuk bulan-bulan yang sudah selesai/tutup periode (!isCurrent)
       let kompensasiDiterima = 0;
       let sisaKewajibanBersih = Math.max(0, tarifSewa - totalSetor);
 
-      if (rawSelisih < 0 && carriedSurplus > 0) {
-        kompensasiDiterima = Math.min(carriedSurplus, sisaKewajibanBersih);
-        sisaKewajibanBersih -= kompensasiDiterima;
-        carriedSurplus -= kompensasiDiterima;
-      } else if (rawSelisih > 0 && !isCurrent) {
-        carriedSurplus += rawSelisih;
+      if (!isCurrent) {
+        if (rawSelisih < 0 && carriedSurplus > 0) {
+          // Ada kekurangan di bulan lalu dan ada surplus saldo
+          kompensasiDiterima = Math.min(carriedSurplus, sisaKewajibanBersih);
+          sisaKewajibanBersih -= kompensasiDiterima;
+          carriedSurplus -= kompensasiDiterima;
+        } else if (rawSelisih > 0) {
+          carriedSurplus += rawSelisih;
+        }
       }
 
       return {
@@ -259,8 +262,8 @@ router.get('/tenant/monthly-history', authenticateToken, requireRole('tenant'), 
         status: status, // 'berjalan' | 'surplus' | 'lunas' | 'kurang'
         progress_percent: tarifSewa > 0 ? Math.min(100, Math.round((totalSetor / tarifSewa) * 100)) : 0,
         kekurangan: Math.max(0, tarifSewa - totalSetor),
-        kompensasi_surplus_diterima: kompensasiDiterima,
-        sisa_kewajiban_setelah_kompensasi: sisaKewajibanBersih,
+        kompensasi_surplus_diterima: isCurrent ? 0 : kompensasiDiterima,
+        sisa_kewajiban_setelah_kompensasi: isCurrent ? Math.max(0, tarifSewa - totalSetor) : sisaKewajibanBersih,
         surplus_tersisa: carriedSurplus,
         hari_aktif: hariAktif,
         hari_libur: hariLibur
