@@ -115,9 +115,14 @@
     <div class="modal-overlay" id="depositModal">
       <div class="bottom-sheet">
         <div class="bottom-sheet__handle"></div>
-        <div class="bottom-sheet__header">
-          <h2>Catat Setoran Harian</h2>
-          <p><span class="material-symbols-outlined" style="font-size:16px;">storefront</span> <span id="depositKiosName">Kantin</span> • <span id="modalDate"></span></p>
+        <div class="bottom-sheet__header" style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;">
+          <div>
+            <h2 style="margin:0 0 4px 0;">Catat Setoran Harian</h2>
+            <p style="margin:0;display:flex;align-items:center;gap:4px;color:#64748b;font-size:13px;"><span class="material-symbols-outlined" style="font-size:16px;color:#003820;">storefront</span> <span id="depositKiosName" style="font-weight:600;color:#0f172a;">Kantin</span> • <span id="modalDate"></span></p>
+          </div>
+          <button type="button" onclick="closeModal('depositModal')" style="background:#f1f5f9;border:none;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#64748b;cursor:pointer;flex-shrink:0;transition:background 0.2s;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+            <span class="material-symbols-outlined" style="font-size:18px;">close</span>
+          </button>
         </div>
         <form id="depositForm" class="space-y-4">
           <input type="hidden" id="depositKiosId">
@@ -182,9 +187,14 @@
     <div class="modal-overlay" id="editSetoranModal">
       <div class="bottom-sheet">
         <div class="bottom-sheet__handle"></div>
-        <div class="bottom-sheet__header">
-          <h2>Edit / Koreksi Setoran</h2>
-          <p><span class="material-symbols-outlined" style="font-size:16px;">storefront</span> <span id="editDepositKiosTitle">Kantin</span></p>
+        <div class="bottom-sheet__header" style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;">
+          <div>
+            <h2 style="margin:0 0 4px 0;">Edit / Koreksi Setoran</h2>
+            <p style="margin:0;display:flex;align-items:center;gap:4px;color:#64748b;font-size:13px;"><span class="material-symbols-outlined" style="font-size:16px;color:#003820;">storefront</span> <span id="editDepositKiosTitle" style="font-weight:600;color:#0f172a;">Kantin</span></p>
+          </div>
+          <button type="button" onclick="closeModal('editSetoranModal')" style="background:#f1f5f9;border:none;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#64748b;cursor:pointer;flex-shrink:0;transition:background 0.2s;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+            <span class="material-symbols-outlined" style="font-size:18px;">close</span>
+          </button>
         </div>
         <form id="editDepositForm" class="space-y-4">
           <input type="hidden" id="editDepositId">
