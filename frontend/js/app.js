@@ -7,7 +7,7 @@
 const USERS = [
   { username: 'admin', password: '1234', role: 'admin', name: 'Admin BPH', initials: 'AD' },
   { username: 'aminah', password: '1234', role: 'tenant', name: 'Bu Aminah', initials: 'BA', kios: 'Kantin Berkah' },
-  { username: 'eni', password: '1234', role: 'tenant', name: 'Bude Eni', initials: 'BE', kios: 'Warung Bude Eni' },
+  { username: 'hidayat', password: '1234', role: 'tenant', name: 'Pak Hidayat', initials: 'PH', kios: 'Fotocopy & Percetakan Al-Wasi\'i' },
 ];
 
 // ---- Dummy Data: Kios ----
