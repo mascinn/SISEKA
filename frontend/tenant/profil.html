@@ -31,7 +31,7 @@
           <span class="material-symbols-outlined" style="font-size:16px;">phone</span>
           <span id="profilePhone">0812-3456-7890</span>
           <span>•</span>
-          <span>Aktif sejak 2024</span>
+          <span id="profileSejak">Aktif sejak 2024</span>
         </div>
       </section>
 
@@ -44,7 +44,7 @@
               <span class="material-symbols-outlined" style="font-size:18px;">payments</span>
               Biaya Sewa Pokok
             </span>
-            <span class="info-row__value">Rp 1.000.000 <span class="text-xs" style="font-weight:400;color:var(--on-surface-variant);">/ Bulan</span></span>
+            <span class="info-row__value" id="profileSewa">Rp 1.000.000 <span class="text-xs" style="font-weight:400;color:var(--on-surface-variant);">/ Bulan</span></span>
           </div>
           <div class="info-row">
             <span class="info-row__label">
@@ -80,7 +80,7 @@
             <h3 class="font-financial-sm" style="color:var(--on-surface);">Pusat Bantuan BPH</h3>
             <p class="text-xs text-on-surface-variant mt-1">Butuh bantuan terkait operasional?</p>
           </div>
-          <button class="btn btn--sm" style="background:#25D366;color:#fff;border-radius:var(--radius-full);font-size:14px;" onclick="window.open('https://wa.me/6281234567890','_blank')">
+          <button class="btn btn--sm" style="background:#25D366;color:#fff;border-radius:var(--radius-full);font-size:14px;box-shadow:var(--shadow-sm);" onclick="window.open('https://wa.me/6281234567890?text=Assalamu%27alaikum%20Pengurus%20BPH%20Masjid%20Al-Wasi%27i','_blank')">
             <span class="material-symbols-outlined" style="font-size:18px;">chat</span>
             WhatsApp
           </button>
@@ -114,12 +114,37 @@
   <script src="../js/app.js"></script>
   <script>
     const user = requireAuth('tenant');
-    if (user) {
-      document.getElementById('headerAvatar').textContent = user.initials;
-      document.getElementById('profileAvatar').textContent = user.initials;
-      document.getElementById('profileKios').textContent = user.kios || 'Kantin';
-      document.getElementById('profileName').textContent = user.name;
+
+    async function loadTenantProfile() {
+      const token = getAuthToken();
+      try {
+        const res = await fetch(`${API_BASE_URL}/auth/me`, {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const result = await res.json();
+
+        if (result.success && result.user) {
+          const u = result.user;
+          document.getElementById('headerAvatar').textContent = u.initials || 'TN';
+          document.getElementById('profileAvatar').textContent = u.initials || 'TN';
+          document.getElementById('profileKios').textContent = u.kios ? `${u.kiosk_id} ${u.kios}` : (u.kiosk_id || 'Kantin');
+          document.getElementById('profileName').textContent = u.name;
+          if (u.tarif_sewa) {
+            document.getElementById('profileSewa').innerHTML = `${formatRupiah(u.tarif_sewa)} <span class="text-xs" style="font-weight:400;color:var(--on-surface-variant);">/ Bulan</span>`;
+          }
+        }
+      } catch (err) {
+        console.warn('Load profile error:', err);
+        if (user) {
+          document.getElementById('headerAvatar').textContent = user.initials;
+          document.getElementById('profileAvatar').textContent = user.initials;
+          document.getElementById('profileKios').textContent = user.kios || 'Kantin';
+          document.getElementById('profileName').textContent = user.name;
+        }
+      }
     }
+
+    loadTenantProfile();
   </script>
 </body>
 </html>
