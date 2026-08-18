@@ -77,6 +77,22 @@ router.get('/today', authenticateToken, requireRole('admin'), async (req, res) =
           tanggal: today
         };
       }
+    // Urutkan list:
+    // 1. Kios yang "belum" diinput ditaruh paling atas agar mudah dicatat
+    // 2. Kios yang "setor" diurutkan dari yang paling baru diinput (deposit_id DESC)
+    // 3. Kios yang "libur" ditaruh di bawah
+    list.sort((a, b) => {
+      if (a.deposit_status === 'belum' && b.deposit_status !== 'belum') return -1;
+      if (a.deposit_status !== 'belum' && b.deposit_status === 'belum') return 1;
+
+      if (a.deposit_status === 'setor' && b.deposit_status === 'setor') {
+        return (b.deposit_id || 0) - (a.deposit_id || 0);
+      }
+
+      if (a.deposit_status === 'libur' && b.deposit_status !== 'libur') return 1;
+      if (a.deposit_status !== 'libur' && b.deposit_status === 'libur') return -1;
+
+      return a.id.localeCompare(b.id);
     });
 
     const totalKios = kiosks.length;
