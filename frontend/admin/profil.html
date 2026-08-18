@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil Admin - SISEKA WASI'I</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+</head>
+<body style="background:var(--surface);">
+  <div class="page-container">
+    <!-- Top App Bar -->
+    <header class="top-app-bar">
+      <div class="top-app-bar__brand">
+        <span class="material-symbols-outlined icon-fill top-app-bar__brand-icon">storefront</span>
+        <div class="top-app-bar__brand-text">
+          <span class="top-app-bar__title">SISEKA WASI'I</span>
+          <span class="top-app-bar__subtitle">Sistem Informasi Sewa Kantin Wasi'i</span>
+        </div>
+      </div>
+      <div class="avatar avatar--primary" id="userAvatar" style="cursor:pointer;">AD</div>
+    </header>
+
+    <main style="padding:20px 16px 0;" class="space-y-4">
+      <!-- Profile Identity Card -->
+      <section style="background:#ffffff;border:1px solid rgba(192,201,192,0.4);border-radius:24px;padding:24px;text-align:center;box-shadow:var(--shadow-sm);">
+        <div style="width:72px;height:72px;border-radius:50%;background:#003820;color:#ffffff;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;margin:0 auto 12px;border:3px solid #dcfce7;box-shadow:var(--shadow-md);">
+          AD
+        </div>
+        <h1 class="font-bold text-lg" style="color:#0f172a;margin:0 0 2px 0;" id="adminName">Admin BPH Wasi'i</h1>
+        <p class="text-xs font-semibold" style="color:#003820;margin:0 0 12px 0;">Badan Pengelola Harian (BPH)</p>
+        
+        <div style="display:inline-flex;align-items:center;gap:6px;background:#f0fdf4;border:1px solid #dcfce7;padding:4px 12px;border-radius:9999px;font-size:11px;font-weight:700;color:#003820;">
+          <span class="material-symbols-outlined" style="font-size:16px;">verified_user</span>
+          Akses Administrator Penuh
+        </div>
+      </section>
+
+      <!-- System Info Card -->
+      <section class="space-y-2">
+        <h2 class="font-bold text-xs px-1" style="color:#64748b;text-transform:uppercase;letter-spacing:0.05em;">Informasi Sistem &amp; Otoritas</h2>
+        <div style="background:#ffffff;border:1px solid rgba(192,201,192,0.4);border-radius:20px;padding:16px;box-shadow:var(--shadow-sm);">
+          <div class="info-row" style="padding:10px 0;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:12px;color:#64748b;display:flex;align-items:center;gap:8px;">
+              <span class="material-symbols-outlined" style="font-size:18px;color:#003820;">badge</span>
+              Username
+            </span>
+            <span style="font-size:13px;font-weight:700;color:#0f172a;">admin</span>
+          </div>
+          <div class="info-row" style="padding:10px 0;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:12px;color:#64748b;display:flex;align-items:center;gap:8px;">
+              <span class="material-symbols-outlined" style="font-size:18px;color:#003820;">database</span>
+              Basis Data
+            </span>
+            <span style="font-size:13px;font-weight:700;color:#003820;">SQLite (Lokal Terenkripsi)</span>
+          </div>
+          <div class="info-row" style="padding:10px 0;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:12px;color:#64748b;display:flex;align-items:center;gap:8px;">
+              <span class="material-symbols-outlined" style="font-size:18px;color:#003820;">security</span>
+              Sistem Autentikasi
+            </span>
+            <span style="font-size:12px;font-weight:700;color:#003820;background:#f0fdf4;padding:4px 10px;border-radius:8px;border:1px solid #dcfce7;">
+              JWT &amp; PIN
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Support Card -->
+      <section style="background:#ffffff;border:1px solid rgba(192,201,192,0.4);border-radius:20px;padding:16px;box-shadow:var(--shadow-sm);">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <h3 class="font-bold text-sm" style="color:#0f172a;margin:0 0 2px 0;">Bantuan &amp; Dokumentasi</h3>
+            <p class="text-xs text-muted" style="margin:0;">Panduan operasional sistem SISEKA</p>
+          </div>
+          <button class="btn btn--sm" style="background:#003820;color:#fff;border-radius:9999px;font-size:12px;font-weight:700;padding:8px 14px;" onclick="window.open('../README.md','_blank')">
+            <span class="material-symbols-outlined" style="font-size:16px;">help</span>
+            Bantuan
+          </button>
+        </div>
+      </section>
+
+      <!-- Logout -->
+      <div style="padding-top:12px;">
+        <button style="width:100%;background:#ffffff;border:1px solid #fee2e2;color:#dc2626;border-radius:18px;padding:14px;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:var(--shadow-sm);cursor:pointer;" onclick="logout()">
+          <span class="material-symbols-outlined" style="font-size:18px;">logout</span>
+          Keluar dari Akun Admin
+        </button>
+      </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav bottom-nav--pill" style="max-width:420px;">
+      <a href="penarikan.html" class="bottom-nav__item">
+        <span class="material-symbols-outlined bottom-nav__icon">payments</span>
+        <span class="bottom-nav__label">Penarikan</span>
+      </a>
+      <a href="rekap.html" class="bottom-nav__item">
+        <span class="material-symbols-outlined bottom-nav__icon">analytics</span>
+        <span class="bottom-nav__label">Rekap Semua</span>
+      </a>
+      <a href="kantin.html" class="bottom-nav__item">
+        <span class="material-symbols-outlined bottom-nav__icon">storefront</span>
+        <span class="bottom-nav__label">Unit Usaha</span>
+      </a>
+    </nav>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script src="../js/components.js"></script>
+  <script>
+    requireAuth('admin');
+  </script>
+</body>
+</html>

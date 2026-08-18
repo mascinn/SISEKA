@@ -217,3 +217,96 @@ function toggleShowMore(btnId, containerId) {
     btn.textContent = shown ? 'Sembunyikan' : `Lihat ${hiddenItems.length} lainnya`;
   });
 }
+
+// ---- Universal Header Profile Dropdown (Admin & Tenant) ----
+function initHeaderProfileMenu() {
+  const avatar = document.querySelector('.top-app-bar .avatar') || document.getElementById('userAvatar') || document.getElementById('headerAvatar');
+  if (!avatar) return;
+
+  avatar.style.cursor = 'pointer';
+  avatar.title = 'Buka Menu Akun';
+
+  let dropdown = document.getElementById('headerProfileDropdown');
+  if (!dropdown) {
+    dropdown = document.createElement('div');
+    dropdown.id = 'headerProfileDropdown';
+    dropdown.style.cssText = `
+      position: fixed;
+      background: #ffffff;
+      border: 1px solid rgba(192, 201, 192, 0.45);
+      border-radius: 20px;
+      box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.15), 0 6px 12px -4px rgba(0, 0, 0, 0.08);
+      width: 240px;
+      z-index: 99999;
+      padding: 12px;
+      display: none;
+      animation: fadeIn 0.15s ease;
+    `;
+    document.body.appendChild(dropdown);
+  }
+
+  // Get current user info from localStorage or session
+  const user = typeof getAuthUser === 'function' ? getAuthUser() : (localStorage.getItem('siseka_user') ? JSON.parse(localStorage.getItem('siseka_user')) : null);
+  const role = user ? user.role : (window.location.pathname.includes('/admin/') ? 'admin' : 'tenant');
+  const initials = user ? (user.initials || (user.name ? user.name.substring(0, 2).toUpperCase() : (role === 'admin' ? 'AD' : 'TN'))) : (role === 'admin' ? 'AD' : 'TN');
+  const name = user ? (user.name || user.username || (role === 'admin' ? 'Admin BPH' : 'Penyewa Kantin')) : (role === 'admin' ? 'Admin BPH' : 'Penyewa Kantin');
+  const kioskName = user && user.kios ? user.kios : (role === 'admin' ? 'Administrator' : 'Unit Usaha');
+
+  const isInsideSubfolder = window.location.pathname.includes('/admin/') || window.location.pathname.includes('/tenant/');
+  const profileLink = role === 'admin' ? (isInsideSubfolder ? 'profil.html' : 'admin/profil.html') : (isInsideSubfolder ? 'profil.html' : 'tenant/profil.html');
+
+  dropdown.innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 8px 12px;border-bottom:1px solid #f1f5f9;margin-bottom:8px;">
+      <div style="width:38px;height:38px;border-radius:50%;background:#003820;color:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;">
+        ${initials}
+      </div>
+      <div style="min-width:0;">
+        <p style="font-size:13px;font-weight:700;color:#0f172a;margin:0 0 2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}</p>
+        <p style="font-size:11px;color:#64748b;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${kioskName}</p>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:4px;">
+      <a href="${profileLink}" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;color:#0f172a;text-decoration:none;font-size:13px;font-weight:600;transition:background 0.15s ease;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+        <span class="material-symbols-outlined" style="font-size:18px;color:#003820;">account_circle</span>
+        <span>Menu Profil</span>
+      </a>
+      <button type="button" onclick="logout()" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;color:#dc2626;background:transparent;border:none;width:100%;text-align:left;font-size:13px;font-weight:600;cursor:pointer;transition:background 0.15s ease;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='transparent'">
+        <span class="material-symbols-outlined" style="font-size:18px;color:#dc2626;">logout</span>
+        <span>Keluar Akun</span>
+      </button>
+    </div>
+  `;
+
+  // Toggle dropdown on avatar click
+  avatar.addEventListener('click', function(e) {
+    e.stopPropagation();
+    const isVisible = dropdown.style.display === 'block';
+    if (isVisible) {
+      dropdown.style.display = 'none';
+    } else {
+      dropdown.style.display = 'block';
+      const rect = avatar.getBoundingClientRect();
+      dropdown.style.top = `${rect.bottom + 8}px`;
+      dropdown.style.right = `${Math.max(12, window.innerWidth - rect.right)}px`;
+    }
+  });
+
+  // Close dropdown on click outside
+  document.addEventListener('click', function(e) {
+    if (dropdown && dropdown.style.display === 'block' && !dropdown.contains(e.target) && e.target !== avatar) {
+      dropdown.style.display = 'none';
+    }
+  });
+
+  window.addEventListener('resize', () => { if (dropdown) dropdown.style.display = 'none'; });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && dropdown) dropdown.style.display = 'none'; });
+}
+
+// Auto init on page load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initHeaderProfileMenu);
+} else {
+  setTimeout(initHeaderProfileMenu, 50);
+}
+
