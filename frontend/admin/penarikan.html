@@ -200,7 +200,7 @@
             <input type="text" id="editDepositCatatan" class="input" style="padding-left:40px;background:var(--surface-container-low);border:none;" placeholder="Alasan koreksi / catatan...">
           </div>
           <div style="display:flex;gap:8px;margin-top:16px;">
-            <button type="button" class="btn btn--danger flex-1" style="border-radius:12px;padding:12px;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:4px;" onclick="deleteCurrentDeposit()">
+            <button type="button" class="btn btn--danger flex-1" style="border-radius:12px;padding:12px;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:4px;" onclick="promptDeleteCurrentDeposit()">
               <span class="material-symbols-outlined" style="font-size:18px;">delete</span>
               Batalkan
             </button>
@@ -209,6 +209,27 @@
             </button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <!-- Custom In-App Confirmation Modal for Delete -->
+    <div class="modal-overlay" id="confirmDeleteModal" style="display:none;align-items:center;justify-content:center;">
+      <div style="background:#ffffff;border-radius:24px;padding:24px;max-width:320px;width:90%;box-shadow:var(--shadow-xl);text-align:center;margin:auto;">
+        <div style="width:52px;height:52px;border-radius:50%;background:#fee2e2;color:#dc2626;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+          <span class="material-symbols-outlined" style="font-size:28px;">warning</span>
+        </div>
+        <h3 style="font-size:17px;font-weight:800;color:#0f172a;margin-bottom:8px;">Batalkan Setoran?</h3>
+        <p style="font-size:12px;color:#64748b;line-height:1.5;margin-bottom:20px;">
+          Catatan setoran untuk <strong id="confirmKiosName" style="color:#0f172a;">Unit Usaha</strong> akan dihapus dan kembali berstatus <strong>Belum Dicatat</strong>.
+        </p>
+        <div style="display:flex;gap:8px;">
+          <button type="button" class="btn btn--outline flex-1" style="border-radius:12px;padding:10px;font-size:12px;font-weight:700;" onclick="closeConfirmModal()">
+            Kembali
+          </button>
+          <button type="button" class="btn btn--danger flex-1" style="background:#dc2626;color:#ffffff;border-radius:12px;padding:10px;font-size:12px;font-weight:700;" onclick="executeDeleteDeposit()">
+            Ya, Batalkan
+          </button>
+        </div>
       </div>
     </div>
 
@@ -556,23 +577,39 @@
       openModal('depositModal');
     }
 
+    let currentKiosNameToDelete = '';
+
     function openKoreksiModal(depositId, kiosName, nominal, catatan) {
       document.getElementById('editDepositId').value = depositId;
       document.getElementById('editDepositKiosTitle').textContent = kiosName;
+      currentKiosNameToDelete = kiosName;
       document.getElementById('editDepositNominal').value = nominal ? nominal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '';
       document.getElementById('editDepositCatatan').value = catatan || '';
 
       openModal('editSetoranModal');
     }
 
-    // Delete / Cancel Setoran (Kembali ke Belum Dicatat)
-    async function deleteCurrentDeposit() {
+    // Prompt In-App Custom Confirmation Modal
+    function promptDeleteCurrentDeposit() {
+      closeModal('editSetoranModal');
+      document.getElementById('confirmKiosName').textContent = currentKiosNameToDelete || 'Unit Usaha';
+      const confirmModal = document.getElementById('confirmDeleteModal');
+      confirmModal.style.display = 'flex';
+      confirmModal.classList.add('open');
+    }
+
+    function closeConfirmModal() {
+      const confirmModal = document.getElementById('confirmDeleteModal');
+      confirmModal.style.display = 'none';
+      confirmModal.classList.remove('open');
+    }
+
+    // Execute Deletion via API
+    async function executeDeleteDeposit() {
       const depositId = document.getElementById('editDepositId').value;
       if (!depositId) return;
 
-      if (!confirm('Apakah Anda yakin ingin membatalkan setoran ini? Unit usaha akan kembali berstatus Belum Dicatat.')) {
-        return;
-      }
+      closeConfirmModal();
 
       const token = getAuthToken();
       try {
@@ -580,17 +617,21 @@
           method: 'DELETE',
           headers: { 'Authorization': 'Bearer ' + token }
         });
-        const result = await res.json();
-        if (result.success) {
-          closeModal('editSetoranModal');
+        
+        if (res.ok) {
           showToast('Setoran berhasil dibatalkan');
-          loadTodayDeposits();
+          await loadTodayDeposits();
         } else {
-          showToast(result.message || 'Gagal membatalkan setoran', 'error');
+          let errMsg = 'Gagal membatalkan setoran';
+          try {
+            const errJson = await res.json();
+            if (errJson.message) errMsg = errJson.message;
+          } catch(e){}
+          showToast(errMsg, 'error');
         }
       } catch (err) {
         console.error('Delete deposit error:', err);
-        showToast('Koneksi ke server gagal', 'error');
+        showToast('Koneksi ke server gagal (Pastikan server node aktif)', 'error');
       }
     }
 
