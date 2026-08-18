@@ -59,7 +59,7 @@ router.get('/:id', async (req, res) => {
 // POST /api/kiosks - Tambah Unit Usaha baru (Admin only)
 router.post('/', authenticateToken, requireRole('admin'), async (req, res) => {
   try {
-    const { nama_kantin, nama_penyewa, nomor_hp, tarif_sewa, pin } = req.body;
+    const { nama_kantin, nama_penyewa, nomor_hp, tarif_sewa, password, pin } = req.body;
 
     if (!nama_kantin && !nama_penyewa) {
       return res.status(400).json({ success: false, message: 'Nama unit usaha atau nama penyewa wajib diisi.' });
@@ -81,9 +81,9 @@ router.post('/', authenticateToken, requireRole('admin'), async (req, res) => {
     const existingUser = await getAsync('SELECT id FROM users WHERE username = ?', [baseUsername]);
     const finalUsername = existingUser ? `${baseUsername}${nextId}` : baseUsername;
 
-    const initialPin = pin && pin.length >= 4 ? pin : '1234';
+    const initialPassword = password || pin || '1234';
     const salt = await bcrypt.genSalt(10);
-    const hashedPin = await bcrypt.hash(initialPin, salt);
+    const hashedPassword = await bcrypt.hash(initialPassword, salt);
 
     const initials = (nama_penyewa || nama_kantin || 'U')
       .split(' ')
@@ -94,7 +94,7 @@ router.post('/', authenticateToken, requireRole('admin'), async (req, res) => {
 
     const userRes = await runAsync(
       'INSERT INTO users (username, password, role, name, initials) VALUES (?, ?, ?, ?, ?)',
-      [finalUsername, hashedPin, 'tenant', nama_penyewa || nama_kantin, initials]
+      [finalUsername, hashedPassword, 'tenant', nama_penyewa || nama_kantin, initials]
     );
 
     await runAsync(
@@ -110,11 +110,11 @@ router.post('/', authenticateToken, requireRole('admin'), async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: `Unit usaha berhasil ditambahkan! Username Login: '${finalUsername}' (PIN: ${initialPin})`,
+      message: `Unit usaha berhasil ditambahkan! Username Login: '${finalUsername}' (Password: ${initialPassword})`,
       data: newKiosk,
       credentials: {
         username: finalUsername,
-        pin: initialPin
+        password: initialPassword
       }
     });
   } catch (error) {
@@ -164,14 +164,15 @@ router.put('/:id', authenticateToken, requireRole('admin'), async (req, res) => 
   }
 });
 
-// POST /api/kiosks/:id/reset-pin - Reset PIN akun penyewa unit usaha (Admin only)
-router.post('/:id/reset-pin', authenticateToken, requireRole('admin'), async (req, res) => {
+// POST /api/kiosks/:id/reset-password - Reset Password akun penyewa unit usaha (Admin only)
+const handleResetPassword = async (req, res) => {
   try {
     const { id } = req.params;
-    const { pin } = req.body;
+    const { password, pin } = req.body;
+    const newPass = password || pin;
 
-    if (!pin || pin.length < 4) {
-      return res.status(400).json({ success: false, message: 'PIN minimal 4 digit angka.' });
+    if (!newPass || newPass.length < 4) {
+      return res.status(400).json({ success: false, message: 'Password minimal 4 karakter.' });
     }
 
     const kiosk = await getAsync('SELECT * FROM kiosks WHERE id = ?', [id]);
@@ -180,11 +181,11 @@ router.post('/:id/reset-pin', authenticateToken, requireRole('admin'), async (re
     }
 
     const salt = await bcrypt.genSalt(10);
-    const hashedPin = await bcrypt.hash(pin, salt);
+    const hashedPassword = await bcrypt.hash(newPass, salt);
 
     if (kiosk.user_id) {
       // Update password user yang sudah ada
-      await runAsync('UPDATE users SET password = ? WHERE id = ?', [hashedPin, kiosk.user_id]);
+      await runAsync('UPDATE users SET password = ? WHERE id = ?', [hashedPassword, kiosk.user_id]);
     } else {
       // Jika belum ada user_id, buat user baru untuk unit usaha ini
       const defaultUsername = (kiosk.nama_penyewa || kiosk.nama_kantin || `unit${id}`)
@@ -200,7 +201,7 @@ router.post('/:id/reset-pin', authenticateToken, requireRole('admin'), async (re
 
       const userRes = await runAsync(
         'INSERT INTO users (username, password, role, name, initials) VALUES (?, ?, ?, ?, ?)',
-        [defaultUsername, hashedPin, 'tenant', kiosk.nama_penyewa || kiosk.nama_kantin || `Unit Usaha ${id}`, initials]
+        [defaultUsername, hashedPassword, 'tenant', kiosk.nama_penyewa || kiosk.nama_kantin || `Unit Usaha ${id}`, initials]
       );
 
       await runAsync('UPDATE kiosks SET user_id = ? WHERE id = ?', [userRes.lastID, id]);
@@ -208,12 +209,16 @@ router.post('/:id/reset-pin', authenticateToken, requireRole('admin'), async (re
 
     res.json({
       success: true,
-      message: `PIN untuk ${kiosk.nama_kantin || 'Unit Usaha ' + id} berhasil direset!`
+      message: `Password untuk ${kiosk.nama_kantin || 'Unit Usaha ' + id} berhasil direset!`
     });
   } catch (error) {
-    console.error('Error reset-pin:', error);
-    res.status(500).json({ success: false, message: 'Gagal mereset PIN unit usaha.' });
+    console.error('Error reset-password:', error);
+    res.status(500).json({ success: false, message: 'Gagal mereset password unit usaha.' });
   }
-});
+};
+
+router.post('/:id/reset-password', authenticateToken, requireRole('admin'), handleResetPassword);
+router.post('/:id/reset-pin', authenticateToken, requireRole('admin'), handleResetPassword);
 
 module.exports = router;
+

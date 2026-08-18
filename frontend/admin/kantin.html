@@ -100,10 +100,10 @@
             </div>
           </div>
           <div class="input-group">
-            <label class="input-label">PIN Login Penyewa (Default: 1234)</label>
+            <label class="input-label">Password Login Penyewa (Default: 1234)</label>
             <div class="input-wrap">
               <span class="material-symbols-outlined input-wrap__icon">lock</span>
-              <input type="password" id="addPinKios" class="input" placeholder="1234" value="1234" minlength="4">
+              <input type="password" id="addPasswordKios" class="input" placeholder="1234" value="1234" minlength="4">
             </div>
           </div>
           <button type="submit" class="btn btn--primary btn--block btn--lg" style="border-radius:12px;margin-top:8px;background:#003820;color:#fff;">
@@ -164,35 +164,35 @@
       </div>
     </div>
 
-    <!-- Reset PIN Modal -->
-    <div class="modal-overlay" id="resetPinModal">
+    <!-- Reset Password Modal -->
+    <div class="modal-overlay" id="resetPasswordModal">
       <div class="bottom-sheet">
         <div class="bottom-sheet__handle"></div>
         <div class="bottom-sheet__header" style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;">
           <div>
-            <h2 style="margin:0 0 4px 0;">Reset PIN Akun Penyewa</h2>
-            <p id="resetPinKiosTitle" style="margin:0;color:#64748b;font-size:13px;">Kantin Berkah</p>
+            <h2 style="margin:0 0 4px 0;">Reset Password Penyewa</h2>
+            <p id="resetPasswordKiosTitle" style="margin:0;color:#64748b;font-size:13px;">Kantin Berkah</p>
           </div>
-          <button type="button" onclick="closeModal('resetPinModal')" style="background:#f1f5f9;border:none;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#64748b;cursor:pointer;flex-shrink:0;">
+          <button type="button" onclick="closeModal('resetPasswordModal')" style="background:#f1f5f9;border:none;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#64748b;cursor:pointer;flex-shrink:0;">
             <span class="material-symbols-outlined" style="font-size:18px;">close</span>
           </button>
         </div>
         <div style="background:#fffbeb;border:1px solid #fef3c7;border-radius:14px;padding:14px;display:flex;gap:10px;align-items:flex-start;margin-bottom:16px;">
           <span class="material-symbols-outlined" style="color:#d97706;font-size:20px;flex-shrink:0;">warning</span>
-          <p class="text-xs" style="color:#92400e;margin:0;line-height:1.4;">PIN akun ini akan direset. Penyewa dapat login menggunakan nama akun dengan PIN baru ini.</p>
+          <p class="text-xs" style="color:#92400e;margin:0;line-height:1.4;">Password akun ini akan direset. Penyewa dapat login menggunakan nama akun dengan password baru ini.</p>
         </div>
-        <form id="resetPinForm" class="space-y-4">
-          <input type="hidden" id="resetPinKiosId">
+        <form id="resetPasswordForm" class="space-y-4">
+          <input type="hidden" id="resetPasswordKiosId">
           <div class="input-group">
-            <label class="input-label">PIN Baru (minimal 4 digit)</label>
+            <label class="input-label">Password Baru (minimal 4 karakter)</label>
             <div class="input-wrap">
               <span class="material-symbols-outlined input-wrap__icon">lock</span>
-              <input type="password" id="newPinInput" class="input" placeholder="****" minlength="4" required>
+              <input type="password" id="newPasswordInput" class="input" placeholder="Masukkan password baru" minlength="4" required>
             </div>
           </div>
           <div class="flex gap-3">
-            <button type="button" class="btn btn--outline flex-1" style="border-radius:12px;" onclick="closeModal('resetPinModal')">Batal</button>
-            <button type="submit" class="btn btn--primary flex-1" style="border-radius:12px;background:#003820;color:#fff;">Reset PIN</button>
+            <button type="button" class="btn btn--outline flex-1" style="border-radius:12px;" onclick="closeModal('resetPasswordModal')">Batal</button>
+            <button type="submit" class="btn btn--primary flex-1" style="border-radius:12px;background:#003820;color:#fff;">Reset Password</button>
           </div>
         </form>
       </div>
@@ -299,9 +299,9 @@
                   <span class="material-symbols-outlined" style="font-size:16px;">edit</span>
                   Edit Info
                 </button>
-                <button class="btn btn--sm flex-1" style="background:#f8fafc;color:#475569;border:1px solid #e2e8f0;border-radius:12px;font-size:12px;font-weight:700;padding:8px 12px;display:flex;align-items:center;justify-content:center;gap:4px;" onclick="openResetPinModal('${k.id}')">
+                <button class="btn btn--sm flex-1" style="background:#f8fafc;color:#475569;border:1px solid #e2e8f0;border-radius:12px;font-size:12px;font-weight:700;padding:8px 12px;display:flex;align-items:center;justify-content:center;gap:4px;" onclick="openResetPasswordModal('${k.id}')">
                   <span class="material-symbols-outlined" style="font-size:16px;">key</span>
-                  Reset PIN
+                  Reset Password
                 </button>
               </div>
             </div>
@@ -360,15 +360,15 @@
       openModal('editKiosModal');
     }
 
-    function openResetPinModal(kiosId) {
+    function openResetPasswordModal(kiosId) {
       const k = allKiosks.find(x => x.id === kiosId);
       if (!k) return;
 
-      document.getElementById('resetPinKiosId').value = k.id;
-      document.getElementById('resetPinKiosTitle').textContent = k.nama_kantin || `Unit Usaha ${k.id}`;
-      document.getElementById('newPinInput').value = '';
+      document.getElementById('resetPasswordKiosId').value = k.id;
+      document.getElementById('resetPasswordKiosTitle').textContent = k.nama_kantin || `Unit Usaha ${k.id}`;
+      document.getElementById('newPasswordInput').value = '';
 
-      openModal('resetPinModal');
+      openModal('resetPasswordModal');
     }
 
     document.getElementById('tambahKiosForm').addEventListener('submit', async function(e) {
@@ -379,7 +379,7 @@
         nama_penyewa: document.getElementById('addNamaPenyewa').value.trim(),
         nomor_hp: document.getElementById('addNomorHp').value.trim(),
         tarif_sewa: document.getElementById('addTarifSewa').value.replace(/\D/g, '') || 1000000,
-        pin: document.getElementById('addPinKios').value.trim() || '1234'
+        password: document.getElementById('addPasswordKios').value.trim() || '1234'
       };
 
       try {
@@ -394,7 +394,7 @@
         const result = await res.json();
         if (result.success) {
           closeModal('tambahKiosModal');
-          showToast('Unit usaha baru berhasil ditambahkan!');
+          showToast(result.message || 'Unit usaha baru berhasil ditambahkan!');
           this.reset();
           loadKiosks();
         } else {
@@ -438,27 +438,27 @@
       }
     });
 
-    document.getElementById('resetPinForm').addEventListener('submit', async function(e) {
+    document.getElementById('resetPasswordForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const token = getAuthToken();
-      const kiosId = document.getElementById('resetPinKiosId').value;
-      const pin = document.getElementById('newPinInput').value.trim();
+      const kiosId = document.getElementById('resetPasswordKiosId').value;
+      const password = document.getElementById('newPasswordInput').value.trim();
 
       try {
-        const res = await fetch(`${API_BASE_URL}/kiosks/${kiosId}/reset-pin`, {
+        const res = await fetch(`${API_BASE_URL}/kiosks/${kiosId}/reset-password`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + token
           },
-          body: JSON.stringify({ pin })
+          body: JSON.stringify({ password })
         });
         const result = await res.json();
         if (result.success) {
-          closeModal('resetPinModal');
-          showToast(result.message || 'PIN berhasil direset!');
+          closeModal('resetPasswordModal');
+          showToast(result.message || 'Password berhasil direset!');
         } else {
-          showToast(result.message || 'Gagal reset PIN', 'error');
+          showToast(result.message || 'Gagal reset password', 'error');
         }
       } catch (err) {
         showToast('Koneksi ke server gagal', 'error');
