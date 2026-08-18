@@ -3,7 +3,7 @@ const path = require('path');
 const bcrypt = require('bcryptjs');
 
 const dbPath = path.join(__dirname, 'siseka.db');
-const db = new sqlite3.Database(dbPath, (err) => {
+let db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error('❌ Gagal membuka database SQLite:', err.message);
   } else {
@@ -41,9 +41,16 @@ function getAsync(sql, params = []) {
   });
 }
 
-// Inisialisasi Tabel & Seed Data Awal
-async function initDatabase() {
+// Inisialisasi Tabel & Seed Data Khusus 1 Admin & 1 Tenant (Histori 2 Bulan)
+async function initDatabase(forceReset = false) {
   try {
+    if (forceReset) {
+      console.log('🧹 Mereset seluruh tabel database...');
+      await runAsync('DROP TABLE IF EXISTS deposits');
+      await runAsync('DROP TABLE IF EXISTS kiosks');
+      await runAsync('DROP TABLE IF EXISTS users');
+    }
+
     // 1. Tabel Users
     await runAsync(`
       CREATE TABLE IF NOT EXISTS users (
@@ -89,76 +96,84 @@ async function initDatabase() {
       )
     `);
 
-    // Cek apakah data awal sudah ada
+    // Cek apakah data sudah ada
     const userCount = await getAsync('SELECT COUNT(*) as count FROM users');
     if (userCount.count === 0) {
-      console.log('🌱 Melakukan seeding data awal...');
+      console.log('🌱 Melakukan seeding data: 1 Admin, 1 Tenant (Histori 2 Bulan)...');
 
       const salt = await bcrypt.genSalt(10);
       const hash1234 = await bcrypt.hash('1234', salt);
 
-      // Seed Users
+      // 1. SEED USERS: Hanya 1 Admin & 1 Tenant
       const adminRes = await runAsync(
         'INSERT INTO users (username, password, role, name, initials) VALUES (?, ?, ?, ?, ?)',
         ['admin', hash1234, 'admin', 'Admin BPH', 'AD']
       );
 
-      const aminahRes = await runAsync(
+      const tenantRes = await runAsync(
         'INSERT INTO users (username, password, role, name, initials) VALUES (?, ?, ?, ?, ?)',
         ['aminah', hash1234, 'tenant', 'Bu Aminah', 'BA']
       );
 
-      const eniRes = await runAsync(
-        'INSERT INTO users (username, password, role, name, initials) VALUES (?, ?, ?, ?, ?)',
-        ['eni', hash1234, 'tenant', 'Bude Eni', 'BE']
+      // 2. SEED KIOSKS: K-01 milik Bu Aminah + 1 Kios Kosong K-02
+      await runAsync(
+        `INSERT INTO kiosks (id, user_id, nama_kantin, nama_penyewa, nomor_hp, tarif_sewa, status, sejak) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        ['K-01', tenantRes.lastID, 'Kantin Berkah', 'Bu Aminah', '0812-3456-7890', 1000000, 'aktif', '2024']
       );
 
-      // Seed Kiosks (12 Kios)
-      const kiosksData = [
-        ['K-01', aminahRes.lastID, 'Kantin Berkah', 'Bu Aminah', '0812-3456-7890', 1000000, 'aktif', '2024'],
-        ['K-02', null, null, null, null, 1000000, 'kosong', null],
-        ['K-03', null, 'Warung Sehat', 'Siti Aminah', '0856-7890-1234', 1000000, 'aktif', '2025'],
-        ['K-04', eniRes.lastID, 'Bude Eni', 'Bude Eni', '0813-1234-5678', 500000, 'aktif', '2024'],
-        ['K-05', null, 'Bude Ghina', 'Bude Ghina', '0857-2345-6789', 500000, 'aktif', '2025'],
-        ['K-06', null, 'Warung Tegal', 'Pak Tegal', '0821-3456-7890', 500000, 'aktif', '2024'],
-        ['K-07', null, 'Minuman Segar', 'Mas Dika', '0878-4567-8901', 500000, 'aktif', '2025'],
-        ['K-08', null, 'Kantin Bu Siti', 'Bu Siti', '0812-5678-9012', 1000000, 'aktif', '2024'],
-        ['K-09', null, 'Snack Corner', 'Mbak Rina', '0856-6789-0123', 500000, 'aktif', '2025'],
-        ['K-10', null, 'Warung Pak Joko', 'Pak Joko', '0813-7890-1234', 1000000, 'aktif', '2024'],
-        ['K-11', null, 'Es Campur Mak Ijah', 'Mak Ijah', '0821-8901-2345', 500000, 'aktif', '2024'],
-        ['K-12', null, 'Nasi Goreng Spesial', 'Pak Agus', '0878-9012-3456', 500000, 'aktif', '2025'],
-      ];
+      await runAsync(
+        `INSERT INTO kiosks (id, user_id, nama_kantin, nama_penyewa, nomor_hp, tarif_sewa, status, sejak) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        ['K-02', null, null, null, null, 1000000, 'kosong', null]
+      );
 
-      for (const k of kiosksData) {
-        await runAsync(
-          'INSERT INTO kiosks (id, user_id, nama_kantin, nama_penyewa, nomor_hp, tarif_sewa, status, sejak) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-          k
-        );
+      // 3. SEED SETORAN 2 BULAN UNTUK K-01 (Kantin Berkah):
+
+      // 📅 BULAN 1: JULI 2026 (22 Hari Setor x 50.000 = Rp 1.100.000 + 9 Hari Libur -> SURPLUS +Rp 100.000)
+      const juliLibur = [5, 6, 12, 13, 19, 20, 26, 27, 31]; // 9 hari libur
+      for (let day = 1; day <= 31; day++) {
+        const dayStr = String(day).padStart(2, '0');
+        const dateStr = `2026-07-${dayStr}`;
+
+        if (juliLibur.includes(day)) {
+          await runAsync(
+            `INSERT INTO deposits (kiosk_id, tanggal, waktu, nominal, status, metode, catatan) 
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            ['K-01', dateStr, null, 0, 'libur', null, 'Libur Akhir Pekan']
+          );
+        } else {
+          await runAsync(
+            `INSERT INTO deposits (kiosk_id, tanggal, waktu, nominal, status, metode, catatan) 
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            ['K-01', dateStr, '14:30', 50000, 'setor', 'Tunai', 'Setoran harian lancar']
+          );
+        }
       }
 
-      // Seed Setoran Hari Ini (Sample 17 Agustus 2026)
-      const sampleDeposits = [
-        ['K-01', '2026-08-17', '08:30', 50000, 'setor', 'Tunai', 'Setoran harian lancar'],
-        ['K-04', '2026-08-17', '08:45', 50000, 'setor', 'Tunai', ''],
-        ['K-05', '2026-08-17', '09:00', 50000, 'setor', 'Tunai', ''],
-        ['K-03', '2026-08-17', '09:15', 50000, 'setor', 'Transfer', 'Transfer via BCA'],
-        ['K-07', '2026-08-17', '09:30', 25000, 'setor', 'Tunai', ''],
-        ['K-09', '2026-08-17', '09:45', 25000, 'setor', 'Tunai', ''],
-        ['K-10', '2026-08-17', '10:00', 50000, 'setor', 'Tunai', ''],
-        ['K-11', '2026-08-17', '10:15', 50000, 'setor', 'Tunai', ''],
-        ['K-12', '2026-08-17', '10:30', 50000, 'setor', 'Tunai', ''],
-        ['K-08', '2026-08-17', '10:45', 50000, 'setor', 'Tunai', ''],
-        ['K-06', '2026-08-17', null, 0, 'libur', null, 'Izin ada acara keluarga'],
-      ];
+      // 📅 BULAN 2: AGUSTUS 2026 (17 Hari Setor x 50.000 = Rp 850.000 -> Progress 85%, Kurang Rp 150.000)
+      const agustusLibur = [9, 16]; // 2 hari libur akhir pekan
+      // Total 19 hari (17 hari setor @ 50k = 850.000 + 2 hari libur)
+      for (let day = 1; day <= 19; day++) {
+        const dayStr = String(day).padStart(2, '0');
+        const dateStr = `2026-08-${dayStr}`;
 
-      for (const d of sampleDeposits) {
-        await runAsync(
-          'INSERT INTO deposits (kiosk_id, tanggal, waktu, nominal, status, metode, catatan) VALUES (?, ?, ?, ?, ?, ?, ?)',
-          d
-        );
+        if (agustusLibur.includes(day)) {
+          await runAsync(
+            `INSERT INTO deposits (kiosk_id, tanggal, waktu, nominal, status, metode, catatan) 
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            ['K-01', dateStr, null, 0, 'libur', null, 'Libur Akhir Pekan']
+          );
+        } else {
+          await runAsync(
+            `INSERT INTO deposits (kiosk_id, tanggal, waktu, nominal, status, metode, catatan) 
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            ['K-01', dateStr, day === 17 ? '14:30' : '10:15', 50000, 'setor', day % 4 === 0 ? 'Transfer' : 'Tunai', 'Setoran harian']
+          );
+        }
       }
 
-      console.log('✅ Seeding data selesai!');
+      console.log('✅ Seeding database 1 Admin & 1 Tenant (2 bulan data) selesai!');
     }
   } catch (error) {
     console.error('❌ Error inisialisasi database:', error);
