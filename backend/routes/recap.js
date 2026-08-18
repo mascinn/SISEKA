@@ -263,15 +263,17 @@ router.get('/tenant/monthly-history', authenticateToken, requireRole('tenant'), 
 
     const initialSurplusPool = totalSurplusPool;
 
-    // 3. Alokasikan surplus untuk melunasi bulan-bulan masa lalu yang minus (dari bulan terdekat/terlama)
-    rawMonths.forEach(m => {
-      if (!m.is_current && m.selisih < 0) {
-        if (totalSurplusPool > 0) {
-          const comp = Math.min(totalSurplusPool, m.kekurangan);
-          m.kompensasi_surplus_diterima = comp;
-          m.sisa_kewajiban_setelah_kompensasi = m.kekurangan - comp;
-          totalSurplusPool -= comp;
-        }
+    // 3. Alokasikan surplus untuk melunasi bulan-bulan masa lalu yang minus, MULAI DARI BULAN PALING LAMA (Oldest Deficit First)
+    const pastDeficitMonthsChronological = rawMonths
+      .filter(m => !m.is_current && m.selisih < 0)
+      .sort((a, b) => a.bulan_code.localeCompare(b.bulan_code));
+
+    pastDeficitMonthsChronological.forEach(m => {
+      if (totalSurplusPool > 0) {
+        const comp = Math.min(totalSurplusPool, m.kekurangan);
+        m.kompensasi_surplus_diterima = comp;
+        m.sisa_kewajiban_setelah_kompensasi = m.kekurangan - comp;
+        totalSurplusPool -= comp;
       }
     });
 
