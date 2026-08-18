@@ -72,14 +72,14 @@
         </div>
       </section>
 
-      <!-- WhatsApp Broadcast Card -->
-      <section class="wa-card mb-4">
+      <!-- WhatsApp Broadcast Card (Only shown when 100% complete) -->
+      <section class="wa-card mb-4" id="waBroadcastSection" style="display:none;margin-top:16px;border-radius:20px;box-shadow:var(--shadow-sm);">
         <div class="wa-card__header">
           <div class="wa-card__brand">
             <div class="wa-card__icon" id="waIconBox"></div>
             <div>
               <h3 class="font-bold text-xs" style="color:#0f172a;">Laporan Siap Dikirim</h3>
-              <span style="font-size:9px;color:#64748b;font-weight:500;">Format Otomatis</span>
+              <span style="font-size:10px;color:#64748b;font-weight:500;">Format Otomatis WhatsApp</span>
             </div>
           </div>
         </div>
@@ -87,25 +87,25 @@
           <p>Memuat laporan...</p>
           <div class="wa-card__preview-fade"></div>
         </div>
-        <button class="btn btn--wa btn--block mt-2" style="border-radius:12px;font-size:11px;padding:10px;" onclick="shareLiveWAReport()">
+        <button class="btn btn--wa btn--block mt-2" style="border-radius:12px;font-size:12px;font-weight:700;padding:12px;" onclick="shareLiveWAReport()">
           <span id="waSvgIcon"></span>
-          Kirim Laporan
+          Kirim Laporan via WhatsApp
         </button>
       </section>
 
       <!-- Deposit List -->
-      <section class="mt-2">
-        <h3 class="font-bold text-sm px-2 mb-3" style="color:#0f172a;" id="listTitleHeader">Daftar Setoran</h3>
+      <section class="mt-4">
+        <h3 class="font-bold text-sm px-1 mb-3" style="color:#0f172a;" id="listTitleHeader">Daftar Setoran</h3>
 
         <!-- Filter Chips -->
-        <div class="filter-chips px-2 mb-4" id="filterChips">
+        <div class="filter-chips px-1 mb-4" id="filterChips">
           <button class="chip chip--active" data-filter="semua">Semua</button>
-          <button class="chip chip--default" data-filter="belum">Belum Setoran</button>
+          <button class="chip chip--default" data-filter="belum">Belum Setor</button>
           <button class="chip chip--default" data-filter="setor">Sudah Setor</button>
         </div>
 
-        <!-- Dynamic List -->
-        <div class="card card--flush" id="setoranList">
+        <!-- Dynamic List Container -->
+        <div id="setoranList" class="space-y-3">
           <div style="text-align:center;padding:24px;color:var(--on-surface-variant);">Memuat data setoran...</div>
         </div>
       </section>
@@ -326,14 +326,20 @@
       if (chipBelum) chipBelum.textContent = `Belum Setor (${summary.total_belum})`;
       if (chipSetor) chipSetor.textContent = `Sudah Setor (${summary.total_setor + summary.total_libur})`;
 
-      // Render WA Preview
-      renderWAPreview(list, summary.total_kas_hari_ini);
+      // WhatsApp Broadcast Card: ONLY show when all kiosks have been recorded (total_belum === 0)
+      const waSection = document.getElementById('waBroadcastSection');
+      if (summary.total_belum === 0 && summary.total_kios > 0) {
+        waSection.style.display = 'block';
+        renderWAPreview(list, summary.total_kas_hari_ini);
+      } else {
+        waSection.style.display = 'none';
+      }
 
       // Render Kiosk List
       renderKioskList(list);
     }
 
-    // 3. Render List of Kiosks with Organized Sections & Priority Ordering
+    // 3. Render List of Kiosks with Clean, Professional Institutional Cards
     function renderKioskList(list) {
       const container = document.getElementById('setoranList');
       if (!list || list.length === 0) {
@@ -348,114 +354,102 @@
 
       let html = '';
 
-      // Tampilkan Bagian 1: Kios Belum Diinput (Prioritas Utama untuk Petugas Kolektor)
+      // Bagian 1: Kios Belum Diinput
       if ((currentFilter === 'semua' || currentFilter === 'belum') && pendingItems.length > 0) {
-        html += `
-          <div style="padding:8px 12px;background:#fef3c7;border-radius:12px;margin:4px;display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:11px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:0.05em;">
-              ⏳ Perlu Dicatat (${pendingItems.length})
-            </span>
-            <span style="font-size:10px;color:#b45309;font-weight:600;">Belum Setor</span>
-          </div>
-        `;
+        if (currentFilter === 'semua') {
+          html += `
+            <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;margin:4px 4px 10px;">
+              Perlu Dicatat (${pendingItems.length})
+            </div>
+          `;
+        }
 
-        pendingItems.forEach((item, idx) => {
+        pendingItems.forEach((item) => {
           const displayName = item.nama_kantin || `Unit Usaha ${item.id}`;
           html += `
-            <div class="list-item" style="background:#fffbeb;border:1px solid #fef3c7;margin:4px 8px;border-radius:16px;">
-              <div class="list-item__left">
-                <div class="list-item__icon" style="background:#fef3c7;color:#d97706;">
-                  <span class="material-symbols-outlined" style="font-size:20px;">store</span>
+            <div style="background:#ffffff;border:1px solid rgba(192,201,192,0.4);box-shadow:var(--shadow-sm);border-radius:20px;padding:16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div style="width:42px;height:42px;border-radius:50%;background:#f0fdf4;border:1px solid #dcfce7;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <span class="material-symbols-outlined" style="font-size:22px;color:#003820;">storefront</span>
                 </div>
                 <div>
-                  <p class="list-item__title" style="font-weight:700;">${displayName}</p>
-                  <p class="list-item__subtitle" style="color:#d97706;font-size:11px;">${item.nama_penyewa ? item.nama_penyewa + ' • ' : ''}Tarif: ${formatRupiah(item.tarif_sewa)}/bln</p>
+                  <h4 style="font-size:14px;font-weight:700;color:#0f172a;margin:0 0 2px 0;">${displayName}</h4>
+                  <p style="font-size:12px;color:#64748b;margin:0;">${item.nama_penyewa ? item.nama_penyewa + ' • ' : ''}Sewa: ${formatRupiah(item.tarif_sewa)}/bln</p>
                 </div>
               </div>
-              <div class="list-item__right">
-                <button class="btn btn--primary btn--sm" style="border-radius:10px;padding:8px 14px;font-size:11px;box-shadow:var(--shadow-sm);" onclick="openCatatModalById('${item.id}')">
-                  + Catat Setor
-                </button>
-              </div>
+              <button class="btn btn--sm" style="background:#003820;color:#ffffff;border-radius:9999px;padding:8px 16px;font-size:12px;font-weight:700;box-shadow:var(--shadow-sm);border:none;cursor:pointer;flex-shrink:0;" onclick="openCatatModalById('${item.id}')">
+                + Catat Setor
+              </button>
             </div>
           `;
         });
       }
 
-      // Tampilkan Bagian 2: Setoran Selesai (Yang baru diinput ada di paling atas!)
+      // Bagian 2: Setoran Selesai
       if ((currentFilter === 'semua' || currentFilter === 'setor') && completedItems.length > 0) {
-        if (currentFilter === 'semua' && pendingItems.length > 0) {
+        if (currentFilter === 'semua') {
           html += `
-            <div style="padding:8px 12px;margin:12px 4px 4px;display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-size:11px;font-weight:700;color:var(--emerald-800);text-transform:uppercase;letter-spacing:0.05em;">
-                ✅ Sudah Selesai Dicatat (${completedItems.length})
-              </span>
-              <span style="font-size:10px;color:var(--emerald-600);font-weight:600;">Terbaru di Atas</span>
+            <div style="font-size:11px;font-weight:700;color:#003820;text-transform:uppercase;letter-spacing:0.05em;margin:16px 4px 10px;">
+              Selesai Dicatat (${completedItems.length})
             </div>
           `;
         }
 
-        completedItems.forEach((item, index) => {
-          const isLast = index === completedItems.length - 1 && closedItems.length === 0;
+        completedItems.forEach((item) => {
           const displayName = item.nama_kantin || `Unit Usaha ${item.id}`;
           const timeText = item.waktu ? `${item.waktu} WIB` : 'Tercatat';
           html += `
-            <div class="list-item">
-              <div class="list-item__left">
-                <div class="list-item__icon list-item__icon--success">
-                  <span class="material-symbols-outlined" style="font-size:18px;">check</span>
+            <div style="background:#ffffff;border:1px solid rgba(192,201,192,0.4);box-shadow:var(--shadow-sm);border-radius:20px;padding:16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div style="width:42px;height:42px;border-radius:50%;background:#f0fdf4;border:1px solid #dcfce7;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <span class="material-symbols-outlined" style="font-size:22px;color:#003820;">check_circle</span>
                 </div>
                 <div>
-                  <p class="list-item__title">${displayName}</p>
-                  <p class="list-item__subtitle">${timeText}${item.catatan ? ' • ' + item.catatan : ''}</p>
+                  <h4 style="font-size:14px;font-weight:700;color:#0f172a;margin:0 0 2px 0;">${displayName}</h4>
+                  <p style="font-size:12px;color:#64748b;margin:0;">${timeText}${item.catatan ? ' • ' + item.catatan : ''}</p>
                 </div>
               </div>
-              <div class="list-item__right">
-                <span class="list-item__amount" style="color:var(--emerald-600);font-weight:700;">+${formatRupiah(item.nominal)}</span>
-                <button class="list-item__edit-btn" onclick="openKoreksiModalById('${item.deposit_id}')" title="Koreksi nominal">
-                  <span class="material-symbols-outlined" style="font-size:14px;">edit</span>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-size:15px;font-weight:800;color:#003820;">+${formatRupiah(item.nominal)}</span>
+                <button onclick="openKoreksiModalById('${item.deposit_id}')" title="Koreksi nominal" style="background:none;border:none;padding:6px;cursor:pointer;color:#94a3b8;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                  <span class="material-symbols-outlined" style="font-size:18px;">edit</span>
                 </button>
               </div>
             </div>
-            ${isLast ? '' : '<hr class="list-divider">'}
           `;
         });
       }
 
-      // Tampilkan Bagian 3: Libur / Tutup
+      // Bagian 3: Libur / Tutup
       if ((currentFilter === 'semua' || currentFilter === 'setor') && closedItems.length > 0) {
         if (currentFilter === 'semua') {
           html += `
-            <div style="padding:8px 12px;margin:12px 4px 4px;display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;">
-                🌙 Libur / Tutup (${closedItems.length})
-              </span>
+            <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;margin:16px 4px 10px;">
+              Libur / Tutup (${closedItems.length})
             </div>
           `;
         }
 
-        closedItems.forEach((item, index) => {
-          const isLast = index === closedItems.length - 1;
+        closedItems.forEach((item) => {
           const displayName = item.nama_kantin || `Unit Usaha ${item.id}`;
           html += `
-            <div class="list-item" style="opacity:0.75;">
-              <div class="list-item__left">
-                <div class="list-item__icon list-item__icon--neutral">
-                  <span class="material-symbols-outlined" style="font-size:18px;">bedtime</span>
+            <div style="background:#ffffff;border:1px solid rgba(192,201,192,0.3);box-shadow:var(--shadow-sm);border-radius:20px;padding:16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;opacity:0.85;">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div style="width:42px;height:42px;border-radius:50%;background:#f8fafc;border:1px solid #e2e8f0;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <span class="material-symbols-outlined" style="font-size:22px;color:#64748b;">bedtime</span>
                 </div>
                 <div>
-                  <p class="list-item__title">${displayName}</p>
-                  <p class="list-item__subtitle">${item.catatan || 'Libur / Tutup'}</p>
+                  <h4 style="font-size:14px;font-weight:700;color:#0f172a;margin:0 0 2px 0;">${displayName}</h4>
+                  <p style="font-size:12px;color:#64748b;margin:0;">${item.catatan || 'Libur / Tutup'}</p>
                 </div>
               </div>
-              <div class="list-item__right">
-                <span class="list-item__amount list-item__amount--muted">Rp 0</span>
-                <button class="list-item__edit-btn" onclick="openKoreksiModalById('${item.deposit_id}')" title="Koreksi status">
-                  <span class="material-symbols-outlined" style="font-size:14px;">edit</span>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-size:14px;font-weight:600;color:#94a3b8;">Rp 0</span>
+                <button onclick="openKoreksiModalById('${item.deposit_id}')" title="Koreksi status" style="background:none;border:none;padding:6px;cursor:pointer;color:#94a3b8;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                  <span class="material-symbols-outlined" style="font-size:18px;">edit</span>
                 </button>
               </div>
             </div>
-            ${isLast ? '' : '<hr class="list-divider">'}
           `;
         });
       }
