@@ -25,48 +25,48 @@
     <main style="padding:24px 16px 0;">
       <!-- Admin Identity -->
       <div class="mb-2">
-        <span class="badge badge--running" style="font-size:10px;">PETUGAS KOLEKTOR BPH</span>
-        <h1 class="font-bold text-xl" style="margin-top:4px;color:#0f172a;">Penarikan Hari Ini 📋</h1>
+        <span style="font-size:11px;font-weight:700;color:#003820;background:#f0fdf4;padding:4px 10px;border-radius:8px;border:1px solid #dcfce7;letter-spacing:0.05em;text-transform:uppercase;">Petugas Kolektor BPH</span>
+        <h1 class="font-bold text-xl" style="margin-top:6px;color:#0f172a;">Penarikan Hari Ini 📋</h1>
         <p class="text-xs text-muted mt-1" id="todayDate"></p>
       </div>
 
       <!-- Hero Card -->
-      <section class="hero-card mb-4" style="margin-top:8px;">
-        <div class="hero-card__decoration" style="top:0;right:0;transform:translate(25%,-50%);"></div>
+      <section class="hero-card mb-4" style="margin-top:8px;padding:24px;background:#003820;box-shadow:var(--shadow-hero);position:relative;overflow:hidden;border-radius:24px;">
+        <div class="hero-card__decoration" style="top:0;right:0;width:128px;height:128px;background:rgba(255,255,255,0.05);border-radius:50%;filter:none;transform:translate(40px,-40px);pointer-events:none;position:absolute;"></div>
+        <div class="hero-card__decoration" style="bottom:0;left:0;width:96px;height:96px;background:rgba(255,255,255,0.05);border-radius:50%;filter:none;transform:translate(-20px,40px);pointer-events:none;position:absolute;"></div>
         <div class="relative z-10">
-          <div class="flex justify-between items-start mb-2">
-            <h2 style="font-size:14px;color:rgba(255,255,255,0.9);font-weight:500;">Total Kas Masuk Hari Ini</h2>
-            <span class="badge badge--complete" id="completeBadge" style="font-size:10px;">
-              <span class="material-symbols-outlined" style="font-size:14px;">check_circle</span>
-              <span id="completeBadgeText">0% LENGKAP</span>
-            </span>
-          </div>
-          <div class="hero-card__amount mb-4" id="totalKasMasukText">Rp 0</div>
-
-          <div class="mb-4">
-            <div class="flex justify-between text-xs" style="color:rgba(255,255,255,0.8);margin-bottom:6px;">
-              <span>Progres Pengumpulan</span>
-              <span class="font-medium" id="progresText">0 dari 0 Kios Dicatat</span>
-            </div>
-            <div class="progress-bar">
-              <div class="progress-bar__fill" id="progressBarFill" style="width:0%;"></div>
+          <div class="flex justify-between items-center mb-2">
+            <h2 style="font-size:12px;color:var(--primary-fixed-dim);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Total Kas Masuk Hari Ini</h2>
+            <div id="completeBadge" style="font-size:11px;font-weight:700;padding:4px 12px;border-radius:9999px;background:rgba(255,255,255,0.12);color:#ffffff;border:1px solid rgba(255,255,255,0.15);display:inline-flex;align-items:center;gap:4px;">
+              <span id="completeBadgeText">0/2 Unit</span>
             </div>
           </div>
+          <div class="hero-card__amount mb-4" style="letter-spacing:-0.025em;font-size:36px;font-weight:800;color:#ffffff;" id="totalKasMasukText">Rp 0</div>
 
-          <div class="stats-row">
-            <div class="stats-row__item">
-              <span class="stats-row__value" id="countSetorText">0</span>
-              <span class="stats-row__label">Setor Tunai</span>
+          <div class="space-y-2 mb-5">
+            <div class="flex justify-between text-xs" style="color:rgba(255,255,255,0.85);margin-bottom:6px;">
+              <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--primary-fixed-dim);">PROGRES PENGUMPULAN</span>
+              <span class="font-financial-sm font-bold text-white" id="progresText">0 dari 2 Unit Dicatat</span>
             </div>
-            <div class="stats-row__divider"></div>
-            <div class="stats-row__item">
-              <span class="stats-row__value" id="countLiburText">0</span>
-              <span class="stats-row__label">Libur/Tutup</span>
+            <div style="width:100%;background:rgba(0,0,0,0.25);border-radius:var(--radius-full);height:8px;overflow:hidden;">
+              <div class="progress-bar__fill" id="progressBarFill" style="width:0%;background:var(--primary-fixed);height:100%;border-radius:var(--radius-full);transition:width 0.6s ease;"></div>
             </div>
-            <div class="stats-row__divider"></div>
+          </div>
+
+          <div class="stats-row" style="background:rgba(0,0,0,0.15);border:1px solid rgba(255,255,255,0.1);backdrop-filter:blur(4px);border-radius:16px;">
             <div class="stats-row__item">
-              <span class="stats-row__value" id="countBelumText">0</span>
-              <span class="stats-row__label">Belum Dicatat</span>
+              <span class="stats-row__value text-white font-bold" id="countSetorText">0</span>
+              <span class="stats-row__label" style="color:var(--primary-fixed-dim);">Setor Tunai</span>
+            </div>
+            <div class="stats-row__divider" style="background:rgba(255,255,255,0.1);"></div>
+            <div class="stats-row__item">
+              <span class="stats-row__value text-white font-bold" id="countLiburText">0</span>
+              <span class="stats-row__label" style="color:var(--primary-fixed-dim);">Libur/Tutup</span>
+            </div>
+            <div class="stats-row__divider" style="background:rgba(255,255,255,0.1);"></div>
+            <div class="stats-row__item">
+              <span class="stats-row__value text-white font-bold" id="countBelumText">0</span>
+              <span class="stats-row__label" style="color:var(--primary-fixed-dim);">Belum Dicatat</span>
             </div>
           </div>
         </div>
@@ -298,11 +298,11 @@
       const badge = document.getElementById('completeBadge');
       const badgeText = document.getElementById('completeBadgeText');
       if (summary.is_complete) {
-        badge.style.background = 'rgba(16,185,129,0.3)';
-        badgeText.textContent = '100% LENGKAP';
+        badge.style.background = 'rgba(255,255,255,0.2)';
+        badgeText.innerHTML = '<span class="material-symbols-outlined" style="font-size:13px;">check_circle</span> Selesai Semua';
       } else {
-        badge.style.background = 'rgba(245,158,11,0.3)';
-        badgeText.textContent = `${summary.progress_percent}% TERCATAT`;
+        badge.style.background = 'rgba(255,255,255,0.12)';
+        badgeText.textContent = `${summary.total_dicatat}/${summary.total_kios} Unit`;
       }
 
       document.getElementById('listTitleHeader').textContent = `Daftar Setoran (${summary.total_kios})`;
