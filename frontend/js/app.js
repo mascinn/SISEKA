@@ -197,11 +197,10 @@ function formatDepositHistorySubtitle(item) {
   const timeStr = item.waktu ? `${item.waktu} WIB, ` : '';
   
   if (isSetor) {
-    const method = item.metode ? ` • ${item.metode}` : '';
-    return `${timeStr}${fullDate}${method}`;
+    return `${timeStr}${fullDate}`;
   } else {
     const note = item.catatan || item.keterangan;
-    return `${timeStr}${fullDate}${note ? ' • ' + note : ' • Libur / Tutup'}`;
+    return `${timeStr}${fullDate}${note ? ' • ' + note : ''}`;
   }
 }
 

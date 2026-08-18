@@ -380,6 +380,7 @@
         completedItems.forEach((item, index) => {
           const isLast = index === completedItems.length - 1 && closedItems.length === 0;
           const displayName = item.nama_kantin || `Unit Usaha ${item.id}`;
+          const timeText = item.waktu ? `${item.waktu} WIB` : 'Tercatat';
           html += `
             <div class="list-item">
               <div class="list-item__left">
@@ -388,7 +389,7 @@
                 </div>
                 <div>
                   <p class="list-item__title">${displayName}</p>
-                  <p class="list-item__subtitle">${item.metode || 'Tunai'} • ${item.waktu || 'Tercatat'} WIB${item.catatan ? ' • ' + item.catatan : ''}</p>
+                  <p class="list-item__subtitle">${timeText}${item.catatan ? ' • ' + item.catatan : ''}</p>
                 </div>
               </div>
               <div class="list-item__right">
