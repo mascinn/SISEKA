@@ -506,16 +506,25 @@
     // 4. WhatsApp Message Generator
     function renderWAPreview(list, total) {
       const today = getTodayString();
-      const setorList = list.filter(l => l.deposit_status === 'setor');
+      let previewHtml = `<strong>Assalamu'alaikum Warahmatullahi Wabarakatuh</strong><br><br>`;
+      previewHtml += `<strong>Laporan Setoran Kantin</strong><br>${today}<br><br>`;
+      previewHtml += `<strong>Rincian Setoran:</strong><br>`;
 
-      let previewHtml = `<strong>Assalamu'alaikum...</strong><br>${today}<br><br>`;
-      setorList.slice(0, 3).forEach((s, idx) => {
-        previewHtml += `${idx + 1}. ${s.nama_kantin || s.id}: ${formatRupiah(s.nominal)}<br>`;
+      list.slice(0, 3).forEach((k, idx) => {
+        const kioskName = k.nama_kantin ? (k.nama_penyewa ? `${k.nama_kantin} (${k.nama_penyewa})` : k.nama_kantin) : `Unit Usaha ${k.id}`;
+        if (k.deposit_status === 'setor') {
+          previewHtml += `${idx + 1}. ${kioskName}: ${formatRupiah(k.nominal)}<br>`;
+        } else if (k.deposit_status === 'libur') {
+          previewHtml += `${idx + 1}. ${kioskName}: <strong>Libur / Tutup</strong><br>`;
+        } else {
+          previewHtml += `${idx + 1}. ${kioskName}: <em>Belum Setor</em><br>`;
+        }
       });
-      if (setorList.length > 3) {
-        previewHtml += `... (${setorList.length - 3} kios lainnya)<br>`;
+      if (list.length > 3) {
+        previewHtml += `... (${list.length - 3} unit lainnya)<br>`;
       }
-      previewHtml += `<br><strong>Total: ${formatRupiah(total)}</strong>`;
+      previewHtml += `<br><strong>Total setoran: ${formatRupiah(total)}</strong><br><br>`;
+      previewHtml += `Terimakasih<br>Waalaikumsalam Warahmatullahi Wabarakatuh<br>`;
       previewHtml += `<div class="wa-card__preview-fade"></div>`;
 
       document.getElementById('waPreview').innerHTML = previewHtml;
@@ -524,30 +533,28 @@
     function shareLiveWAReport() {
       if (!todayDataCache) return;
       const today = getTodayString();
-      const setorList = todayDataCache.data.filter(l => l.deposit_status === 'setor');
-      const liburList = todayDataCache.data.filter(l => l.deposit_status === 'libur');
+      const allKiosks = todayDataCache.data || [];
 
-      let msg = `*Assalamu'alaikum Warahmatullahi Wabarakatuh*\n`;
-      msg += `*LAPORAN SETORAN KANTIN BPH MASJID AL-WASI'I*\n`;
-      msg += `🗓️ ${today}\n\n`;
-      msg += `*Rincian Setoran Masuk:*\n`;
+      let msg = `*Assalamu'alaikum Warahmatullahi Wabarakatuh*\n\n`;
+      msg += `*Laporan Setoran Kantin*\n`;
+      msg += `${today}\n\n`;
+      msg += `*Rincian Setoran:*\n`;
 
-      setorList.forEach((s, idx) => {
-        msg += `${idx + 1}. ${s.id} ${s.nama_kantin || ''}: ${formatRupiah(s.nominal)} (${s.metode || 'Tunai'})\n`;
+      allKiosks.forEach((k, idx) => {
+        const kioskName = k.nama_kantin ? (k.nama_penyewa ? `${k.nama_kantin} (${k.nama_penyewa})` : k.nama_kantin) : `Unit Usaha ${k.id}`;
+        if (k.deposit_status === 'setor') {
+          msg += `${idx + 1}. ${kioskName}: ${formatRupiah(k.nominal)}\n`;
+        } else if (k.deposit_status === 'libur') {
+          msg += `${idx + 1}. ${kioskName}: *Libur / Tutup*\n`;
+        } else {
+          msg += `${idx + 1}. ${kioskName}: _Belum Setor_\n`;
+        }
       });
 
-      if (liburList.length > 0) {
-        msg += `\n*Libur / Tutup:*\n`;
-        liburList.forEach((l, idx) => {
-          msg += `- ${l.id} ${l.nama_kantin || ''} (${l.catatan || 'Libur'})\n`;
-        });
-      }
-
-      msg += `\n━━━━━━━━━━━━━━━━━━━━\n`;
-      msg += `*TOTAL KAS TERKUMPUL: ${formatRupiah(todayDataCache.summary.total_kas_hari_ini)}*\n`;
-      msg += `(${todayDataCache.summary.total_dicatat}/${todayDataCache.summary.total_kios} Kios Dicatat)\n`;
-      msg += `━━━━━━━━━━━━━━━━━━━━\n\n`;
-      msg += `_Sistem Informasi SISEKA WASI'I_`;
+      msg += `\n*Total setoran: ${formatRupiah(todayDataCache.summary.total_kas_hari_ini || 0)}*\n\n`;
+      msg += `Terimakasih\n\n`;
+      msg += `Waalaikumsalam Warahmatullahi Wabarakatuh\n\n`;
+      msg += `_Teks Digenerate oleh Sistem Informasi Sewa Kantin(SISEKA WASI'I)_`;
 
       const encoded = encodeURIComponent(msg);
       window.open(`https://wa.me/?text=${encoded}`, '_blank');

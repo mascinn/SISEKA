@@ -236,12 +236,23 @@ function generateWAReport() {
   const setoranList = SETORAN_HARI_INI.filter(s => s.status === 'setor');
   const total = setoranList.reduce((sum, s) => sum + s.nominal, 0);
 
-  let msg = `Assalamu'alaikum...\n${today}\n\nLaporan Setoran Harian:\n`;
-  setoranList.forEach((s, i) => {
-    msg += `${i + 1}. ${s.nama}: ${formatRupiah(s.nominal)}\n`;
+  let msg = `*Assalamu'alaikum Warahmatullahi Wabarakatuh*\n\n`;
+  msg += `*Laporan Setoran Kantin*\n`;
+  msg += `${today}\n\n`;
+  msg += `*Rincian Setoran:*\n`;
+
+  SETORAN_HARI_INI.forEach((s, i) => {
+    if (s.status === 'setor') {
+      msg += `${i + 1}. ${s.nama}: ${formatRupiah(s.nominal)}\n`;
+    } else {
+      msg += `${i + 1}. ${s.nama}: *Libur / Tutup*\n`;
+    }
   });
-  msg += `\nTotal: ${formatRupiah(total)}`;
-  msg += `\n\nSISEKA WASI'I • BPH Masjid Al-Wasi'i`;
+
+  msg += `\n*Total setoran: ${formatRupiah(total)}*\n\n`;
+  msg += `Terimakasih\n\n`;
+  msg += `Waalaikumsalam Warahmatullahi Wabarakatuh\n\n`;
+  msg += `_Teks Digenerate oleh Sistem Informasi Sewa Kantin(SISEKA WASI'I)_`;
 
   return msg;
 }
