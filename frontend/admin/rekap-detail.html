@@ -102,7 +102,7 @@
     function renderKioskDetail(data) {
       const { kiosk, summary, riwayat, bulan_label } = data;
 
-      document.getElementById('headerKioskTitle').textContent = `Detail Rekap: ${kiosk.id} ${kiosk.nama_kantin || ''}`;
+      document.getElementById('headerKioskTitle').textContent = `Detail Rekap: ${kiosk.nama_kantin || 'Unit Usaha ' + kiosk.id}`;
       document.getElementById('headerMonthTitle').textContent = bulan_label;
 
       document.getElementById('totalSetoranText').textContent = formatRupiah(summary.total_setor);

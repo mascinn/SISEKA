@@ -90,7 +90,7 @@
       </a>
       <a href="kantin.html" class="bottom-nav__item">
         <span class="material-symbols-outlined bottom-nav__icon">storefront</span>
-        <span class="bottom-nav__label">Kantin</span>
+        <span class="bottom-nav__label">Unit Usaha</span>
       </a>
     </nav>
   </div>
@@ -168,7 +168,7 @@
       }
 
       container.innerHTML = list.map(item => {
-        const displayName = item.nama_kantin ? `${item.kiosk_id} ${item.nama_kantin}` : item.kiosk_id;
+        const displayName = item.nama_kantin || `Unit Usaha ${item.kiosk_id}`;
         let badgeHtml = '';
         let iconClass = 'rekap-card__icon--neutral';
 

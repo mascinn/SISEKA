@@ -56,45 +56,43 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST /api/kiosks - Tambah kios baru (Admin only)
+// POST /api/kiosks - Tambah Unit Usaha baru (Admin only)
 router.post('/', authenticateToken, requireRole('admin'), async (req, res) => {
   try {
-    const { id, nama_kantin, nama_penyewa, nomor_hp, tarif_sewa } = req.body;
+    const { nama_kantin, nama_penyewa, nomor_hp, tarif_sewa } = req.body;
 
-    if (!id) {
-      return res.status(400).json({ success: false, message: 'Nomor/ID Kios wajib diisi (contoh: K-13).' });
+    if (!nama_kantin && !nama_penyewa) {
+      return res.status(400).json({ success: false, message: 'Nama unit usaha atau nama penyewa wajib diisi.' });
     }
 
-    // Cek apakah ID kios sudah ada
-    const existing = await getAsync('SELECT id FROM kiosks WHERE id = ?', [id]);
-    if (existing) {
-      return res.status(400).json({ success: false, message: `Nomor kios ${id} sudah terdaftar.` });
-    }
+    // Cari ID numerik berikutnya
+    const lastKiosk = await getAsync('SELECT id FROM kiosks ORDER BY CAST(id AS INTEGER) DESC LIMIT 1');
+    const nextId = lastKiosk && !isNaN(lastKiosk.id) ? (parseInt(lastKiosk.id) + 1).toString() : '1';
 
     const tarif = parseInt(tarif_sewa) || 1000000;
-    const status = nama_kantin || nama_penyewa ? 'aktif' : 'kosong';
+    const status = 'aktif';
     const tahunSekarang = new Date().getFullYear().toString();
 
     await runAsync(
       `INSERT INTO kiosks (id, nama_kantin, nama_penyewa, nomor_hp, tarif_sewa, status, sejak) 
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [id, nama_kantin || null, nama_penyewa || null, nomor_hp || null, tarif, status, status === 'aktif' ? tahunSekarang : null]
+      [nextId, nama_kantin || null, nama_penyewa || null, nomor_hp || null, tarif, status, tahunSekarang]
     );
 
-    const newKiosk = await getAsync('SELECT * FROM kiosks WHERE id = ?', [id]);
+    const newKiosk = await getAsync('SELECT * FROM kiosks WHERE id = ?', [nextId]);
 
     res.status(201).json({
       success: true,
-      message: 'Kios baru berhasil ditambahkan!',
+      message: 'Unit usaha baru berhasil ditambahkan!',
       data: newKiosk
     });
   } catch (error) {
     console.error('Error POST /api/kiosks:', error);
-    res.status(500).json({ success: false, message: 'Gagal menambahkan kios baru.' });
+    res.status(500).json({ success: false, message: 'Gagal menambahkan unit usaha baru.' });
   }
 });
 
-// PUT /api/kiosks/:id - Update info kios (Admin only)
+// PUT /api/kiosks/:id - Update info Unit Usaha (Admin only)
 router.put('/:id', authenticateToken, requireRole('admin'), async (req, res) => {
   try {
     const { id } = req.params;
@@ -102,7 +100,7 @@ router.put('/:id', authenticateToken, requireRole('admin'), async (req, res) => 
 
     const existing = await getAsync('SELECT * FROM kiosks WHERE id = ?', [id]);
     if (!existing) {
-      return res.status(404).json({ success: false, message: 'Kios tidak ditemukan.' });
+      return res.status(404).json({ success: false, message: 'Unit usaha tidak ditemukan.' });
     }
 
     const newStatus = status || (nama_kantin || nama_penyewa ? 'aktif' : 'kosong');
@@ -126,16 +124,16 @@ router.put('/:id', authenticateToken, requireRole('admin'), async (req, res) => 
 
     res.json({
       success: true,
-      message: 'Informasi kios berhasil diperbarui!',
+      message: 'Informasi unit usaha berhasil diperbarui!',
       data: updated
     });
   } catch (error) {
     console.error('Error PUT /api/kiosks/:id:', error);
-    res.status(500).json({ success: false, message: 'Gagal memperbarui kios.' });
+    res.status(500).json({ success: false, message: 'Gagal memperbarui unit usaha.' });
   }
 });
 
-// POST /api/kiosks/:id/reset-pin - Reset PIN akun penyewa kios (Admin only)
+// POST /api/kiosks/:id/reset-pin - Reset PIN akun penyewa unit usaha (Admin only)
 router.post('/:id/reset-pin', authenticateToken, requireRole('admin'), async (req, res) => {
   try {
     const { id } = req.params;
@@ -147,7 +145,7 @@ router.post('/:id/reset-pin', authenticateToken, requireRole('admin'), async (re
 
     const kiosk = await getAsync('SELECT * FROM kiosks WHERE id = ?', [id]);
     if (!kiosk) {
-      return res.status(404).json({ success: false, message: 'Kios tidak ditemukan.' });
+      return res.status(404).json({ success: false, message: 'Unit usaha tidak ditemukan.' });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -157,9 +155,12 @@ router.post('/:id/reset-pin', authenticateToken, requireRole('admin'), async (re
       // Update password user yang sudah ada
       await runAsync('UPDATE users SET password = ? WHERE id = ?', [hashedPin, kiosk.user_id]);
     } else {
-      // Jika belum ada user_id, buat user baru untuk kios ini
-      const defaultUsername = id.toLowerCase().replace(/[^a-z0-9]/g, '');
-      const initials = (kiosk.nama_penyewa || kiosk.nama_kantin || 'K')
+      // Jika belum ada user_id, buat user baru untuk unit usaha ini
+      const defaultUsername = (kiosk.nama_penyewa || kiosk.nama_kantin || `unit${id}`)
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '');
+
+      const initials = (kiosk.nama_penyewa || kiosk.nama_kantin || 'U')
         .split(' ')
         .map(w => w[0])
         .join('')
@@ -168,7 +169,7 @@ router.post('/:id/reset-pin', authenticateToken, requireRole('admin'), async (re
 
       const userRes = await runAsync(
         'INSERT INTO users (username, password, role, name, initials) VALUES (?, ?, ?, ?, ?)',
-        [defaultUsername, hashedPin, 'tenant', kiosk.nama_penyewa || kiosk.nama_kantin || `Kios ${id}`, initials]
+        [defaultUsername, hashedPin, 'tenant', kiosk.nama_penyewa || kiosk.nama_kantin || `Unit Usaha ${id}`, initials]
       );
 
       await runAsync('UPDATE kiosks SET user_id = ? WHERE id = ?', [userRes.lastID, id]);
@@ -176,11 +177,11 @@ router.post('/:id/reset-pin', authenticateToken, requireRole('admin'), async (re
 
     res.json({
       success: true,
-      message: `PIN untuk ${kiosk.nama_kantin || id} berhasil direset!`
+      message: `PIN untuk ${kiosk.nama_kantin || 'Unit Usaha ' + id} berhasil direset!`
     });
   } catch (error) {
     console.error('Error reset-pin:', error);
-    res.status(500).json({ success: false, message: 'Gagal mereset PIN kios.' });
+    res.status(500).json({ success: false, message: 'Gagal mereset PIN unit usaha.' });
   }
 });
 

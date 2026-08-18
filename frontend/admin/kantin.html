@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Manajemen Kantin - SISEKA WASI'I</title>
+  <title>Kelola Unit Usaha - SISEKA WASI'I</title>
   <link rel="stylesheet" href="../css/styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 </head>
@@ -22,26 +22,25 @@
       <!-- Page Title -->
       <div class="flex justify-between items-start gap-4 mb-6" style="flex-wrap:wrap;">
         <div>
-          <h1 class="font-headline-lg" style="color:var(--primary);font-size:28px;">Kelola Kantin</h1>
-          <p class="font-body-md text-on-surface-variant mt-1" id="totalKiosText">Total 12 Kios Terdaftar</p>
+          <h1 class="font-headline-lg" style="color:var(--primary);font-size:28px;">Kelola Unit Usaha</h1>
+          <p class="font-body-md text-on-surface-variant mt-1" id="totalKiosText">Total Unit Usaha Terdaftar</p>
         </div>
         <button class="btn btn--primary-dark btn--rounded" style="box-shadow:var(--shadow-md);" onclick="openModal('tambahKiosModal')">
           <span class="material-symbols-outlined">add</span>
-          Tambah Kios
+          Tambah Unit Usaha
         </button>
       </div>
 
       <!-- Search -->
       <div class="mb-6" style="position:relative;">
         <span class="material-symbols-outlined" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--on-surface-variant);">search</span>
-        <input type="text" id="searchInput" class="input input--search" placeholder="Cari nomor kios atau nama penyewa...">
+        <input type="text" id="searchInput" class="input input--search" placeholder="Cari nama usaha atau penyewa...">
       </div>
 
-      <!-- Kios List Container (Dynamic) -->
+      <!-- Unit Usaha List Container -->
       <div class="space-y-4" id="kioskListContainer">
-        <!-- Rendered via JS -->
         <div style="text-align:center;padding:32px;color:var(--on-surface-variant);">
-          Memuat data kios...
+          Memuat data unit usaha...
         </div>
       </div>
 
@@ -54,33 +53,27 @@
       </div>
     </main>
 
-    <!-- Tambah Kios Modal -->
+    <!-- Tambah Unit Usaha Modal -->
     <div class="modal-overlay" id="tambahKiosModal">
       <div class="bottom-sheet">
         <div class="bottom-sheet__handle"></div>
         <div class="bottom-sheet__header">
-          <h2>Tambah Kios Baru</h2>
+          <h2>Tambah Unit Usaha Baru</h2>
+          <p>Daftarkan tempat usaha / stan baru</p>
         </div>
         <form id="tambahKiosForm" class="space-y-4">
           <div class="input-group">
-            <label class="input-label">Nomor Kios *</label>
-            <div class="input-wrap">
-              <span class="material-symbols-outlined input-wrap__icon">tag</span>
-              <input type="text" id="addKiosId" class="input" placeholder="K-13" required>
-            </div>
-          </div>
-          <div class="input-group">
-            <label class="input-label">Nama Kantin</label>
+            <label class="input-label">Nama Tempat / Jenis Usaha *</label>
             <div class="input-wrap">
               <span class="material-symbols-outlined input-wrap__icon">storefront</span>
-              <input type="text" id="addNamaKantin" class="input" placeholder="Nama kantin">
+              <input type="text" id="addNamaKantin" class="input" placeholder="Misal: Fotocopy Al-Wasi'i, Warung Sembako..." required>
             </div>
           </div>
           <div class="input-group">
             <label class="input-label">Nama Penyewa</label>
             <div class="input-wrap">
               <span class="material-symbols-outlined input-wrap__icon">person</span>
-              <input type="text" id="addNamaPenyewa" class="input" placeholder="Nama lengkap">
+              <input type="text" id="addNamaPenyewa" class="input" placeholder="Nama lengkap pengelola">
             </div>
           </div>
           <div class="input-group">
@@ -98,27 +91,27 @@
             </div>
           </div>
           <button type="submit" class="btn btn--primary btn--block btn--lg" style="border-radius:12px;margin-top:8px;">
-            <span class="material-symbols-outlined">check_circle</span> Simpan Kios Baru
+            <span class="material-symbols-outlined">check_circle</span> Simpan Unit Usaha
           </button>
         </form>
       </div>
     </div>
 
-    <!-- Edit Kios Modal -->
+    <!-- Edit Unit Usaha Modal -->
     <div class="modal-overlay" id="editKiosModal">
       <div class="bottom-sheet">
         <div class="bottom-sheet__handle"></div>
         <div class="bottom-sheet__header">
-          <h2>Edit Info Kios</h2>
-          <p id="editKiosHeaderTitle">K-01</p>
+          <h2>Edit Info Unit Usaha</h2>
+          <p id="editKiosHeaderTitle">Kantin Berkah</p>
         </div>
         <form id="editKiosForm" class="space-y-4">
           <input type="hidden" id="editKiosId">
           <div class="input-group">
-            <label class="input-label">Nama Kantin</label>
+            <label class="input-label">Nama Tempat / Jenis Usaha</label>
             <div class="input-wrap">
               <span class="material-symbols-outlined input-wrap__icon">storefront</span>
-              <input type="text" id="editNamaKantin" class="input" placeholder="Nama kantin">
+              <input type="text" id="editNamaKantin" class="input" placeholder="Nama unit usaha">
             </div>
           </div>
           <div class="input-group">
@@ -155,12 +148,12 @@
       <div class="bottom-sheet">
         <div class="bottom-sheet__handle"></div>
         <div class="bottom-sheet__header">
-          <h2>Reset PIN Akun Kios</h2>
-          <p id="resetPinKiosTitle">K-01</p>
+          <h2>Reset PIN Akun Penyewa</h2>
+          <p id="resetPinKiosTitle">Kantin Berkah</p>
         </div>
         <div style="background:#fef3c7;border:1px solid #fbbf24;border-radius:12px;padding:16px;display:flex;gap:12px;align-items:flex-start;">
           <span class="material-symbols-outlined" style="color:#d97706;font-size:20px;">warning</span>
-          <p class="text-sm" style="color:#92400e;">PIN akun kios ini akan direset. Penyewa dapat login menggunakan ID kios atau username dengan PIN baru ini.</p>
+          <p class="text-sm" style="color:#92400e;">PIN akun ini akan direset. Penyewa dapat login menggunakan nama akun dengan PIN baru ini.</p>
         </div>
         <form id="resetPinForm" class="space-y-4">
           <input type="hidden" id="resetPinKiosId">
@@ -191,7 +184,7 @@
       </a>
       <a href="kantin.html" class="bottom-nav__item active">
         <span class="material-symbols-outlined bottom-nav__icon">storefront</span>
-        <span class="bottom-nav__label">Kantin</span>
+        <span class="bottom-nav__label">Unit Usaha</span>
       </a>
     </nav>
   </div>
@@ -203,11 +196,8 @@
 
     let allKiosks = [];
 
-    // 1. Fetch Kiosks from Backend
     async function loadKiosks(query = '') {
-      const container = document.getElementById('kioskListContainer');
       const totalText = document.getElementById('totalKiosText');
-
       try {
         const url = query ? `${API_BASE_URL}/kiosks?q=${encodeURIComponent(query)}` : `${API_BASE_URL}/kiosks`;
         const res = await fetch(url);
@@ -216,37 +206,30 @@
         if (result.success) {
           allKiosks = result.data;
           renderKiosks(allKiosks);
-          totalText.textContent = `Total ${allKiosks.length} Kios Terdaftar`;
-        } else {
-          fallbackLocalKiosks();
+          totalText.textContent = `Total ${allKiosks.length} Unit Usaha Terdaftar`;
         }
       } catch (err) {
-        console.warn('Backend offline, menggunakan data lokal fallback:', err);
-        fallbackLocalKiosks();
+        console.warn('Load error:', err);
       }
     }
 
-    function fallbackLocalKiosks() {
-      allKiosks = KIOS_LIST;
-      renderKiosks(allKiosks);
-      document.getElementById('totalKiosText').textContent = `Total ${allKiosks.length} Kios Terdaftar`;
-    }
-
-    // 2. Render Kiosks to DOM
     function renderKiosks(kiosks) {
       const container = document.getElementById('kioskListContainer');
       if (!kiosks || kiosks.length === 0) {
         container.innerHTML = `
           <div style="text-align:center;padding:32px;background:#fff;border-radius:16px;border:1px solid var(--border-subtle);">
             <span class="material-symbols-outlined" style="font-size:36px;color:#94a3b8;">storefront</span>
-            <p class="text-sm font-semibold text-muted mt-2">Tidak ada data kios yang cocok</p>
+            <p class="text-sm font-semibold text-muted mt-2">Tidak ada data unit usaha yang cocok</p>
           </div>
         `;
         return;
       }
 
       container.innerHTML = kiosks.map(k => {
-        if (k.status === 'aktif' && (k.nama_kantin || k.nama_penyewa)) {
+        const isAktif = k.status === 'aktif' && (k.nama_kantin || k.nama_penyewa);
+        const displayName = k.nama_kantin || `Unit Usaha ${k.id}`;
+
+        if (isAktif) {
           return `
             <div class="kantin-card">
               <div class="kantin-card__info">
@@ -254,7 +237,7 @@
                   <span class="badge badge--active">
                     <span class="badge__dot badge__dot--green"></span> Aktif
                   </span>
-                  <h3 class="font-title-md" style="font-size:18px;">${k.id} ${k.nama_kantin || ''}</h3>
+                  <h3 class="font-title-md" style="font-size:18px;">${displayName}</h3>
                 </div>
                 <div class="kantin-card__details">
                   <div class="kantin-card__detail">
@@ -285,7 +268,7 @@
                   <span class="badge badge--vacant">
                     <span class="badge__dot" style="border:2px solid var(--outline);background:transparent;"></span> Kosong
                   </span>
-                  <h3 class="font-title-md text-on-surface-variant" style="font-size:18px;">${k.id}</h3>
+                  <h3 class="font-title-md text-on-surface-variant" style="font-size:18px;">Unit Usaha ${k.id}</h3>
                 </div>
                 <div class="kantin-card__detail text-on-surface-variant" style="opacity:0.7;">
                   <span class="material-symbols-outlined" style="font-size:20px;">info</span>
@@ -302,7 +285,6 @@
       }).join('');
     }
 
-    // 3. Search Filter
     document.getElementById('searchInput').addEventListener('input', function(e) {
       const q = e.target.value.toLowerCase().trim();
       if (!q) {
@@ -310,20 +292,18 @@
         return;
       }
       const filtered = allKiosks.filter(k => 
-        k.id.toLowerCase().includes(q) ||
         (k.nama_kantin && k.nama_kantin.toLowerCase().includes(q)) ||
         (k.nama_penyewa && k.nama_penyewa.toLowerCase().includes(q))
       );
       renderKiosks(filtered);
     });
 
-    // 4. Modal Handlers
     function openEditKiosModal(kiosId) {
       const k = allKiosks.find(x => x.id === kiosId);
       if (!k) return;
 
       document.getElementById('editKiosId').value = k.id;
-      document.getElementById('editKiosHeaderTitle').textContent = `${k.id} ${k.nama_kantin || ''}`;
+      document.getElementById('editKiosHeaderTitle').textContent = k.nama_kantin || `Unit Usaha ${k.id}`;
       document.getElementById('editNamaKantin').value = k.nama_kantin || '';
       document.getElementById('editNamaPenyewa').value = k.nama_penyewa || '';
       document.getElementById('editNomorHp').value = k.nomor_hp || '';
@@ -337,18 +317,16 @@
       if (!k) return;
 
       document.getElementById('resetPinKiosId').value = k.id;
-      document.getElementById('resetPinKiosTitle').textContent = `${k.id} ${k.nama_kantin || k.nama_penyewa || ''}`;
+      document.getElementById('resetPinKiosTitle').textContent = k.nama_kantin || `Unit Usaha ${k.id}`;
       document.getElementById('newPinInput').value = '';
 
       openModal('resetPinModal');
     }
 
-    // 5. Submit Forms
     document.getElementById('tambahKiosForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const token = getAuthToken();
       const payload = {
-        id: document.getElementById('addKiosId').value.trim(),
         nama_kantin: document.getElementById('addNamaKantin').value.trim(),
         nama_penyewa: document.getElementById('addNamaPenyewa').value.trim(),
         nomor_hp: document.getElementById('addNomorHp').value.trim(),
@@ -367,15 +345,14 @@
         const result = await res.json();
         if (result.success) {
           closeModal('tambahKiosModal');
-          showToast('Kios baru berhasil ditambahkan!');
+          showToast('Unit usaha baru berhasil ditambahkan!');
           this.reset();
           loadKiosks();
         } else {
-          showToast(result.message || 'Gagal menambah kios', 'error');
+          showToast(result.message || 'Gagal menambah unit usaha', 'error');
         }
       } catch (err) {
-        console.error(err);
-        showToast('Koneksi ke backend gagal', 'error');
+        showToast('Koneksi ke server gagal', 'error');
       }
     });
 
@@ -402,14 +379,13 @@
         const result = await res.json();
         if (result.success) {
           closeModal('editKiosModal');
-          showToast('Informasi kios berhasil diperbarui!');
+          showToast('Informasi unit usaha berhasil diperbarui!');
           loadKiosks();
         } else {
-          showToast(result.message || 'Gagal update kios', 'error');
+          showToast(result.message || 'Gagal update unit usaha', 'error');
         }
       } catch (err) {
-        console.error(err);
-        showToast('Koneksi ke backend gagal', 'error');
+        showToast('Koneksi ke server gagal', 'error');
       }
     });
 
@@ -436,16 +412,12 @@
           showToast(result.message || 'Gagal reset PIN', 'error');
         }
       } catch (err) {
-        console.error(err);
-        showToast('Koneksi ke backend gagal', 'error');
+        showToast('Koneksi ke server gagal', 'error');
       }
     });
 
-    // Formatting rupiah inputs
     initRupiahInput('addTarifSewa');
     initRupiahInput('editTarifSewa');
-
-    // Initial Load
     loadKiosks();
   </script>
 </body>

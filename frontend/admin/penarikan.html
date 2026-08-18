@@ -218,7 +218,7 @@
       </a>
       <a href="kantin.html" class="bottom-nav__item">
         <span class="material-symbols-outlined bottom-nav__icon">storefront</span>
-        <span class="bottom-nav__label">Kantin</span>
+        <span class="bottom-nav__label">Unit Usaha</span>
       </a>
     </nav>
   </div>
@@ -342,7 +342,7 @@
         `;
 
         pendingItems.forEach((item, idx) => {
-          const displayName = item.nama_kantin ? `${item.id} ${item.nama_kantin}` : item.id;
+          const displayName = item.nama_kantin || `Unit Usaha ${item.id}`;
           html += `
             <div class="list-item" style="background:#fffbeb;border:1px solid #fef3c7;margin:4px 8px;border-radius:16px;">
               <div class="list-item__left">
@@ -379,7 +379,7 @@
 
         completedItems.forEach((item, index) => {
           const isLast = index === completedItems.length - 1 && closedItems.length === 0;
-          const displayName = item.nama_kantin ? `${item.id} ${item.nama_kantin}` : item.id;
+          const displayName = item.nama_kantin || `Unit Usaha ${item.id}`;
           html += `
             <div class="list-item">
               <div class="list-item__left">
@@ -417,7 +417,7 @@
 
         closedItems.forEach((item, index) => {
           const isLast = index === closedItems.length - 1;
-          const displayName = item.nama_kantin ? `${item.id} ${item.nama_kantin}` : item.id;
+          const displayName = item.nama_kantin || `Unit Usaha ${item.id}`;
           html += `
             <div class="list-item" style="opacity:0.75;">
               <div class="list-item__left">

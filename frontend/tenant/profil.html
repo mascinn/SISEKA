@@ -63,7 +63,7 @@
           <div class="info-row">
             <span class="info-row__label">
               <span class="material-symbols-outlined" style="font-size:18px;">verified_user</span>
-              Status Kios
+              Status Unit Usaha
             </span>
             <span class="badge badge--active" style="font-size:12px;text-transform:none;letter-spacing:0;font-weight:600;">
               <span class="badge__dot badge__dot--pulse"></span>
@@ -127,7 +127,7 @@
           const u = result.user;
           document.getElementById('headerAvatar').textContent = u.initials || 'TN';
           document.getElementById('profileAvatar').textContent = u.initials || 'TN';
-          document.getElementById('profileKios').textContent = u.kios ? `${u.kiosk_id} ${u.kios}` : (u.kiosk_id || 'Kantin');
+          document.getElementById('profileKios').textContent = u.kios || 'Unit Usaha ' + (u.kiosk_id || '');
           document.getElementById('profileName').textContent = u.name;
           if (u.tarif_sewa) {
             document.getElementById('profileSewa').innerHTML = `${formatRupiah(u.tarif_sewa)} <span class="text-xs" style="font-weight:400;color:var(--on-surface-variant);">/ Bulan</span>`;
@@ -138,7 +138,7 @@
         if (user) {
           document.getElementById('headerAvatar').textContent = user.initials;
           document.getElementById('profileAvatar').textContent = user.initials;
-          document.getElementById('profileKios').textContent = user.kios || 'Kantin';
+          document.getElementById('profileKios').textContent = user.kios || 'Unit Usaha';
           document.getElementById('profileName').textContent = user.name;
         }
       }

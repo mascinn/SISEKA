@@ -41,7 +41,7 @@ function getAsync(sql, params = []) {
   });
 }
 
-// Inisialisasi Tabel & Seed Data Khusus 1 Admin & 1 Tenant (Histori 2 Bulan)
+// Inisialisasi Tabel & Seed Data Khusus 1 Admin & 1 Tenant (Terminologi Unit Usaha, Tanpa Kode Kios)
 async function initDatabase(forceReset = false) {
   try {
     if (forceReset) {
@@ -64,7 +64,7 @@ async function initDatabase(forceReset = false) {
       )
     `);
 
-    // 2. Tabel Kiosks (Master Data Kios)
+    // 2. Tabel Kiosks / Unit Usaha
     await runAsync(`
       CREATE TABLE IF NOT EXISTS kiosks (
         id TEXT PRIMARY KEY,
@@ -99,12 +99,12 @@ async function initDatabase(forceReset = false) {
     // Cek apakah data sudah ada
     const userCount = await getAsync('SELECT COUNT(*) as count FROM users');
     if (userCount.count === 0) {
-      console.log('🌱 Melakukan seeding data: 1 Admin, 1 Tenant (Histori 2 Bulan)...');
+      console.log('🌱 Melakukan seeding data Unit Usaha (1 Admin & 1 Tenant)...');
 
       const salt = await bcrypt.genSalt(10);
       const hash1234 = await bcrypt.hash('1234', salt);
 
-      // 1. SEED USERS: Hanya 1 Admin & 1 Tenant
+      // 1. SEED USERS: 1 Admin & 1 Tenant
       const adminRes = await runAsync(
         'INSERT INTO users (username, password, role, name, initials) VALUES (?, ?, ?, ?, ?)',
         ['admin', hash1234, 'admin', 'Admin BPH', 'AD']
@@ -115,23 +115,23 @@ async function initDatabase(forceReset = false) {
         ['aminah', hash1234, 'tenant', 'Bu Aminah', 'BA']
       );
 
-      // 2. SEED KIOSKS: K-01 milik Bu Aminah + 1 Kios Kosong K-02
+      // 2. SEED UNIT USAHA (ID murni numerik internal: 1, 2)
       await runAsync(
         `INSERT INTO kiosks (id, user_id, nama_kantin, nama_penyewa, nomor_hp, tarif_sewa, status, sejak) 
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        ['K-01', tenantRes.lastID, 'Kantin Berkah', 'Bu Aminah', '0812-3456-7890', 1000000, 'aktif', '2024']
+        ['1', tenantRes.lastID, 'Kantin Berkah', 'Bu Aminah', '0812-3456-7890', 1000000, 'aktif', '2024']
       );
 
       await runAsync(
         `INSERT INTO kiosks (id, user_id, nama_kantin, nama_penyewa, nomor_hp, tarif_sewa, status, sejak) 
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        ['K-02', null, null, null, null, 1000000, 'kosong', null]
+        ['2', null, null, null, null, 1000000, 'kosong', null]
       );
 
-      // 3. SEED SETORAN 2 BULAN UNTUK K-01 (Kantin Berkah):
+      // 3. SEED SETORAN 2 BULAN UNTUK UNIT 1 (Kantin Berkah):
 
       // 📅 BULAN 1: JULI 2026 (22 Hari Setor x 50.000 = Rp 1.100.000 + 9 Hari Libur -> SURPLUS +Rp 100.000)
-      const juliLibur = [5, 6, 12, 13, 19, 20, 26, 27, 31]; // 9 hari libur
+      const juliLibur = [5, 6, 12, 13, 19, 20, 26, 27, 31];
       for (let day = 1; day <= 31; day++) {
         const dayStr = String(day).padStart(2, '0');
         const dateStr = `2026-07-${dayStr}`;
@@ -140,20 +140,19 @@ async function initDatabase(forceReset = false) {
           await runAsync(
             `INSERT INTO deposits (kiosk_id, tanggal, waktu, nominal, status, metode, catatan) 
              VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            ['K-01', dateStr, null, 0, 'libur', null, 'Libur Akhir Pekan']
+            ['1', dateStr, null, 0, 'libur', null, 'Libur Akhir Pekan']
           );
         } else {
           await runAsync(
             `INSERT INTO deposits (kiosk_id, tanggal, waktu, nominal, status, metode, catatan) 
              VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            ['K-01', dateStr, '14:30', 50000, 'setor', 'Tunai', 'Setoran harian lancar']
+            ['1', dateStr, '14:30', 50000, 'setor', 'Tunai', 'Setoran harian lancar']
           );
         }
       }
 
       // 📅 BULAN 2: AGUSTUS 2026 (17 Hari Setor x 50.000 = Rp 850.000 -> Progress 85%, Kurang Rp 150.000)
-      const agustusLibur = [9, 16]; // 2 hari libur akhir pekan
-      // Total 19 hari (17 hari setor @ 50k = 850.000 + 2 hari libur)
+      const agustusLibur = [9, 16];
       for (let day = 1; day <= 19; day++) {
         const dayStr = String(day).padStart(2, '0');
         const dateStr = `2026-08-${dayStr}`;
@@ -162,18 +161,18 @@ async function initDatabase(forceReset = false) {
           await runAsync(
             `INSERT INTO deposits (kiosk_id, tanggal, waktu, nominal, status, metode, catatan) 
              VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            ['K-01', dateStr, null, 0, 'libur', null, 'Libur Akhir Pekan']
+            ['1', dateStr, null, 0, 'libur', null, 'Libur Akhir Pekan']
           );
         } else {
           await runAsync(
             `INSERT INTO deposits (kiosk_id, tanggal, waktu, nominal, status, metode, catatan) 
              VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            ['K-01', dateStr, day === 17 ? '14:30' : '10:15', 50000, 'setor', day % 4 === 0 ? 'Transfer' : 'Tunai', 'Setoran harian']
+            ['1', dateStr, day === 17 ? '14:30' : '10:15', 50000, 'setor', day % 4 === 0 ? 'Transfer' : 'Tunai', 'Setoran harian']
           );
         }
       }
 
-      console.log('✅ Seeding database 1 Admin & 1 Tenant (2 bulan data) selesai!');
+      console.log('✅ Seeding database Unit Usaha selesai!');
     }
   } catch (error) {
     console.error('❌ Error inisialisasi database:', error);
