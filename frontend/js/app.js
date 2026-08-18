@@ -67,15 +67,15 @@ const TENANT_REKAP = [
 
 // ---- Dummy Data: Riwayat Setoran Tenant ----
 const TENANT_RIWAYAT = [
-  { tanggal: '17 Agu', hari: 'Senin', waktu: '14:30 WIB', nominal: 50000, tipe: 'setor' },
-  { tanggal: '16 Agu', hari: 'Minggu', waktu: null, nominal: 0, tipe: 'libur', keterangan: 'Libur Akhir Pekan' },
-  { tanggal: '15 Agu', hari: 'Sabtu', waktu: '13:15 WIB', nominal: 50000, tipe: 'setor' },
-  { tanggal: '14 Agu', hari: 'Jumat', waktu: '10:15 WIB', nominal: 50000, tipe: 'setor' },
-  { tanggal: '13 Agu', hari: 'Kamis', waktu: '11:00 WIB', nominal: 50000, tipe: 'setor' },
-  { tanggal: '12 Agu', hari: 'Rabu', waktu: '09:30 WIB', nominal: 50000, tipe: 'setor' },
-  { tanggal: '11 Agu', hari: 'Selasa', waktu: '10:00 WIB', nominal: 50000, tipe: 'setor' },
-  { tanggal: '10 Agu', hari: 'Senin', waktu: '08:45 WIB', nominal: 50000, tipe: 'setor' },
-  { tanggal: '9 Agu', hari: 'Minggu', waktu: null, nominal: 0, tipe: 'libur', keterangan: 'Libur Akhir Pekan' },
+  { tanggal: '2026-08-17', waktu: '10:15', nominal: 50000, status: 'setor' },
+  { tanggal: '2026-08-16', waktu: null, nominal: 0, status: 'libur', catatan: 'Libur Akhir Pekan' },
+  { tanggal: '2026-08-15', waktu: '10:15', nominal: 50000, status: 'setor' },
+  { tanggal: '2026-08-14', waktu: '10:15', nominal: 50000, status: 'setor' },
+  { tanggal: '2026-08-13', waktu: '10:15', nominal: 50000, status: 'setor' },
+  { tanggal: '2026-08-12', waktu: '10:15', nominal: 50000, status: 'setor' },
+  { tanggal: '2026-08-11', waktu: '10:15', nominal: 50000, status: 'setor' },
+  { tanggal: '2026-08-10', waktu: '10:15', nominal: 50000, status: 'setor' },
+  { tanggal: '2026-08-09', waktu: null, nominal: 0, status: 'libur', catatan: 'Libur Akhir Pekan' },
 ];
 
 // ---- Backend API Configuration ----
@@ -173,17 +173,20 @@ function formatIndonesianFullDate(dateStr) {
 function getDayNameFromDate(dateStr) {
   if (!dateStr) return 'Hari';
   const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+  for (const d of days) {
+    if (dateStr.toLowerCase().includes(d.toLowerCase())) return d;
+  }
   const parts = dateStr.split('T')[0].split('-');
   if (parts.length === 3) {
-    const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-    return days[d.getDay()];
+    const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+    if (!isNaN(d.getTime())) return days[d.getDay()];
   }
   return 'Hari';
 }
 
 function formatDepositHistoryTitle(item) {
   const isSetor = item.status === 'setor' || item.tipe === 'setor';
-  const dayName = getDayNameFromDate(item.tanggal);
+  const dayName = getDayNameFromDate(item.tanggal || item.hari);
   if (isSetor) {
     return `Setoran ${dayName}`;
   } else {
@@ -194,7 +197,8 @@ function formatDepositHistoryTitle(item) {
 function formatDepositHistorySubtitle(item) {
   const isSetor = item.status === 'setor' || item.tipe === 'setor';
   const fullDate = formatIndonesianFullDate(item.tanggal);
-  const timeStr = item.waktu ? `${item.waktu} WIB, ` : '';
+  const rawTime = item.waktu ? item.waktu.replace(/\s*WIB/gi, '').trim() : '';
+  const timeStr = rawTime ? `${rawTime} WIB, ` : '';
   
   if (isSetor) {
     return `${timeStr}${fullDate}`;

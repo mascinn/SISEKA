@@ -77,9 +77,8 @@
     async function loadTenantMonthDetail() {
       const token = getAuthToken();
       try {
-        const res = await fetchWithTimeout(`${API_BASE_URL}/recap/tenant/month-detail?month=${month}`, {
-          headers: { 'Authorization': 'Bearer ' + token },
-          timeout: 2500
+        const res = await fetch(`${API_BASE_URL}/recap/tenant/month-detail?month=${month}`, {
+          headers: { 'Authorization': 'Bearer ' + token }
         });
         const result = await res.json();
 
