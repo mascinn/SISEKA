@@ -59,7 +59,7 @@ router.get('/:id', async (req, res) => {
 // POST /api/kiosks - Tambah Unit Usaha baru (Admin only)
 router.post('/', authenticateToken, requireRole('admin'), async (req, res) => {
   try {
-    const { nama_kantin, nama_penyewa, nomor_hp, tarif_sewa } = req.body;
+    const { nama_kantin, nama_penyewa, nomor_hp, tarif_sewa, pin } = req.body;
 
     if (!nama_kantin && !nama_penyewa) {
       return res.status(400).json({ success: false, message: 'Nama unit usaha atau nama penyewa wajib diisi.' });
@@ -73,18 +73,49 @@ router.post('/', authenticateToken, requireRole('admin'), async (req, res) => {
     const status = 'aktif';
     const tahunSekarang = new Date().getFullYear().toString();
 
-    await runAsync(
-      `INSERT INTO kiosks (id, nama_kantin, nama_penyewa, nomor_hp, tarif_sewa, status, sejak) 
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [nextId, nama_kantin || null, nama_penyewa || null, nomor_hp || null, tarif, status, tahunSekarang]
+    // Buat akun user tenant otomatis
+    const baseUsername = (nama_penyewa || nama_kantin || `unit${nextId}`)
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '');
+
+    const existingUser = await getAsync('SELECT id FROM users WHERE username = ?', [baseUsername]);
+    const finalUsername = existingUser ? `${baseUsername}${nextId}` : baseUsername;
+
+    const initialPin = pin && pin.length >= 4 ? pin : '1234';
+    const salt = await bcrypt.genSalt(10);
+    const hashedPin = await bcrypt.hash(initialPin, salt);
+
+    const initials = (nama_penyewa || nama_kantin || 'U')
+      .split(' ')
+      .map(w => w[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+
+    const userRes = await runAsync(
+      'INSERT INTO users (username, password, role, name, initials) VALUES (?, ?, ?, ?, ?)',
+      [finalUsername, hashedPin, 'tenant', nama_penyewa || nama_kantin, initials]
     );
 
-    const newKiosk = await getAsync('SELECT * FROM kiosks WHERE id = ?', [nextId]);
+    await runAsync(
+      `INSERT INTO kiosks (id, user_id, nama_kantin, nama_penyewa, nomor_hp, tarif_sewa, status, sejak) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [nextId, userRes.lastID, nama_kantin || null, nama_penyewa || null, nomor_hp || null, tarif, status, tahunSekarang]
+    );
+
+    const newKiosk = await getAsync(
+      `SELECT k.*, u.username FROM kiosks k LEFT JOIN users u ON k.user_id = u.id WHERE k.id = ?`,
+      [nextId]
+    );
 
     res.status(201).json({
       success: true,
-      message: 'Unit usaha baru berhasil ditambahkan!',
-      data: newKiosk
+      message: `Unit usaha berhasil ditambahkan! Username Login: '${finalUsername}' (PIN: ${initialPin})`,
+      data: newKiosk,
+      credentials: {
+        username: finalUsername,
+        pin: initialPin
+      }
     });
   } catch (error) {
     console.error('Error POST /api/kiosks:', error);
