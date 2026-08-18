@@ -176,6 +176,7 @@
       }
 
       // Today status banner
+      document.getElementById('todayShortDate').textContent = getTodayString();
       const todayAmountEl = document.getElementById('todayStatusAmount');
       const todayIconBox = document.getElementById('todayStatusIconBox');
 
@@ -203,8 +204,8 @@
       riwayatContainer.innerHTML = riwayat.map((item, idx) => {
         const isLast = idx === riwayat.length - 1;
         const isSetor = item.status === 'setor' || item.tipe === 'setor';
-        const displayDate = item.tanggal || item.tanggal_formatted || 'Hari ini';
-        const displaySub = isSetor ? `${item.metode || 'Tunai'} • ${item.waktu || ''} WIB` : (item.catatan || item.keterangan || 'Libur / Tutup');
+        const titleText = formatDepositHistoryTitle(item);
+        const subtitleText = formatDepositHistorySubtitle(item);
 
         if (isSetor) {
           return `
@@ -214,8 +215,8 @@
                   <span class="material-symbols-outlined" style="font-size:20px;">payments</span>
                 </div>
                 <div>
-                  <p class="list-item__title" style="font-size:14px;">Setoran ${item.metode || 'Tunai'}</p>
-                  <p class="list-item__subtitle">${displayDate}, ${displaySub}</p>
+                  <p class="list-item__title" style="font-size:14px;font-weight:700;color:var(--on-surface);">${titleText}</p>
+                  <p class="list-item__subtitle">${subtitleText}</p>
                 </div>
               </div>
               <span class="font-financial-sm" style="color:var(--primary-container);font-weight:700;">+${formatRupiah(item.nominal)}</span>
@@ -230,8 +231,8 @@
                   <span class="material-symbols-outlined" style="font-size:20px;">weekend</span>
                 </div>
                 <div>
-                  <p class="list-item__title" style="font-size:14px;">${displaySub}</p>
-                  <p class="list-item__subtitle">${displayDate}</p>
+                  <p class="list-item__title" style="font-size:14px;font-weight:700;color:#64748b;">${titleText}</p>
+                  <p class="list-item__subtitle">${subtitleText}</p>
                 </div>
               </div>
               <span class="font-financial-sm text-muted">Rp 0</span>

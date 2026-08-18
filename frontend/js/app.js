@@ -155,6 +155,56 @@ function formatRupiahShort(angka) {
   return formatRupiah(angka);
 }
 
+function formatIndonesianFullDate(dateStr) {
+  if (!dateStr) return '';
+  const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+  
+  // Handle 'YYYY-MM-DD'
+  const parts = dateStr.split('T')[0].split('-');
+  if (parts.length === 3) {
+    const year = parts[0];
+    const monthIndex = parseInt(parts[1], 10) - 1;
+    const day = parseInt(parts[2], 10);
+    return `${day} ${months[monthIndex]} ${year}`;
+  }
+  return dateStr;
+}
+
+function getDayNameFromDate(dateStr) {
+  if (!dateStr) return 'Hari';
+  const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+  const parts = dateStr.split('T')[0].split('-');
+  if (parts.length === 3) {
+    const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+    return days[d.getDay()];
+  }
+  return 'Hari';
+}
+
+function formatDepositHistoryTitle(item) {
+  const isSetor = item.status === 'setor' || item.tipe === 'setor';
+  const dayName = getDayNameFromDate(item.tanggal);
+  if (isSetor) {
+    return `Setoran ${dayName}`;
+  } else {
+    return `Libur ${dayName}`;
+  }
+}
+
+function formatDepositHistorySubtitle(item) {
+  const isSetor = item.status === 'setor' || item.tipe === 'setor';
+  const fullDate = formatIndonesianFullDate(item.tanggal);
+  const timeStr = item.waktu ? `${item.waktu} WIB, ` : '';
+  
+  if (isSetor) {
+    const method = item.metode ? ` • ${item.metode}` : '';
+    return `${timeStr}${fullDate}${method}`;
+  } else {
+    const note = item.catatan || item.keterangan;
+    return `${timeStr}${fullDate}${note ? ' • ' + note : ' • Libur / Tutup'}`;
+  }
+}
+
 function getTodayString() {
   const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
   const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
@@ -164,9 +214,9 @@ function getTodayString() {
 
 function getTodayShort() {
   const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+  const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
   const now = new Date();
-  return `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]}`;
+  return `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
 }
 
 function getBasePath() {
