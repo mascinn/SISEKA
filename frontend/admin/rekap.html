@@ -276,10 +276,28 @@
       });
     });
 
-    // 4. Export Helpers
-    function exportMasterSpreadsheet() {
-      showToast('Membuka master spreadsheet...');
-      window.open('https://docs.google.com/spreadsheets', '_blank');
+    // 4. Export & Live Google Sheets Sync
+    async function exportMasterSpreadsheet() {
+      const token = getAuthToken();
+      showToast('Menyinkronkan data ke Google Sheets...');
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/recap/sync-sheets?month=${selectedMonth}`, {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const result = await res.json();
+
+        if (result.success && result.sheetsUrl) {
+          showToast('Data berhasil disinkronkan ke Google Sheets!', 'success');
+          window.open(result.sheetsUrl, '_blank');
+        } else {
+          window.open('https://docs.google.com/spreadsheets/d/1gn-bMpqieiROnOWAGpxl8EZKjvtQxILDmpts9Ue8idw/edit?usp=sharing', '_blank');
+        }
+      } catch (err) {
+        console.warn('Sync error, opening direct link:', err);
+        window.open('https://docs.google.com/spreadsheets/d/1gn-bMpqieiROnOWAGpxl8EZKjvtQxILDmpts9Ue8idw/edit?usp=sharing', '_blank');
+      }
     }
 
     function exportMonthlyReport() {
@@ -292,7 +310,7 @@
       a.download = `rekap-siseka-${selectedMonth}.json`;
       a.click();
       URL.revokeObjectURL(url);
-      showToast('Laporan berhasil diekspor!');
+      showToast('Laporan JSON berhasil diunduh!');
     }
 
     // Initial Load

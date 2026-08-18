@@ -41,6 +41,10 @@ async function startServer() {
   // Cek berkala setiap 1 jam
   setInterval(autoReconcileUnrecordedDeposits, 60 * 60 * 1000);
 
+  // Jadwalkan Cron Job otomatis jam 00:01 WIB ke Google Sheets
+  const { scheduleMidnightSync } = require('./services/cron');
+  scheduleMidnightSync();
+
   return app.listen(PORT, () => {
     console.log(`🚀 Server SISEKA WASI'I berjalan di http://localhost:${PORT}`);
     console.log(`📡 Health Check: http://localhost:${PORT}/api/health`);

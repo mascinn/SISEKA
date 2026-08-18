@@ -394,4 +394,39 @@ router.get('/tenant/month-detail', authenticateToken, requireRole('tenant'), asy
   }
 });
 
+// 5. POST /api/recap/sync-sheets - Trigger sinkronisasi data ke Google Sheets (Admin only)
+router.post('/sync-sheets', authenticateToken, requireRole('admin'), async (req, res) => {
+  try {
+    const month = req.query.month || getCurrentMonthString();
+    const { syncRecapToGoogleSheets, GOOGLE_SHEETS_VIEW_URL } = require('../services/googleSheets');
+    const result = await syncRecapToGoogleSheets(month);
+    
+    if (result.success) {
+      res.json({
+        success: true,
+        message: 'Data berhasil disinkronkan ke Google Sheets!',
+        sheetsUrl: GOOGLE_SHEETS_VIEW_URL
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: 'Gagal menyinkronkan data: ' + result.error
+      });
+    }
+  } catch (error) {
+    console.error('Error POST /api/recap/sync-sheets:', error);
+    res.status(500).json({ success: false, message: 'Terjadi kesalahan server saat sinkronisasi.' });
+  }
+});
+
+// 6. GET /api/recap/sheets-url - Ambil URL Google Sheets
+router.get('/sheets-url', authenticateToken, (req, res) => {
+  const { GOOGLE_SHEETS_VIEW_URL } = require('../services/googleSheets');
+  res.json({
+    success: true,
+    sheetsUrl: GOOGLE_SHEETS_VIEW_URL
+  });
+});
+
 module.exports = router;
+
