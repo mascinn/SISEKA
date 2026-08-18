@@ -21,58 +21,73 @@
       <div class="avatar avatar--primary" id="userAvatar">AD</div>
     </header>
 
-    <main style="padding:24px 20px 0;">
+    <main style="padding:20px 20px 0;">
       <!-- Month Selector -->
       <div class="filter-chips mb-4" id="monthFilterChips">
-        <button class="chip chip--primary" data-month="2026-08">Agustus 2026</button>
-        <button class="chip chip--surface" data-month="2026-07">Juli 2026</button>
-        <button class="chip chip--surface" data-month="2026-06">Juni 2026</button>
-        <button class="chip chip--surface" data-month="2026-05">Mei 2026</button>
+        <button class="chip chip--active" data-month="2026-08">Agustus 2026</button>
+        <button class="chip chip--default" data-month="2026-07">Juli 2026</button>
+        <button class="chip chip--default" data-month="2026-06">Juni 2026</button>
+        <button class="chip chip--default" data-month="2026-05">Mei 2026</button>
       </div>
 
       <!-- Hero Financial Card -->
-      <div style="background:var(--primary-container);border-radius:var(--radius-3xl);padding:24px;color:var(--on-primary-container);box-shadow:var(--shadow-md);position:relative;overflow:hidden;" class="mb-4">
-        <div style="position:absolute;top:0;right:0;width:192px;height:192px;background:var(--primary);border-radius:50%;filter:blur(48px);opacity:0.5;transform:translate(25%,-50%);pointer-events:none;"></div>
+      <section class="hero-card mb-4" style="margin-top:4px;padding:24px;background:#003820;box-shadow:var(--shadow-hero);position:relative;overflow:hidden;border-radius:24px;">
+        <div class="hero-card__decoration" style="top:0;right:0;width:130px;height:130px;background:rgba(255,255,255,0.05);border-radius:50%;filter:none;transform:translate(35px,-35px);pointer-events:none;position:absolute;"></div>
+        <div class="hero-card__decoration" style="bottom:0;left:0;width:100px;height:100px;background:rgba(255,255,255,0.05);border-radius:50%;filter:none;transform:translate(-25px,45px);pointer-events:none;position:absolute;"></div>
         <div class="relative z-10">
-          <div class="flex justify-between items-start mb-4">
-            <h2 style="color:var(--on-primary);font-weight:500;" id="heroRecapMonthTitle">Rekap Setoran: Agustus 2026</h2>
-            <span class="badge badge--active" style="font-size:12px;" id="heroRecapProgressBadge">
+          <div class="flex justify-between items-center mb-2">
+            <h2 style="font-size:12px;color:var(--primary-fixed-dim);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;" id="heroRecapMonthTitle">Rekap Setoran: Agustus 2026</h2>
+            <div id="heroRecapProgressBadge" style="font-size:11px;font-weight:700;padding:4px 12px;border-radius:9999px;background:rgba(255,255,255,0.15);color:#ffffff;border:1px solid rgba(255,255,255,0.15);display:inline-flex;align-items:center;gap:4px;">
               <span class="material-symbols-outlined" style="font-size:14px;">trending_up</span> <span id="heroRecapPercentText">0% Tercapai</span>
-            </span>
-          </div>
-          <div class="mb-4">
-            <span class="font-financial-xl" style="color:var(--on-primary);display:block;" id="heroRecapTotalText">Rp 0</span>
-            <span class="font-financial-sm" style="opacity:0.8;display:block;margin-top:4px;" id="heroRecapTargetText">Total Target Sewa: Rp 0 (0 Kios)</span>
-          </div>
-          <div class="flex gap-4" style="padding-top:16px;border-top:1px solid rgba(255,255,255,0.2);">
-            <div class="flex-1">
-              <span class="font-financial-sm" style="color:var(--on-primary);" id="heroRecapLunasText">0 Lunas / Surplus</span>
             </div>
-            <div style="width:1px;background:rgba(255,255,255,0.2);"></div>
-            <div class="flex-1">
-              <span class="font-financial-sm" style="color:var(--secondary-fixed-dim);" id="heroRecapKurangText">0 Belum Lunas</span>
+          </div>
+          
+          <div class="hero-card__amount mb-1" style="letter-spacing:-0.025em;font-size:36px;font-weight:800;color:#ffffff;" id="heroRecapTotalText">Rp 0</div>
+          <p style="font-size:12px;color:rgba(255,255,255,0.75);margin:0 0 16px 0;" id="heroRecapTargetText">Total Target Sewa: Rp 0 (0 Unit Usaha)</p>
+
+          <!-- Overall Progress Bar -->
+          <div class="space-y-2 mb-4">
+            <div style="width:100%;background:rgba(0,0,0,0.25);border-radius:var(--radius-full);height:8px;overflow:hidden;">
+              <div class="progress-bar__fill" id="heroProgressBarFill" style="width:0%;background:var(--primary-fixed);height:100%;border-radius:var(--radius-full);transition:width 0.6s ease;"></div>
+            </div>
+          </div>
+
+          <!-- Bottom Summary Stat Row -->
+          <div class="stats-row" style="background:rgba(0,0,0,0.15);border:1px solid rgba(255,255,255,0.1);backdrop-filter:blur(4px);border-radius:16px;padding:12px 16px;">
+            <div class="stats-row__item" style="flex:1;text-align:center;">
+              <span class="stats-row__value text-white font-bold" style="font-size:16px;" id="heroRecapLunasText">0 Unit</span>
+              <span class="stats-row__label" style="color:var(--primary-fixed-dim);font-size:11px;">Lunas / Surplus</span>
+            </div>
+            <div class="stats-row__divider" style="background:rgba(255,255,255,0.1);height:28px;"></div>
+            <div class="stats-row__item" style="flex:1;text-align:center;">
+              <span class="stats-row__value text-white font-bold" style="font-size:16px;" id="heroRecapKurangText">0 Unit</span>
+              <span class="stats-row__label" style="color:var(--primary-fixed-dim);font-size:11px;">Belum Lunas</span>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Export Bar -->
-      <div class="mb-1 px-2">
-        <span class="font-label-caps text-xs text-on-surface-variant" style="opacity:0.7;" id="periodeLabel">Periode: 01 - 31 Agustus 2026</span>
-      </div>
-      <div class="flex items-center justify-between px-2 gap-4 mb-4">
-        <button class="btn btn--sm" style="background:var(--primary-container);color:var(--on-primary-container);border-radius:var(--radius-full);font-size:12px;letter-spacing:0.05em;text-transform:uppercase;font-weight:700;" onclick="exportMasterSpreadsheet()">
-          <span class="material-symbols-outlined" style="font-size:16px;">table_chart</span>
-          Buka Spreadsheet
-        </button>
-        <button class="flex items-center gap-1 text-xs font-bold" style="color:var(--primary);letter-spacing:0.05em;text-transform:uppercase;" onclick="exportMonthlyReport()">
-          <span class="material-symbols-outlined" style="font-size:16px;">download</span> Ekspor Laporan
-        </button>
+      <!-- Action & Export Toolbar -->
+      <div style="background:#ffffff;border:1px solid rgba(192,201,192,0.3);border-radius:18px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:8px;box-shadow:var(--shadow-sm);">
+        <div>
+          <span style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;display:block;">Periode Laporan</span>
+          <span style="font-size:12px;font-weight:700;color:#0f172a;" id="periodeLabel">01 – 31 Agustus 2026</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <button class="btn btn--sm" style="background:#003820;color:#ffffff;border-radius:9999px;font-size:11px;font-weight:700;padding:8px 12px;display:flex;align-items:center;gap:4px;" onclick="exportMasterSpreadsheet()">
+            <span class="material-symbols-outlined" style="font-size:16px;">table_chart</span>
+            Spreadsheet
+          </button>
+          <button class="btn btn--outline btn--sm" style="border-radius:9999px;font-size:11px;font-weight:700;padding:8px 12px;display:flex;align-items:center;gap:4px;color:#003820;border-color:rgba(0,56,32,0.3);" onclick="exportMonthlyReport()">
+            <span class="material-symbols-outlined" style="font-size:16px;">download</span>
+            Ekspor
+          </button>
+        </div>
       </div>
 
       <!-- Per Kios List -->
-      <div class="space-y-3 mt-2">
-        <h3 class="font-title-md font-semibold mb-2 px-2" style="font-size:18px;">Rincian Per Kios</h3>
+      <div class="mt-2 mb-8">
+        <h3 class="font-bold text-sm px-1 mb-3" style="color:#0f172a;" id="listTitleHeader">Rincian Per Unit Usaha</h3>
         <div id="recapKioskList" class="space-y-3">
           <div style="text-align:center;padding:24px;color:var(--on-surface-variant);">Memuat rekap...</div>
         </div>
@@ -80,12 +95,12 @@
     </main>
 
     <!-- Bottom Navigation -->
-    <nav class="bottom-nav" style="border-radius:24px 24px 0 0;">
+    <nav class="bottom-nav bottom-nav--pill">
       <a href="penarikan.html" class="bottom-nav__item">
         <span class="material-symbols-outlined bottom-nav__icon">payments</span>
         <span class="bottom-nav__label">Penarikan</span>
       </a>
-      <a href="rekap.html" class="bottom-nav__item active" style="position:relative;top:-8px;border:1px solid rgba(0,56,32,0.2);">
+      <a href="rekap.html" class="bottom-nav__item active">
         <span class="material-symbols-outlined bottom-nav__icon">analytics</span>
         <span class="bottom-nav__label">Rekap Semua</span>
       </a>
@@ -132,21 +147,31 @@
         bulan: selectedMonth,
         bulan_label: 'Agustus 2026',
         summary: {
-          total_setoran: 11450000,
-          total_target: 12000000,
-          persentase_tercapai: 95,
-          jumlah_lunas_surplus: 9,
-          jumlah_kurang: 3,
-          total_kios: 12
+          total_setoran: 1600000,
+          total_target: 2000000,
+          persentase_tercapai: 80,
+          jumlah_lunas_surplus: 0,
+          jumlah_kurang: 2,
+          total_kios: 2
         },
-        data: REKAP_KIOS_BULANAN.map(r => ({
-          kiosk_id: r.kiosId,
-          nama_kantin: r.nama,
-          tarif_sewa: r.sewa,
-          total_setor: r.setor,
-          selisih: r.setor - r.sewa,
-          status: r.status
-        }))
+        data: [
+          {
+            kiosk_id: '1',
+            nama_kantin: 'Kantin Berkah',
+            tarif_sewa: 1000000,
+            total_setor: 750000,
+            selisih: -250000,
+            status: 'kurang'
+          },
+          {
+            kiosk_id: '2',
+            nama_kantin: "Fotocopy & Percetakan Al-Wasi'i",
+            tarif_sewa: 1000000,
+            total_setor: 850000,
+            selisih: -150000,
+            status: 'kurang'
+          }
+        ]
       });
     }
 
@@ -157,63 +182,76 @@
       document.getElementById('heroRecapMonthTitle').textContent = `Rekap Setoran: ${bulan_label}`;
       document.getElementById('heroRecapPercentText').textContent = `${summary.persentase_tercapai}% Tercapai`;
       document.getElementById('heroRecapTotalText').textContent = formatRupiah(summary.total_setoran);
-      document.getElementById('heroRecapTargetText').textContent = `Total Target Sewa: ${formatRupiah(summary.total_target)} (${summary.total_kios} Kios)`;
-      document.getElementById('heroRecapLunasText').textContent = `${summary.jumlah_lunas_surplus} Lunas / Surplus`;
+      document.getElementById('heroRecapTargetText').textContent = `Total Target Sewa: ${formatRupiah(summary.total_target)} (${summary.total_kios} Unit Usaha)`;
+      document.getElementById('heroRecapLunasText').textContent = `${summary.jumlah_lunas_surplus} Unit Lunas`;
       document.getElementById('heroRecapKurangText').textContent = `${summary.jumlah_kurang} Belum Lunas`;
-      document.getElementById('periodeLabel').textContent = `Periode: 01 - 31 ${bulan_label}`;
+      document.getElementById('periodeLabel').textContent = `01 – 31 ${bulan_label}`;
+      document.getElementById('heroProgressBarFill').style.width = `${Math.min(100, summary.persentase_tercapai)}%`;
+
+      document.getElementById('listTitleHeader').textContent = `Rincian Per Unit Usaha (${summary.total_kios})`;
 
       const container = document.getElementById('recapKioskList');
       if (!list || list.length === 0) {
-        container.innerHTML = '<div style="text-align:center;padding:24px;color:#94a3b8;">Tidak ada data kios</div>';
+        container.innerHTML = '<div style="text-align:center;padding:24px;color:#94a3b8;">Tidak ada data unit usaha</div>';
         return;
       }
 
       container.innerHTML = list.map(item => {
         const displayName = item.nama_kantin || `Unit Usaha ${item.kiosk_id}`;
-        let badgeHtml = '';
-        let iconClass = 'rekap-card__icon--neutral';
+        const tarif = item.tarif_sewa || 1000000;
+        const progressPercent = Math.min(100, Math.round((item.total_setor / tarif) * 100));
 
+        let badgeTag = '';
         if (item.status === 'surplus') {
-          badgeHtml = `
-            <span class="badge badge--success" style="align-self:flex-start;">
-              <span class="material-symbols-outlined" style="font-size:14px;">arrow_upward</span> Surplus +${formatRupiahShort(item.selisih)}
+          badgeTag = `
+            <span style="font-size:11px;font-weight:700;color:#003820;background:#f0fdf4;padding:4px 10px;border-radius:9999px;border:1px solid #dcfce7;display:inline-flex;align-items:center;gap:3px;">
+              <span class="material-symbols-outlined" style="font-size:13px;">arrow_upward</span> Surplus +${formatRupiah(item.selisih)}
             </span>
           `;
-          iconClass = 'rekap-card__icon--surplus';
         } else if (item.status === 'kurang') {
-          badgeHtml = `
-            <span class="badge badge--error" style="align-self:flex-start;">
-              <span class="material-symbols-outlined" style="font-size:14px;">arrow_downward</span> Kurang ${formatRupiahShort(Math.abs(item.selisih))}
+          badgeTag = `
+            <span style="font-size:11px;font-weight:700;color:#991b1b;background:#fef2f2;padding:4px 10px;border-radius:9999px;border:1px solid #fee2e2;display:inline-flex;align-items:center;gap:3px;">
+              <span class="material-symbols-outlined" style="font-size:13px;">arrow_downward</span> Kurang ${formatRupiah(Math.abs(item.selisih))}
             </span>
           `;
-          iconClass = 'rekap-card__icon--error';
         } else {
-          badgeHtml = `
-            <span class="badge badge--neutral" style="align-self:flex-start;">
-              <span class="material-symbols-outlined" style="font-size:14px;">check</span> Lunas Pas
+          badgeTag = `
+            <span style="font-size:11px;font-weight:700;color:#003820;background:#f0fdf4;padding:4px 10px;border-radius:9999px;border:1px solid #dcfce7;display:inline-flex;align-items:center;gap:3px;">
+              <span class="material-symbols-outlined" style="font-size:13px;">check_circle</span> Lunas Pas
             </span>
           `;
-          iconClass = 'rekap-card__icon--neutral';
         }
 
         return `
-          <div class="rekap-card">
-            <div class="rekap-card__header">
-              <div class="rekap-card__icon ${iconClass}">
-                <span class="material-symbols-outlined">storefront</span>
+          <div style="background:#ffffff;border:1px solid rgba(192,201,192,0.4);border-radius:20px;padding:16px;box-shadow:var(--shadow-sm);transition:transform 0.15s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;gap:8px;">
+              <div style="display:flex;align-items:center;gap:12px;min-width:0;">
+                <div style="width:42px;height:42px;border-radius:50%;background:#f0fdf4;border:1px solid #dcfce7;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <span class="material-symbols-outlined" style="font-size:22px;color:#003820;">storefront</span>
+                </div>
+                <div style="min-width:0;">
+                  <h4 style="font-size:15px;font-weight:700;color:#0f172a;margin:0 0 2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${displayName}</h4>
+                  <p style="font-size:12px;color:#64748b;margin:0;">Target: ${formatRupiah(tarif)}/bln</p>
+                </div>
               </div>
-              <div>
-                <h4 class="font-title-md font-bold" style="font-size:16px;">${displayName}</h4>
-                <p class="text-xs text-on-surface-variant mt-1" style="opacity:0.9;">
-                  <span style="display:block;">Setor: <span style="font-weight:700;color:${item.status === 'kurang' ? 'var(--error)' : 'var(--on-surface)'};">${formatRupiah(item.total_setor)}</span></span>
-                  <span style="display:block;">Biaya Sewa: ${formatRupiah(item.tarif_sewa)}</span>
-                </p>
+              <div style="text-align:right;flex-shrink:0;white-space:nowrap;">
+                <span style="font-size:16px;font-weight:800;color:#003820;display:block;line-height:1.2;">${formatRupiah(item.total_setor)}</span>
+                <span style="font-size:11px;font-weight:600;color:#64748b;">${progressPercent}% Terkumpul</span>
               </div>
             </div>
-            ${badgeHtml}
-            <a href="rekap-detail.html?kiosk=${item.kiosk_id}&month=${selectedMonth}" class="rekap-card__link">
-              Lihat Detail <span class="material-symbols-outlined" style="font-size:14px;">chevron_right</span>
-            </a>
+
+            <!-- Mini Unit Progress Bar -->
+            <div style="width:100%;background:#f1f5f9;border-radius:9999px;height:6px;overflow:hidden;margin-bottom:12px;">
+              <div style="width:${progressPercent}%;background:#003820;height:100%;border-radius:9999px;transition:width 0.6s ease;"></div>
+            </div>
+
+            <!-- Bottom Badge & Link Row -->
+            <div style="display:flex;align-items:center;justify-content:space-between;padding-top:8px;border-top:1px solid #f1f5f9;">
+              ${badgeTag}
+              <a href="rekap-detail.html?kiosk=${item.kiosk_id}&month=${selectedMonth}" style="font-size:12px;font-weight:700;color:#003820;text-decoration:none;display:inline-flex;align-items:center;gap:3px;">
+                Lihat Detail <span class="material-symbols-outlined" style="font-size:16px;">chevron_right</span>
+              </a>
+            </div>
           </div>
         `;
       }).join('');
@@ -223,11 +261,11 @@
     document.querySelectorAll('#monthFilterChips .chip').forEach(btn => {
       btn.addEventListener('click', function() {
         document.querySelectorAll('#monthFilterChips .chip').forEach(b => {
-          b.classList.remove('chip--primary');
-          b.classList.add('chip--surface');
+          b.classList.remove('chip--active');
+          b.classList.add('chip--default');
         });
-        this.classList.remove('chip--surface');
-        this.classList.add('chip--primary');
+        this.classList.remove('chip--default');
+        this.classList.add('chip--active');
 
         const month = this.getAttribute('data-month');
         loadMonthlyRecap(month);
