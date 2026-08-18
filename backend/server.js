@@ -5,6 +5,7 @@ const { initDatabase } = require('./database');
 // Import Routes
 const authRoutes = require('./routes/auth');
 const kioskRoutes = require('./routes/kiosks');
+const depositRoutes = require('./routes/deposits');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -16,6 +17,7 @@ app.use(express.json());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/kiosks', kioskRoutes);
+app.use('/api/deposits', depositRoutes);
 
 // Basic Health Check Endpoint
 app.get('/api/health', (req, res) => {
@@ -29,13 +31,17 @@ app.get('/api/health', (req, res) => {
 // Start Server & Initialize Database
 async function startServer() {
   await initDatabase();
-  app.listen(PORT, () => {
+  return app.listen(PORT, () => {
     console.log(`🚀 Server SISEKA WASI'I berjalan di http://localhost:${PORT}`);
     console.log(`📡 Health Check: http://localhost:${PORT}/api/health`);
     console.log(`🔑 Auth Endpoint: http://localhost:${PORT}/api/auth/login`);
+    console.log(`🏪 Kiosks Endpoint: http://localhost:${PORT}/api/kiosks`);
+    console.log(`💰 Deposits Endpoint: http://localhost:${PORT}/api/deposits`);
   });
 }
 
-startServer();
+if (require.main === module) {
+  startServer();
+}
 
-module.exports = app;
+module.exports = { app, startServer };

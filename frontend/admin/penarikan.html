@@ -36,36 +36,36 @@
         <div class="relative z-10">
           <div class="flex justify-between items-start mb-2">
             <h2 style="font-size:14px;color:rgba(255,255,255,0.9);font-weight:500;">Total Kas Masuk Hari Ini</h2>
-            <span class="badge badge--complete" style="font-size:10px;">
+            <span class="badge badge--complete" id="completeBadge" style="font-size:10px;">
               <span class="material-symbols-outlined" style="font-size:14px;">check_circle</span>
-              100% LENGKAP
+              <span id="completeBadgeText">0% LENGKAP</span>
             </span>
           </div>
-          <div class="hero-card__amount mb-4">Rp 550.000</div>
+          <div class="hero-card__amount mb-4" id="totalKasMasukText">Rp 0</div>
 
           <div class="mb-4">
             <div class="flex justify-between text-xs" style="color:rgba(255,255,255,0.8);margin-bottom:6px;">
               <span>Progres Pengumpulan</span>
-              <span class="font-medium">12 dari 12 Kios Dicatat</span>
+              <span class="font-medium" id="progresText">0 dari 0 Kios Dicatat</span>
             </div>
             <div class="progress-bar">
-              <div class="progress-bar__fill" style="width:100%;"></div>
+              <div class="progress-bar__fill" id="progressBarFill" style="width:0%;"></div>
             </div>
           </div>
 
           <div class="stats-row">
             <div class="stats-row__item">
-              <span class="stats-row__value">10</span>
+              <span class="stats-row__value" id="countSetorText">0</span>
               <span class="stats-row__label">Setor Tunai</span>
             </div>
             <div class="stats-row__divider"></div>
             <div class="stats-row__item">
-              <span class="stats-row__value">2</span>
+              <span class="stats-row__value" id="countLiburText">0</span>
               <span class="stats-row__label">Libur/Tutup</span>
             </div>
             <div class="stats-row__divider"></div>
             <div class="stats-row__item">
-              <span class="stats-row__value">0</span>
+              <span class="stats-row__value" id="countBelumText">0</span>
               <span class="stats-row__label">Belum Dicatat</span>
             </div>
           </div>
@@ -76,7 +76,7 @@
       <section class="wa-card mb-4">
         <div class="wa-card__header">
           <div class="wa-card__brand">
-            <div class="wa-card__icon">${getWhatsAppSVG ? '' : ''}</div>
+            <div class="wa-card__icon" id="waIconBox"></div>
             <div>
               <h3 class="font-bold text-xs" style="color:#0f172a;">Laporan Siap Dikirim</h3>
               <span style="font-size:9px;color:#64748b;font-weight:500;">Format Otomatis</span>
@@ -84,15 +84,10 @@
           </div>
         </div>
         <div class="wa-card__preview" id="waPreview">
-          <p>Assalamu'alaikum...<br>Kamis, 16 Jul 2026</p>
-          <p style="margin-top:4px;">
-            1. Bude Eni: Rp 50.000<br>
-            2. Bude Ghina: Rp 50.000<br>
-            Total: Rp 250.000...
-          </p>
+          <p>Memuat laporan...</p>
           <div class="wa-card__preview-fade"></div>
         </div>
-        <button class="btn btn--wa btn--block mt-2" style="border-radius:12px;font-size:11px;padding:10px;" onclick="shareToWhatsApp()">
+        <button class="btn btn--wa btn--block mt-2" style="border-radius:12px;font-size:11px;padding:10px;" onclick="shareLiveWAReport()">
           <span id="waSvgIcon"></span>
           Kirim Laporan
         </button>
@@ -100,7 +95,7 @@
 
       <!-- Deposit List -->
       <section class="mt-2">
-        <h3 class="font-bold text-sm px-2 mb-3" style="color:#0f172a;">Daftar Setoran Selesai (12)</h3>
+        <h3 class="font-bold text-sm px-2 mb-3" style="color:#0f172a;" id="listTitleHeader">Daftar Setoran</h3>
 
         <!-- Filter Chips -->
         <div class="filter-chips px-2 mb-4" id="filterChips">
@@ -109,151 +104,9 @@
           <button class="chip chip--default" data-filter="setor">Sudah Setor</button>
         </div>
 
-        <!-- List -->
+        <!-- Dynamic List -->
         <div class="card card--flush" id="setoranList">
-          <!-- Item 1 -->
-          <div class="list-item" data-status="setor">
-            <div class="list-item__left">
-              <div class="list-item__icon list-item__icon--success">
-                <span class="material-symbols-outlined" style="font-size:18px;">check</span>
-              </div>
-              <div>
-                <p class="list-item__title">Kantin Berkah</p>
-                <p class="list-item__subtitle">Tunai • 08:30 WIB</p>
-              </div>
-            </div>
-            <div class="list-item__right">
-              <span class="list-item__amount">Rp 50.000</span>
-              <button class="list-item__edit-btn" onclick="openModal('editSetoranModal')">
-                <span class="material-symbols-outlined" style="font-size:14px;">edit</span>
-              </button>
-            </div>
-          </div>
-          <hr class="list-divider">
-
-          <!-- Item 2 -->
-          <div class="list-item" data-status="setor">
-            <div class="list-item__left">
-              <div class="list-item__icon list-item__icon--success">
-                <span class="material-symbols-outlined" style="font-size:18px;">check</span>
-              </div>
-              <div>
-                <p class="list-item__title">Bude Eni</p>
-                <p class="list-item__subtitle">Tunai • 08:45 WIB</p>
-              </div>
-            </div>
-            <div class="list-item__right">
-              <span class="list-item__amount">Rp 50.000</span>
-              <button class="list-item__edit-btn" onclick="openModal('editSetoranModal')">
-                <span class="material-symbols-outlined" style="font-size:14px;">edit</span>
-              </button>
-            </div>
-          </div>
-          <hr class="list-divider">
-
-          <!-- Item 3 -->
-          <div class="list-item" data-status="setor">
-            <div class="list-item__left">
-              <div class="list-item__icon list-item__icon--success">
-                <span class="material-symbols-outlined" style="font-size:18px;">check</span>
-              </div>
-              <div>
-                <p class="list-item__title">Bude Ghina</p>
-                <p class="list-item__subtitle">Tunai • 09:00 WIB</p>
-              </div>
-            </div>
-            <div class="list-item__right">
-              <span class="list-item__amount">Rp 50.000</span>
-              <button class="list-item__edit-btn" onclick="openModal('editSetoranModal')">
-                <span class="material-symbols-outlined" style="font-size:14px;">edit</span>
-              </button>
-            </div>
-          </div>
-          <hr class="list-divider">
-
-          <!-- Libur Item -->
-          <div class="list-item" data-status="libur" style="opacity:0.8;">
-            <div class="list-item__left">
-              <div class="list-item__icon list-item__icon--neutral">
-                <span class="material-symbols-outlined" style="font-size:18px;">bedtime</span>
-              </div>
-              <div>
-                <p class="list-item__title">Warung Tegal</p>
-                <p class="list-item__subtitle">Libur / Tutup</p>
-              </div>
-            </div>
-            <div class="list-item__right">
-              <span class="list-item__amount list-item__amount--muted">-</span>
-              <button class="list-item__edit-btn" onclick="openModal('editSetoranModal')">
-                <span class="material-symbols-outlined" style="font-size:14px;">edit</span>
-              </button>
-            </div>
-          </div>
-          <hr class="list-divider">
-
-          <!-- More Items (hidden) -->
-          <div class="list-item hidden-item" data-status="setor" style="display:none;">
-            <div class="list-item__left">
-              <div class="list-item__icon list-item__icon--success"><span class="material-symbols-outlined" style="font-size:18px;">check</span></div>
-              <div><p class="list-item__title">Warung Sehat</p><p class="list-item__subtitle">Transfer • 09:15 WIB</p></div>
-            </div>
-            <div class="list-item__right"><span class="list-item__amount">Rp 50.000</span></div>
-          </div>
-          <div class="list-item hidden-item" data-status="setor" style="display:none;">
-            <div class="list-item__left">
-              <div class="list-item__icon list-item__icon--success"><span class="material-symbols-outlined" style="font-size:18px;">check</span></div>
-              <div><p class="list-item__title">Minuman Segar</p><p class="list-item__subtitle">Tunai • 09:30 WIB</p></div>
-            </div>
-            <div class="list-item__right"><span class="list-item__amount">Rp 25.000</span></div>
-          </div>
-          <div class="list-item hidden-item" data-status="setor" style="display:none;">
-            <div class="list-item__left">
-              <div class="list-item__icon list-item__icon--success"><span class="material-symbols-outlined" style="font-size:18px;">check</span></div>
-              <div><p class="list-item__title">Snack Corner</p><p class="list-item__subtitle">Tunai • 09:45 WIB</p></div>
-            </div>
-            <div class="list-item__right"><span class="list-item__amount">Rp 25.000</span></div>
-          </div>
-          <div class="list-item hidden-item" data-status="setor" style="display:none;">
-            <div class="list-item__left">
-              <div class="list-item__icon list-item__icon--success"><span class="material-symbols-outlined" style="font-size:18px;">check</span></div>
-              <div><p class="list-item__title">Warung Pak Joko</p><p class="list-item__subtitle">Tunai • 10:00 WIB</p></div>
-            </div>
-            <div class="list-item__right"><span class="list-item__amount">Rp 50.000</span></div>
-          </div>
-          <div class="list-item hidden-item" data-status="setor" style="display:none;">
-            <div class="list-item__left">
-              <div class="list-item__icon list-item__icon--success"><span class="material-symbols-outlined" style="font-size:18px;">check</span></div>
-              <div><p class="list-item__title">Es Campur Mak Ijah</p><p class="list-item__subtitle">Tunai • 10:15 WIB</p></div>
-            </div>
-            <div class="list-item__right"><span class="list-item__amount">Rp 50.000</span></div>
-          </div>
-          <div class="list-item hidden-item" data-status="setor" style="display:none;">
-            <div class="list-item__left">
-              <div class="list-item__icon list-item__icon--success"><span class="material-symbols-outlined" style="font-size:18px;">check</span></div>
-              <div><p class="list-item__title">Nasi Goreng Spesial</p><p class="list-item__subtitle">Tunai • 10:30 WIB</p></div>
-            </div>
-            <div class="list-item__right"><span class="list-item__amount">Rp 50.000</span></div>
-          </div>
-          <div class="list-item hidden-item" data-status="setor" style="display:none;">
-            <div class="list-item__left">
-              <div class="list-item__icon list-item__icon--success"><span class="material-symbols-outlined" style="font-size:18px;">check</span></div>
-              <div><p class="list-item__title">Kantin Bu Siti</p><p class="list-item__subtitle">Tunai • 10:45 WIB</p></div>
-            </div>
-            <div class="list-item__right"><span class="list-item__amount">Rp 50.000</span></div>
-          </div>
-          <div class="list-item hidden-item" data-status="libur" style="display:none;opacity:0.8;">
-            <div class="list-item__left">
-              <div class="list-item__icon list-item__icon--neutral"><span class="material-symbols-outlined" style="font-size:18px;">bedtime</span></div>
-              <div><p class="list-item__title">Kios K02</p><p class="list-item__subtitle">Libur / Tutup</p></div>
-            </div>
-            <div class="list-item__right"><span class="list-item__amount list-item__amount--muted">-</span></div>
-          </div>
-
-          <div style="padding:12px;text-align:center;">
-            <button class="text-xs font-semibold" style="color:var(--primary);opacity:0.8;" id="showMoreBtn">
-              Lihat 8 lainnya
-            </button>
-          </div>
+          <div style="text-align:center;padding:24px;color:var(--on-surface-variant);">Memuat data setoran...</div>
         </div>
       </section>
     </main>
@@ -264,54 +117,63 @@
         <div class="bottom-sheet__handle"></div>
         <div class="bottom-sheet__header">
           <h2>Catat Setoran Harian</h2>
-          <p><span class="material-symbols-outlined" style="font-size:16px;">storefront</span> Kantin Bu Siti • <span id="modalDate"></span></p>
+          <p><span class="material-symbols-outlined" style="font-size:16px;">storefront</span> <span id="depositKiosName">Kantin</span> • <span id="modalDate"></span></p>
         </div>
-        <!-- Mode Switcher -->
-        <div class="mode-switcher" id="modeSwitcher">
-          <button class="mode-switcher__btn active" data-mode="setor">
-            <span style="width:8px;height:8px;border-radius:50%;background:var(--emerald-600);display:inline-block;"></span> Buka & Setor
+        <form id="depositForm" class="space-y-4">
+          <input type="hidden" id="depositKiosId">
+          <input type="hidden" id="depositStatusMode" value="setor">
+
+          <!-- Mode Switcher -->
+          <div class="mode-switcher" id="modeSwitcher">
+            <button type="button" class="mode-switcher__btn active" data-mode="setor">
+              <span style="width:8px;height:8px;border-radius:50%;background:var(--emerald-600);display:inline-block;"></span> Buka & Setor
+            </button>
+            <button type="button" class="mode-switcher__btn" data-mode="libur">
+              <span class="material-symbols-outlined" style="font-size:18px;">beach_access</span> Libur (Rp 0)
+            </button>
+          </div>
+
+          <!-- Nominal Input -->
+          <div id="nominalSection" class="space-y-4">
+            <div class="input-group">
+              <label class="font-label-caps text-on-surface-variant">NOMINAL SETORAN</label>
+              <div style="display:flex;align-items:center;background:#fff;border:2px solid rgba(192,201,192,0.3);border-radius:12px;padding:12px;gap:8px;">
+                <span class="font-financial-xl" style="color:var(--on-surface-variant);opacity:0.5;">Rp</span>
+                <input id="nominalInput" type="text" value="50.000" style="flex:1;border:none;outline:none;font-family:'Inter',sans-serif;font-size:36px;font-weight:700;background:transparent;color:var(--on-surface);width:100%;">
+                <span class="material-symbols-outlined" style="color:var(--outline-variant);">payments</span>
+              </div>
+            </div>
+
+            <!-- Quick Amounts -->
+            <div class="quick-amounts" id="quickAmounts">
+              <button type="button" class="quick-amount" data-amount="25000">+Rp 25.000</button>
+              <button type="button" class="quick-amount active" data-amount="50000">+Rp 50.000 (Pas)</button>
+              <button type="button" class="quick-amount" data-amount="100000">+Rp 100.000</button>
+            </div>
+
+            <!-- Payment Method -->
+            <div style="border-top:1px solid rgba(192,201,192,0.2);padding-top:16px;" class="space-y-4">
+              <div class="payment-methods" id="paymentMethods">
+                <button type="button" class="payment-method active" data-method="Tunai">
+                  <span class="material-symbols-outlined" style="font-size:18px;">payments</span> Tunai / Cash
+                </button>
+                <button type="button" class="payment-method" data-method="Transfer">
+                  <span class="material-symbols-outlined" style="font-size:18px;">qr_code_scanner</span> Transfer / QRIS
+                </button>
+              </div>
+              <div class="input-wrap">
+                <span class="material-symbols-outlined input-wrap__icon" style="font-size:18px;">edit_note</span>
+                <input type="text" id="depositCatatanInput" class="input" style="padding-left:40px;background:var(--surface-container-low);border:none;" placeholder="Catatan opsional...">
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit -->
+          <button type="submit" class="btn btn--primary btn--block btn--xl" style="margin-top:8px;border-radius:12px;box-shadow:0 10px 25px rgba(4,120,87,0.2);">
+            <span class="material-symbols-outlined">check_circle</span>
+            Simpan Setoran Hari Ini
           </button>
-          <button class="mode-switcher__btn" data-mode="libur">
-            <span class="material-symbols-outlined" style="font-size:18px;">beach_access</span> Libur (Rp 0)
-          </button>
-        </div>
-        <!-- Nominal Input -->
-        <div id="nominalSection">
-          <div class="input-group">
-            <label class="font-label-caps text-on-surface-variant">NOMINAL SETORAN</label>
-            <div style="display:flex;align-items:center;background:#fff;border:2px solid rgba(192,201,192,0.3);border-radius:12px;padding:12px;gap:8px;transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--emerald-600)'" onblur="this.style.borderColor='rgba(192,201,192,0.3)'">
-              <span class="font-financial-xl" style="color:var(--on-surface-variant);opacity:0.5;">Rp</span>
-              <input id="nominalInput" type="text" value="50.000" style="flex:1;border:none;outline:none;font-family:'Inter',sans-serif;font-size:36px;font-weight:700;background:transparent;color:var(--on-surface);width:100%;">
-              <span class="material-symbols-outlined" style="color:var(--outline-variant);">payments</span>
-            </div>
-          </div>
-          <!-- Quick Amounts -->
-          <div class="quick-amounts" id="quickAmounts">
-            <button class="quick-amount" data-amount="25000">+Rp 25.000</button>
-            <button class="quick-amount active" data-amount="50000">+Rp 50.000 (Pas)</button>
-            <button class="quick-amount" data-amount="100000">+Rp 100.000</button>
-          </div>
-          <!-- Payment Method -->
-          <div style="border-top:1px solid rgba(192,201,192,0.2);padding-top:16px;" class="space-y-4">
-            <div class="payment-methods" id="paymentMethods">
-              <button class="payment-method active">
-                <span class="material-symbols-outlined" style="font-size:18px;">payments</span> Tunai / Cash
-              </button>
-              <button class="payment-method">
-                <span class="material-symbols-outlined" style="font-size:18px;">qr_code_scanner</span> Transfer / QRIS
-              </button>
-            </div>
-            <div class="input-wrap">
-              <span class="material-symbols-outlined input-wrap__icon" style="font-size:18px;">edit_note</span>
-              <input type="text" class="input" style="padding-left:40px;background:var(--surface-container-low);border:none;" placeholder="Catatan opsional...">
-            </div>
-          </div>
-        </div>
-        <!-- Submit -->
-        <button class="btn btn--primary btn--block btn--xl" style="margin-top:8px;border-radius:12px;box-shadow:0 10px 25px rgba(4,120,87,0.2);" onclick="closeModal('depositModal');showToast('Setoran berhasil disimpan!')">
-          <span class="material-symbols-outlined">check_circle</span>
-          Simpan Setoran Hari Ini
-        </button>
+        </form>
       </div>
     </div>
 
@@ -321,23 +183,26 @@
         <div class="bottom-sheet__handle"></div>
         <div class="bottom-sheet__header">
           <h2>Edit / Koreksi Setoran</h2>
-          <p><span class="material-symbols-outlined" style="font-size:16px;">storefront</span> Kantin Berkah</p>
+          <p><span class="material-symbols-outlined" style="font-size:16px;">storefront</span> <span id="editDepositKiosTitle">Kantin</span></p>
         </div>
-        <div class="input-group">
-          <label class="font-label-caps text-on-surface-variant">NOMINAL BARU</label>
-          <div style="display:flex;align-items:center;background:#fff;border:2px solid rgba(192,201,192,0.3);border-radius:12px;padding:12px;gap:8px;">
-            <span class="font-financial-xl" style="color:var(--on-surface-variant);opacity:0.5;">Rp</span>
-            <input type="text" value="50.000" style="flex:1;border:none;outline:none;font-family:'Inter',sans-serif;font-size:36px;font-weight:700;background:transparent;color:var(--on-surface);width:100%;">
+        <form id="editDepositForm" class="space-y-4">
+          <input type="hidden" id="editDepositId">
+          <div class="input-group">
+            <label class="font-label-caps text-on-surface-variant">NOMINAL BARU</label>
+            <div style="display:flex;align-items:center;background:#fff;border:2px solid rgba(192,201,192,0.3);border-radius:12px;padding:12px;gap:8px;">
+              <span class="font-financial-xl" style="color:var(--on-surface-variant);opacity:0.5;">Rp</span>
+              <input type="text" id="editDepositNominal" value="50.000" style="flex:1;border:none;outline:none;font-family:'Inter',sans-serif;font-size:36px;font-weight:700;background:transparent;color:var(--on-surface);width:100%;">
+            </div>
           </div>
-        </div>
-        <div class="input-wrap">
-          <span class="material-symbols-outlined input-wrap__icon" style="font-size:18px;">edit_note</span>
-          <input type="text" class="input" style="padding-left:40px;background:var(--surface-container-low);border:none;" placeholder="Alasan koreksi...">
-        </div>
-        <div class="flex gap-3">
-          <button class="btn btn--outline flex-1" style="border-radius:12px;" onclick="closeModal('editSetoranModal')">Batal</button>
-          <button class="btn btn--primary flex-1" style="border-radius:12px;" onclick="closeModal('editSetoranModal');showToast('Setoran berhasil dikoreksi!')">Simpan</button>
-        </div>
+          <div class="input-wrap">
+            <span class="material-symbols-outlined input-wrap__icon" style="font-size:18px;">edit_note</span>
+            <input type="text" id="editDepositCatatan" class="input" style="padding-left:40px;background:var(--surface-container-low);border:none;" placeholder="Alasan koreksi / catatan...">
+          </div>
+          <div class="flex gap-3">
+            <button type="button" class="btn btn--outline flex-1" style="border-radius:12px;" onclick="closeModal('editSetoranModal')">Batal</button>
+            <button type="submit" class="btn btn--primary flex-1" style="border-radius:12px;">Simpan</button>
+          </div>
+        </form>
       </div>
     </div>
 
@@ -361,30 +226,361 @@
   <script src="../js/app.js"></script>
   <script src="../js/components.js"></script>
   <script>
-    // Auth guard
-    const user = requireAuth('admin');
+    requireAuth('admin');
 
-    // Set today's date
     document.getElementById('todayDate').textContent = getTodayString();
     document.getElementById('modalDate').textContent = getTodayShort();
-
-    // Init WA icon
     document.getElementById('waSvgIcon').innerHTML = getWhatsAppSVG(14);
-    document.querySelector('.wa-card__icon').innerHTML = getWhatsAppSVG(16);
+    document.getElementById('waIconBox').innerHTML = getWhatsAppSVG(16);
 
-    // Init filter chips
-    initFilterChips('filterChips', filterKiosList);
+    let todayDataCache = null;
+    let selectedPaymentMethod = 'Tunai';
+    let currentFilter = 'semua';
 
-    // Init show more
-    toggleShowMore('showMoreBtn', 'setoranList');
+    // 1. Load Today Deposits from Backend
+    async function loadTodayDeposits() {
+      const token = getAuthToken();
+      try {
+        const res = await fetch(`${API_BASE_URL}/deposits/today`, {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const result = await res.json();
 
-    // Init modal components
+        if (result.success) {
+          todayDataCache = result;
+          renderDashboard(result);
+        } else {
+          fallbackLocalDeposits();
+        }
+      } catch (err) {
+        console.warn('Backend offline, fallback lokal:', err);
+        fallbackLocalDeposits();
+      }
+    }
+
+    function fallbackLocalDeposits() {
+      // Fallback display
+      renderDashboard({
+        summary: {
+          total_kas_hari_ini: 550000,
+          total_kios: 12,
+          total_dicatat: 12,
+          total_setor: 10,
+          total_libur: 2,
+          total_belum: 0,
+          progress_percent: 100,
+          is_complete: true
+        },
+        data: SETORAN_HARI_INI.map(s => ({
+          id: s.kiosId,
+          nama_kantin: s.nama,
+          deposit_id: s.kiosId,
+          deposit_status: s.status,
+          nominal: s.nominal,
+          metode: s.metode,
+          waktu: s.waktu
+        }))
+      });
+    }
+
+    // 2. Render Dashboard UI
+    function renderDashboard(data) {
+      const { summary, data: list } = data;
+
+      // Update Hero Card
+      document.getElementById('totalKasMasukText').textContent = formatRupiah(summary.total_kas_hari_ini);
+      document.getElementById('progresText').textContent = `${summary.total_dicatat} dari ${summary.total_kios} Kios Dicatat`;
+      document.getElementById('progressBarFill').style.width = `${summary.progress_percent}%`;
+      document.getElementById('countSetorText').textContent = summary.total_setor;
+      document.getElementById('countLiburText').textContent = summary.total_libur;
+      document.getElementById('countBelumText').textContent = summary.total_belum;
+
+      const badge = document.getElementById('completeBadge');
+      const badgeText = document.getElementById('completeBadgeText');
+      if (summary.is_complete) {
+        badge.style.background = 'rgba(16,185,129,0.3)';
+        badgeText.textContent = '100% LENGKAP';
+      } else {
+        badge.style.background = 'rgba(245,158,11,0.3)';
+        badgeText.textContent = `${summary.progress_percent}% TERCATAT`;
+      }
+
+      document.getElementById('listTitleHeader').textContent = `Daftar Setoran (${summary.total_kios})`;
+
+      // Render WA Preview
+      renderWAPreview(list, summary.total_kas_hari_ini);
+
+      // Render Kiosk List
+      renderKioskList(list);
+    }
+
+    // 3. Render List of Kiosks with 3 States
+    function renderKioskList(list) {
+      const container = document.getElementById('setoranList');
+      if (!list || list.length === 0) {
+        container.innerHTML = '<div style="text-align:center;padding:24px;color:#94a3b8;">Tidak ada data kios</div>';
+        return;
+      }
+
+      const filtered = list.filter(item => {
+        if (currentFilter === 'semua') return true;
+        if (currentFilter === 'belum') return item.deposit_status === 'belum';
+        if (currentFilter === 'setor') return item.deposit_status === 'setor';
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div style="text-align:center;padding:24px;color:#94a3b8;">Tidak ada data untuk filter ini</div>';
+        return;
+      }
+
+      container.innerHTML = filtered.map((item, index) => {
+        const isLast = index === filtered.length - 1;
+        const displayName = item.nama_kantin ? `${item.id} ${item.nama_kantin}` : item.id;
+
+        if (item.deposit_status === 'belum') {
+          return `
+            <div class="list-item" style="background:#fffbeb;border:1px solid #fef3c7;margin:4px 8px;border-radius:16px;">
+              <div class="list-item__left">
+                <div class="list-item__icon" style="background:#fef3c7;color:#d97706;">
+                  <span class="material-symbols-outlined" style="font-size:20px;">store</span>
+                </div>
+                <div>
+                  <p class="list-item__title" style="font-weight:700;">${displayName}</p>
+                  <span class="badge badge--warning" style="font-size:9px;padding:2px 8px;margin-top:2px;">⏳ Belum Diinput</span>
+                </div>
+              </div>
+              <div class="list-item__right">
+                <button class="btn btn--primary btn--sm" style="border-radius:10px;padding:6px 12px;font-size:11px;" onclick="openCatatModal('${item.id}', '${displayName}')">
+                  + Catat Setor
+                </button>
+              </div>
+            </div>
+            ${isLast ? '' : '<hr class="list-divider">'}
+          `;
+        } else if (item.deposit_status === 'setor') {
+          return `
+            <div class="list-item">
+              <div class="list-item__left">
+                <div class="list-item__icon list-item__icon--success">
+                  <span class="material-symbols-outlined" style="font-size:18px;">check</span>
+                </div>
+                <div>
+                  <p class="list-item__title">${displayName}</p>
+                  <p class="list-item__subtitle">${item.metode || 'Tunai'} • ${item.waktu || 'Tercatat'} WIB</p>
+                </div>
+              </div>
+              <div class="list-item__right">
+                <span class="list-item__amount" style="color:var(--emerald-600);font-weight:700;">+${formatRupiah(item.nominal)}</span>
+                <button class="list-item__edit-btn" onclick="openKoreksiModal('${item.deposit_id}', '${displayName}', ${item.nominal}, '${item.catatan || ''}')">
+                  <span class="material-symbols-outlined" style="font-size:14px;">edit</span>
+                </button>
+              </div>
+            </div>
+            ${isLast ? '' : '<hr class="list-divider">'}
+          `;
+        } else { // Libur
+          return `
+            <div class="list-item" style="opacity:0.75;">
+              <div class="list-item__left">
+                <div class="list-item__icon list-item__icon--neutral">
+                  <span class="material-symbols-outlined" style="font-size:18px;">bedtime</span>
+                </div>
+                <div>
+                  <p class="list-item__title">${displayName}</p>
+                  <p class="list-item__subtitle">${item.catatan || 'Libur / Tutup'}</p>
+                </div>
+              </div>
+              <div class="list-item__right">
+                <span class="list-item__amount list-item__amount--muted">Rp 0</span>
+                <button class="list-item__edit-btn" onclick="openKoreksiModal('${item.deposit_id}', '${displayName}', 0, '${item.catatan || ''}')">
+                  <span class="material-symbols-outlined" style="font-size:14px;">edit</span>
+                </button>
+              </div>
+            </div>
+            ${isLast ? '' : '<hr class="list-divider">'}
+          `;
+        }
+      }).join('');
+    }
+
+    // 4. WhatsApp Message Generator
+    function renderWAPreview(list, total) {
+      const today = getTodayString();
+      const setorList = list.filter(l => l.deposit_status === 'setor');
+
+      let previewHtml = `<strong>Assalamu'alaikum...</strong><br>${today}<br><br>`;
+      setorList.slice(0, 3).forEach((s, idx) => {
+        previewHtml += `${idx + 1}. ${s.nama_kantin || s.id}: ${formatRupiah(s.nominal)}<br>`;
+      });
+      if (setorList.length > 3) {
+        previewHtml += `... (${setorList.length - 3} kios lainnya)<br>`;
+      }
+      previewHtml += `<br><strong>Total: ${formatRupiah(total)}</strong>`;
+      previewHtml += `<div class="wa-card__preview-fade"></div>`;
+
+      document.getElementById('waPreview').innerHTML = previewHtml;
+    }
+
+    function shareLiveWAReport() {
+      if (!todayDataCache) return;
+      const today = getTodayString();
+      const setorList = todayDataCache.data.filter(l => l.deposit_status === 'setor');
+      const liburList = todayDataCache.data.filter(l => l.deposit_status === 'libur');
+
+      let msg = `*Assalamu'alaikum Warahmatullahi Wabarakatuh*\n`;
+      msg += `*LAPORAN SETORAN KANTIN BPH MASJID AL-WASI'I*\n`;
+      msg += `🗓️ ${today}\n\n`;
+      msg += `*Rincian Setoran Masuk:*\n`;
+
+      setorList.forEach((s, idx) => {
+        msg += `${idx + 1}. ${s.id} ${s.nama_kantin || ''}: ${formatRupiah(s.nominal)} (${s.metode || 'Tunai'})\n`;
+      });
+
+      if (liburList.length > 0) {
+        msg += `\n*Libur / Tutup:*\n`;
+        liburList.forEach((l, idx) => {
+          msg += `- ${l.id} ${l.nama_kantin || ''} (${l.catatan || 'Libur'})\n`;
+        });
+      }
+
+      msg += `\n━━━━━━━━━━━━━━━━━━━━\n`;
+      msg += `*TOTAL KAS TERKUMPUL: ${formatRupiah(todayDataCache.summary.total_kas_hari_ini)}*\n`;
+      msg += `(${todayDataCache.summary.total_dicatat}/${todayDataCache.summary.total_kios} Kios Dicatat)\n`;
+      msg += `━━━━━━━━━━━━━━━━━━━━\n\n`;
+      msg += `_Sistem Informasi SISEKA WASI'I_`;
+
+      const encoded = encodeURIComponent(msg);
+      window.open(`https://wa.me/?text=${encoded}`, '_blank');
+    }
+
+    // 5. Filter Chips Handler
+    initFilterChips('filterChips', function(filter) {
+      currentFilter = filter;
+      if (todayDataCache) renderKioskList(todayDataCache.data);
+    });
+
+    // 6. Modal Openers & Submit Handlers
+    function openCatatModal(kiosId, kiosName) {
+      document.getElementById('depositKiosId').value = kiosId;
+      document.getElementById('depositKiosName').textContent = kiosName;
+      document.getElementById('nominalInput').value = '50.000';
+      document.getElementById('depositCatatanInput').value = '';
+      document.getElementById('depositStatusMode').value = 'setor';
+
+      // Reset switcher
+      document.querySelectorAll('#modeSwitcher .mode-switcher__btn').forEach((b, i) => {
+        b.classList.toggle('active', i === 0);
+      });
+      document.getElementById('nominalSection').style.display = '';
+
+      openModal('depositModal');
+    }
+
+    function openKoreksiModal(depositId, kiosName, nominal, catatan) {
+      document.getElementById('editDepositId').value = depositId;
+      document.getElementById('editDepositKiosTitle').textContent = kiosName;
+      document.getElementById('editDepositNominal').value = nominal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+      document.getElementById('editDepositCatatan').value = catatan;
+
+      openModal('editSetoranModal');
+    }
+
+    // Mode Switcher in Modal
     initModeSwitcher('modeSwitcher', function(mode) {
+      document.getElementById('depositStatusMode').value = mode;
       document.getElementById('nominalSection').style.display = mode === 'libur' ? 'none' : '';
     });
+
+    // Quick Amounts
     initQuickAmounts('quickAmounts', 'nominalInput');
-    initPaymentMethods('paymentMethods');
+
+    // Payment Methods
+    document.querySelectorAll('#paymentMethods .payment-method').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('#paymentMethods .payment-method').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        selectedPaymentMethod = this.getAttribute('data-method');
+      });
+    });
+
+    // Rupiah Input formatting
     initRupiahInput('nominalInput');
+    initRupiahInput('editDepositNominal');
+
+    // Submit Catat Setoran
+    document.getElementById('depositForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const token = getAuthToken();
+      const mode = document.getElementById('depositStatusMode').value;
+      const kioskId = document.getElementById('depositKiosId').value;
+      const nominal = mode === 'libur' ? 0 : parseInt(document.getElementById('nominalInput').value.replace(/\D/g, '')) || 0;
+      const catatan = document.getElementById('depositCatatanInput').value.trim();
+
+      const payload = {
+        kiosk_id: kioskId,
+        nominal: nominal,
+        status: mode,
+        metode: mode === 'libur' ? null : selectedPaymentMethod,
+        catatan: catatan
+      };
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/deposits`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+        if (result.success) {
+          closeModal('depositModal');
+          showToast('Setoran berhasil disimpan!');
+          loadTodayDeposits();
+        } else {
+          showToast(result.message || 'Gagal menyimpan setoran', 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Koneksi ke server gagal', 'error');
+      }
+    });
+
+    // Submit Edit Setoran
+    document.getElementById('editDepositForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const token = getAuthToken();
+      const depositId = document.getElementById('editDepositId').value;
+      const nominal = parseInt(document.getElementById('editDepositNominal').value.replace(/\D/g, '')) || 0;
+      const catatan = document.getElementById('editDepositCatatan').value.trim();
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/deposits/${depositId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify({ nominal, catatan })
+        });
+        const result = await res.json();
+        if (result.success) {
+          closeModal('editSetoranModal');
+          showToast('Setoran berhasil dikoreksi!');
+          loadTodayDeposits();
+        } else {
+          showToast(result.message || 'Gagal koreksi setoran', 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Koneksi ke server gagal', 'error');
+      }
+    });
+
+    // Initial Load
+    loadTodayDeposits();
   </script>
 </body>
 </html>
