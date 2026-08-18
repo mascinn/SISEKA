@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+backend/node_modules/
+
+# Environment Variables
+.env
+.env.local
+
+# Logs & Temp
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# SQLite local database (can be tracked or untracked; let's keep database or ignore local cache)
+# backend/siseka.db
+
+# Extracted zip source
+extracted/

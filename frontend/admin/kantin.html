@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manajemen Kantin - SISEKA WASI'I</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+</head>
+<body style="background:var(--surface);">
+  <div class="page-container">
+    <!-- Top App Bar -->
+    <header class="top-app-bar" style="position:fixed;top:16px;left:50%;transform:translateX(-50%);width:90%;max-width:440px;">
+      <div class="top-app-bar__brand">
+        <span class="material-symbols-outlined icon-fill" style="color:var(--primary);">storefront</span>
+        <span class="font-headline-lg-mobile font-bold" style="color:var(--primary);font-size:16px;">SISEKA WASI'I</span>
+      </div>
+      <div class="avatar avatar--primary-container" style="width:40px;height:40px;font-size:14px;">AD</div>
+    </header>
+
+    <main style="padding:100px 24px 0;">
+      <!-- Page Title -->
+      <div class="flex justify-between items-start gap-4 mb-6" style="flex-wrap:wrap;">
+        <div>
+          <h1 class="font-headline-lg" style="color:var(--primary);font-size:28px;">Kelola Kantin</h1>
+          <p class="font-body-md text-on-surface-variant mt-1" id="totalKiosText">Total 12 Kios Terdaftar</p>
+        </div>
+        <button class="btn btn--primary-dark btn--rounded" style="box-shadow:var(--shadow-md);" onclick="openModal('tambahKiosModal')">
+          <span class="material-symbols-outlined">add</span>
+          Tambah Kios
+        </button>
+      </div>
+
+      <!-- Search -->
+      <div class="mb-6" style="position:relative;">
+        <span class="material-symbols-outlined" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--on-surface-variant);">search</span>
+        <input type="text" id="searchInput" class="input input--search" placeholder="Cari nomor kios atau nama penyewa...">
+      </div>
+
+      <!-- Kios List Container (Dynamic) -->
+      <div class="space-y-4" id="kioskListContainer">
+        <!-- Rendered via JS -->
+        <div style="text-align:center;padding:32px;color:var(--on-surface-variant);">
+          Memuat data kios...
+        </div>
+      </div>
+
+      <!-- Logout -->
+      <div style="padding-top:32px;">
+        <button class="btn btn--danger btn--block" style="border-radius:var(--radius-3xl);padding:16px;" onclick="logout()">
+          <span class="material-symbols-outlined">logout</span>
+          <span class="font-title-md">Keluar dari Akun Admin</span>
+        </button>
+      </div>
+    </main>
+
+    <!-- Tambah Kios Modal -->
+    <div class="modal-overlay" id="tambahKiosModal">
+      <div class="bottom-sheet">
+        <div class="bottom-sheet__handle"></div>
+        <div class="bottom-sheet__header">
+          <h2>Tambah Kios Baru</h2>
+        </div>
+        <form id="tambahKiosForm" class="space-y-4">
+          <div class="input-group">
+            <label class="input-label">Nomor Kios *</label>
+            <div class="input-wrap">
+              <span class="material-symbols-outlined input-wrap__icon">tag</span>
+              <input type="text" id="addKiosId" class="input" placeholder="K-13" required>
+            </div>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Nama Kantin</label>
+            <div class="input-wrap">
+              <span class="material-symbols-outlined input-wrap__icon">storefront</span>
+              <input type="text" id="addNamaKantin" class="input" placeholder="Nama kantin">
+            </div>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Nama Penyewa</label>
+            <div class="input-wrap">
+              <span class="material-symbols-outlined input-wrap__icon">person</span>
+              <input type="text" id="addNamaPenyewa" class="input" placeholder="Nama lengkap">
+            </div>
+          </div>
+          <div class="input-group">
+            <label class="input-label">No. HP / WhatsApp</label>
+            <div class="input-wrap">
+              <span class="material-symbols-outlined input-wrap__icon">phone</span>
+              <input type="tel" id="addNomorHp" class="input" placeholder="0812-xxxx-xxxx">
+            </div>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Biaya Sewa / Bulan (Rp)</label>
+            <div class="input-wrap">
+              <span class="material-symbols-outlined input-wrap__icon">payments</span>
+              <input type="text" id="addTarifSewa" class="input" placeholder="1.000.000" value="1.000.000">
+            </div>
+          </div>
+          <button type="submit" class="btn btn--primary btn--block btn--lg" style="border-radius:12px;margin-top:8px;">
+            <span class="material-symbols-outlined">check_circle</span> Simpan Kios Baru
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Edit Kios Modal -->
+    <div class="modal-overlay" id="editKiosModal">
+      <div class="bottom-sheet">
+        <div class="bottom-sheet__handle"></div>
+        <div class="bottom-sheet__header">
+          <h2>Edit Info Kios</h2>
+          <p id="editKiosHeaderTitle">K-01</p>
+        </div>
+        <form id="editKiosForm" class="space-y-4">
+          <input type="hidden" id="editKiosId">
+          <div class="input-group">
+            <label class="input-label">Nama Kantin</label>
+            <div class="input-wrap">
+              <span class="material-symbols-outlined input-wrap__icon">storefront</span>
+              <input type="text" id="editNamaKantin" class="input" placeholder="Nama kantin">
+            </div>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Nama Penyewa</label>
+            <div class="input-wrap">
+              <span class="material-symbols-outlined input-wrap__icon">person</span>
+              <input type="text" id="editNamaPenyewa" class="input" placeholder="Nama penyewa">
+            </div>
+          </div>
+          <div class="input-group">
+            <label class="input-label">No. HP / WhatsApp</label>
+            <div class="input-wrap">
+              <span class="material-symbols-outlined input-wrap__icon">phone</span>
+              <input type="tel" id="editNomorHp" class="input" placeholder="0812-xxxx-xxxx">
+            </div>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Biaya Sewa / Bulan (Rp)</label>
+            <div class="input-wrap">
+              <span class="material-symbols-outlined input-wrap__icon">payments</span>
+              <input type="text" id="editTarifSewa" class="input" placeholder="1.000.000">
+            </div>
+          </div>
+          <div class="flex gap-3" style="margin-top:8px;">
+            <button type="button" class="btn btn--outline flex-1" style="border-radius:12px;" onclick="closeModal('editKiosModal')">Batal</button>
+            <button type="submit" class="btn btn--primary flex-1" style="border-radius:12px;">Simpan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Reset PIN Modal -->
+    <div class="modal-overlay" id="resetPinModal">
+      <div class="bottom-sheet">
+        <div class="bottom-sheet__handle"></div>
+        <div class="bottom-sheet__header">
+          <h2>Reset PIN Akun Kios</h2>
+          <p id="resetPinKiosTitle">K-01</p>
+        </div>
+        <div style="background:#fef3c7;border:1px solid #fbbf24;border-radius:12px;padding:16px;display:flex;gap:12px;align-items:flex-start;">
+          <span class="material-symbols-outlined" style="color:#d97706;font-size:20px;">warning</span>
+          <p class="text-sm" style="color:#92400e;">PIN akun kios ini akan direset. Penyewa dapat login menggunakan ID kios atau username dengan PIN baru ini.</p>
+        </div>
+        <form id="resetPinForm" class="space-y-4">
+          <input type="hidden" id="resetPinKiosId">
+          <div class="input-group">
+            <label class="input-label">PIN Baru (minimal 4 digit)</label>
+            <div class="input-wrap">
+              <span class="material-symbols-outlined input-wrap__icon">lock</span>
+              <input type="password" id="newPinInput" class="input" placeholder="****" minlength="4" required>
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <button type="button" class="btn btn--outline flex-1" style="border-radius:12px;" onclick="closeModal('resetPinModal')">Batal</button>
+            <button type="submit" class="btn btn--primary flex-1" style="border-radius:12px;">Reset PIN</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav bottom-nav--pill" style="max-width:420px;">
+      <a href="penarikan.html" class="bottom-nav__item">
+        <span class="material-symbols-outlined bottom-nav__icon">payments</span>
+        <span class="bottom-nav__label">Penarikan</span>
+      </a>
+      <a href="rekap.html" class="bottom-nav__item">
+        <span class="material-symbols-outlined bottom-nav__icon">analytics</span>
+        <span class="bottom-nav__label">Rekap Semua</span>
+      </a>
+      <a href="kantin.html" class="bottom-nav__item active">
+        <span class="material-symbols-outlined bottom-nav__icon">storefront</span>
+        <span class="bottom-nav__label">Kantin</span>
+      </a>
+    </nav>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script src="../js/components.js"></script>
+  <script>
+    requireAuth('admin');
+
+    let allKiosks = [];
+
+    // 1. Fetch Kiosks from Backend
+    async function loadKiosks(query = '') {
+      const container = document.getElementById('kioskListContainer');
+      const totalText = document.getElementById('totalKiosText');
+
+      try {
+        const url = query ? `${API_BASE_URL}/kiosks?q=${encodeURIComponent(query)}` : `${API_BASE_URL}/kiosks`;
+        const res = await fetch(url);
+        const result = await res.json();
+
+        if (result.success) {
+          allKiosks = result.data;
+          renderKiosks(allKiosks);
+          totalText.textContent = `Total ${allKiosks.length} Kios Terdaftar`;
+        } else {
+          fallbackLocalKiosks();
+        }
+      } catch (err) {
+        console.warn('Backend offline, menggunakan data lokal fallback:', err);
+        fallbackLocalKiosks();
+      }
+    }
+
+    function fallbackLocalKiosks() {
+      allKiosks = KIOS_LIST;
+      renderKiosks(allKiosks);
+      document.getElementById('totalKiosText').textContent = `Total ${allKiosks.length} Kios Terdaftar`;
+    }
+
+    // 2. Render Kiosks to DOM
+    function renderKiosks(kiosks) {
+      const container = document.getElementById('kioskListContainer');
+      if (!kiosks || kiosks.length === 0) {
+        container.innerHTML = `
+          <div style="text-align:center;padding:32px;background:#fff;border-radius:16px;border:1px solid var(--border-subtle);">
+            <span class="material-symbols-outlined" style="font-size:36px;color:#94a3b8;">storefront</span>
+            <p class="text-sm font-semibold text-muted mt-2">Tidak ada data kios yang cocok</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = kiosks.map(k => {
+        if (k.status === 'aktif' && (k.nama_kantin || k.nama_penyewa)) {
+          return `
+            <div class="kantin-card">
+              <div class="kantin-card__info">
+                <div class="kantin-card__top">
+                  <span class="badge badge--active">
+                    <span class="badge__dot badge__dot--green"></span> Aktif
+                  </span>
+                  <h3 class="font-title-md" style="font-size:18px;">${k.id} ${k.nama_kantin || ''}</h3>
+                </div>
+                <div class="kantin-card__details">
+                  <div class="kantin-card__detail">
+                    <span class="material-symbols-outlined" style="font-size:20px;">person</span>
+                    ${k.nama_penyewa || '-'} (${k.nomor_hp || '-'})
+                  </div>
+                  <div class="kantin-card__detail font-financial-sm" style="color:var(--primary);">
+                    <span class="material-symbols-outlined" style="font-size:20px;">payments</span>
+                    ${formatRupiah(k.tarif_sewa)} / Bulan
+                  </div>
+                </div>
+              </div>
+              <div class="kantin-card__actions">
+                <button class="btn btn--ghost btn--sm flex-1" style="border-radius:12px;" onclick="openEditKiosModal('${k.id}')">
+                  <span class="material-symbols-outlined" style="font-size:18px;">edit</span> Edit Info
+                </button>
+                <button class="btn btn--outline btn--sm flex-1" style="border-radius:12px;" onclick="openResetPinModal('${k.id}')">
+                  <span class="material-symbols-outlined" style="font-size:18px;">key</span> Reset PIN
+                </button>
+              </div>
+            </div>
+          `;
+        } else {
+          return `
+            <div class="kantin-card kantin-card--vacant">
+              <div class="kantin-card__info">
+                <div class="kantin-card__top">
+                  <span class="badge badge--vacant">
+                    <span class="badge__dot" style="border:2px solid var(--outline);background:transparent;"></span> Kosong
+                  </span>
+                  <h3 class="font-title-md text-on-surface-variant" style="font-size:18px;">${k.id}</h3>
+                </div>
+                <div class="kantin-card__detail text-on-surface-variant" style="opacity:0.7;">
+                  <span class="material-symbols-outlined" style="font-size:20px;">info</span>
+                  Belum ada penyewa aktif
+                </div>
+              </div>
+              <button class="btn btn--sm" style="background:var(--surface-container-lowest);border:1px solid var(--primary);color:var(--primary);border-radius:12px;box-shadow:var(--shadow-sm);" onclick="openEditKiosModal('${k.id}')">
+                <span class="material-symbols-outlined" style="font-size:18px;">add_circle</span>
+                Pasang Penyewa Baru
+              </button>
+            </div>
+          `;
+        }
+      }).join('');
+    }
+
+    // 3. Search Filter
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+      const q = e.target.value.toLowerCase().trim();
+      if (!q) {
+        renderKiosks(allKiosks);
+        return;
+      }
+      const filtered = allKiosks.filter(k => 
+        k.id.toLowerCase().includes(q) ||
+        (k.nama_kantin && k.nama_kantin.toLowerCase().includes(q)) ||
+        (k.nama_penyewa && k.nama_penyewa.toLowerCase().includes(q))
+      );
+      renderKiosks(filtered);
+    });
+
+    // 4. Modal Handlers
+    function openEditKiosModal(kiosId) {
+      const k = allKiosks.find(x => x.id === kiosId);
+      if (!k) return;
+
+      document.getElementById('editKiosId').value = k.id;
+      document.getElementById('editKiosHeaderTitle').textContent = `${k.id} ${k.nama_kantin || ''}`;
+      document.getElementById('editNamaKantin').value = k.nama_kantin || '';
+      document.getElementById('editNamaPenyewa').value = k.nama_penyewa || '';
+      document.getElementById('editNomorHp').value = k.nomor_hp || '';
+      document.getElementById('editTarifSewa').value = (k.tarif_sewa || 1000000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+      openModal('editKiosModal');
+    }
+
+    function openResetPinModal(kiosId) {
+      const k = allKiosks.find(x => x.id === kiosId);
+      if (!k) return;
+
+      document.getElementById('resetPinKiosId').value = k.id;
+      document.getElementById('resetPinKiosTitle').textContent = `${k.id} ${k.nama_kantin || k.nama_penyewa || ''}`;
+      document.getElementById('newPinInput').value = '';
+
+      openModal('resetPinModal');
+    }
+
+    // 5. Submit Forms
+    document.getElementById('tambahKiosForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const token = getAuthToken();
+      const payload = {
+        id: document.getElementById('addKiosId').value.trim(),
+        nama_kantin: document.getElementById('addNamaKantin').value.trim(),
+        nama_penyewa: document.getElementById('addNamaPenyewa').value.trim(),
+        nomor_hp: document.getElementById('addNomorHp').value.trim(),
+        tarif_sewa: document.getElementById('addTarifSewa').value.replace(/\D/g, '') || 1000000
+      };
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/kiosks`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+        if (result.success) {
+          closeModal('tambahKiosModal');
+          showToast('Kios baru berhasil ditambahkan!');
+          this.reset();
+          loadKiosks();
+        } else {
+          showToast(result.message || 'Gagal menambah kios', 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Koneksi ke backend gagal', 'error');
+      }
+    });
+
+    document.getElementById('editKiosForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const token = getAuthToken();
+      const kiosId = document.getElementById('editKiosId').value;
+      const payload = {
+        nama_kantin: document.getElementById('editNamaKantin').value.trim(),
+        nama_penyewa: document.getElementById('editNamaPenyewa').value.trim(),
+        nomor_hp: document.getElementById('editNomorHp').value.trim(),
+        tarif_sewa: document.getElementById('editTarifSewa').value.replace(/\D/g, '') || 1000000
+      };
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/kiosks/${kiosId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+        if (result.success) {
+          closeModal('editKiosModal');
+          showToast('Informasi kios berhasil diperbarui!');
+          loadKiosks();
+        } else {
+          showToast(result.message || 'Gagal update kios', 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Koneksi ke backend gagal', 'error');
+      }
+    });
+
+    document.getElementById('resetPinForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const token = getAuthToken();
+      const kiosId = document.getElementById('resetPinKiosId').value;
+      const pin = document.getElementById('newPinInput').value.trim();
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/kiosks/${kiosId}/reset-pin`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify({ pin })
+        });
+        const result = await res.json();
+        if (result.success) {
+          closeModal('resetPinModal');
+          showToast(result.message || 'PIN berhasil direset!');
+        } else {
+          showToast(result.message || 'Gagal reset PIN', 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Koneksi ke backend gagal', 'error');
+      }
+    });
+
+    // Formatting rupiah inputs
+    initRupiahInput('addTarifSewa');
+    initRupiahInput('editTarifSewa');
+
+    // Initial Load
+    loadKiosks();
+  </script>
+</body>
+</html>

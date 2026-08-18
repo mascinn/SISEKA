@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beranda - SISEKA WASI'I</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+</head>
+<body class="bg-tenant">
+  <div class="page-container">
+    <!-- Top App Bar -->
+    <header class="top-app-bar">
+      <div class="top-app-bar__brand">
+        <span class="material-symbols-outlined icon-fill top-app-bar__brand-icon">storefront</span>
+        <div class="top-app-bar__brand-text">
+          <span class="top-app-bar__title">SISEKA WASI'I</span>
+          <span class="top-app-bar__subtitle">Sistem Informasi Sewa Kantin</span>
+        </div>
+      </div>
+      <div class="avatar avatar--primary" id="userAvatar">BA</div>
+    </header>
+
+    <main style="padding:24px 16px 0;" class="space-y-6">
+      <!-- Greeting -->
+      <section class="px-2">
+        <h2 class="text-xl font-bold" style="color:var(--on-surface);" id="greetingName">Hai, Bu Aminah 👋</h2>
+        <p class="text-xs font-medium text-on-surface-variant" id="greetingKios">Kantin Berkah</p>
+      </section>
+
+      <!-- Hero Card -->
+      <section class="hero-card hero-card--dark" style="padding:24px;">
+        <div class="hero-card__decoration" style="top:0;right:0;width:128px;height:128px;background:rgba(255,255,255,0.05);filter:none;transform:translate(40px,-40px);"></div>
+        <div class="hero-card__decoration" style="bottom:0;left:0;width:96px;height:96px;background:rgba(255,255,255,0.05);filter:none;transform:translate(-20px,40px);"></div>
+        <div class="relative z-10">
+          <p class="text-sm" style="color:var(--primary-fixed-dim);opacity:0.9;margin-bottom:4px;">Akumulasi Setoran (Agustus 2026)</p>
+          <h1 class="hero-card__amount" style="letter-spacing:-0.025em;margin-bottom:24px;">Rp 850.000</h1>
+
+          <div class="space-y-2 mb-6">
+            <div class="flex justify-between items-end">
+              <span class="font-label-caps" style="color:rgba(255,255,255,0.8);">PROGRESS</span>
+              <span class="font-financial-sm font-bold text-white">85%</span>
+            </div>
+            <div style="width:100%;background:var(--primary-container);border-radius:var(--radius-full);height:8px;overflow:hidden;">
+              <div style="height:100%;border-radius:var(--radius-full);background:var(--primary-fixed);width:85%;transition:width 0.6s ease;"></div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;background:rgba(0,0,0,0.1);backdrop-filter:blur(4px);border-radius:16px;padding:12px;border:1px solid rgba(255,255,255,0.1);">
+            <div class="flex flex-col">
+              <span style="font-size:10px;text-transform:uppercase;letter-spacing:0.05em;color:var(--primary-fixed-dim);margin-bottom:4px;">SEWA PER BULAN</span>
+              <span class="font-financial-sm text-xs text-white">Rp 1.000.000</span>
+            </div>
+            <div class="flex flex-col" style="border-left:1px solid rgba(255,255,255,0.1);padding-left:8px;">
+              <span style="font-size:10px;text-transform:uppercase;letter-spacing:0.05em;color:var(--primary-fixed-dim);margin-bottom:4px;">KURANG</span>
+              <span class="font-financial-sm text-xs text-white">Rp 150.000</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Today's Status -->
+      <section class="card" style="border-radius:16px;padding:16px;">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div style="width:40px;height:40px;border-radius:50%;background:rgba(236,253,245,0.3);display:flex;align-items:center;justify-content:center;border:1px solid var(--primary-fixed);">
+              <span class="material-symbols-outlined icon-fill" style="color:var(--primary-container);">check_circle</span>
+            </div>
+            <div>
+              <h3 class="font-title-md text-sm" style="color:var(--on-surface);">Setoran Hari Ini</h3>
+              <p class="text-xs text-on-surface-variant" id="todayShort">Senin, 17 Agu</p>
+            </div>
+          </div>
+          <div class="font-financial-sm" style="color:var(--primary-container);font-weight:700;">+Rp 50.000</div>
+        </div>
+      </section>
+
+      <!-- Transaction History -->
+      <section>
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="font-title-md text-lg" style="color:var(--on-surface);">Riwayat Setoran Bulan Ini</h2>
+        </div>
+
+        <div class="card card--flush space-y-1">
+          <!-- Setoran -->
+          <div class="list-item">
+            <div class="list-item__left">
+              <div class="list-item__icon list-item__icon--surface list-item__icon--lg">
+                <span class="material-symbols-outlined" style="font-size:20px;">payments</span>
+              </div>
+              <div>
+                <p class="list-item__title" style="font-size:14px;">Setoran Tunai</p>
+                <p class="list-item__subtitle">17 Agu, 14:30 WIB</p>
+              </div>
+            </div>
+            <span class="font-financial-sm" style="color:var(--primary-container);">+Rp 50.000</span>
+          </div>
+
+          <!-- Libur -->
+          <div class="list-item">
+            <div class="list-item__left">
+              <div class="list-item__icon list-item__icon--surface list-item__icon--lg">
+                <span class="material-symbols-outlined" style="font-size:20px;">weekend</span>
+              </div>
+              <div>
+                <p class="list-item__title" style="font-size:14px;">Libur Akhir Pekan</p>
+                <p class="list-item__subtitle">16 Agu, Minggu</p>
+              </div>
+            </div>
+            <span class="font-financial-sm text-muted">Rp 0</span>
+          </div>
+
+          <!-- Setoran -->
+          <div class="list-item">
+            <div class="list-item__left">
+              <div class="list-item__icon list-item__icon--surface list-item__icon--lg">
+                <span class="material-symbols-outlined" style="font-size:20px;">payments</span>
+              </div>
+              <div>
+                <p class="list-item__title" style="font-size:14px;">Setoran Tunai</p>
+                <p class="list-item__subtitle">15 Agu, 13:15 WIB</p>
+              </div>
+            </div>
+            <span class="font-financial-sm" style="color:var(--primary-container);">+Rp 50.000</span>
+          </div>
+
+          <!-- Setoran -->
+          <div class="list-item">
+            <div class="list-item__left">
+              <div class="list-item__icon list-item__icon--surface list-item__icon--lg">
+                <span class="material-symbols-outlined" style="font-size:20px;">payments</span>
+              </div>
+              <div>
+                <p class="list-item__title" style="font-size:14px;">Setoran Tunai</p>
+                <p class="list-item__subtitle">Jumat, 14 Agu, 10:15 WIB</p>
+              </div>
+            </div>
+            <span class="font-financial-sm" style="color:var(--primary-container);">+Rp 50.000</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav bottom-nav--pill">
+      <a href="beranda.html" class="bottom-nav__item active">
+        <span class="material-symbols-outlined bottom-nav__icon">home</span>
+        <span class="bottom-nav__label">Beranda</span>
+      </a>
+      <a href="rekap.html" class="bottom-nav__item">
+        <span class="material-symbols-outlined bottom-nav__icon">calendar_month</span>
+        <span class="bottom-nav__label">Rekap</span>
+      </a>
+      <a href="profil.html" class="bottom-nav__item">
+        <span class="material-symbols-outlined bottom-nav__icon">person</span>
+        <span class="bottom-nav__label">Profil</span>
+      </a>
+    </nav>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    const user = requireAuth('tenant');
+    if (user) {
+      document.getElementById('greetingName').textContent = `Hai, ${user.name} 👋`;
+      document.getElementById('greetingKios').textContent = user.kios || 'Kantin';
+      document.getElementById('userAvatar').textContent = user.initials;
+      document.getElementById('todayShort').textContent = getTodayShort();
+    }
+  </script>
+</body>
+</html>

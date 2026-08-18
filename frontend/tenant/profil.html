@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil - SISEKA WASI'I</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+</head>
+<body class="bg-mesh">
+  <div class="page-container">
+    <!-- Top App Bar -->
+    <header class="top-app-bar" style="position:fixed;top:0;left:0;right:0;max-width:480px;margin:12px auto 0;width:calc(100% - 32px);">
+      <div class="top-app-bar__brand">
+        <span class="material-symbols-outlined icon-fill top-app-bar__brand-icon">storefront</span>
+        <div class="top-app-bar__brand-text">
+          <span class="top-app-bar__title">SISEKA WASI'I</span>
+          <span class="top-app-bar__subtitle">Sistem Informasi Sewa Kantin</span>
+        </div>
+      </div>
+      <div class="avatar avatar--primary" id="headerAvatar">BA</div>
+    </header>
+
+    <main style="padding:112px 24px 0;max-width:480px;margin:0 auto;" class="space-y-6">
+      <!-- Profile Identity Card -->
+      <section class="profile-card">
+        <div class="profile-avatar" id="profileAvatar">BA</div>
+        <h1 class="font-title-md" style="color:var(--on-surface);margin-bottom:4px;" id="profileKios">Kantin Berkah</h1>
+        <p class="font-financial-sm" style="color:var(--primary);margin-bottom:12px;" id="profileName">Bu Aminah</p>
+        <div class="flex items-center justify-center gap-2 text-sm text-on-surface-variant">
+          <span class="material-symbols-outlined" style="font-size:16px;">phone</span>
+          <span id="profilePhone">0812-3456-7890</span>
+          <span>•</span>
+          <span>Aktif sejak 2024</span>
+        </div>
+      </section>
+
+      <!-- Info Section -->
+      <section class="space-y-3">
+        <h2 class="font-financial-sm px-2" style="color:var(--on-surface);">Informasi Sewa &amp; Akad</h2>
+        <div class="profile-card" style="text-align:left;padding:20px;">
+          <div class="info-row">
+            <span class="info-row__label">
+              <span class="material-symbols-outlined" style="font-size:18px;">payments</span>
+              Biaya Sewa Pokok
+            </span>
+            <span class="info-row__value">Rp 1.000.000 <span class="text-xs" style="font-weight:400;color:var(--on-surface-variant);">/ Bulan</span></span>
+          </div>
+          <div class="info-row">
+            <span class="info-row__label">
+              <span class="material-symbols-outlined" style="font-size:18px;">calendar_month</span>
+              Periode Kontrak
+            </span>
+            <span class="info-row__value text-xs" style="text-align:right;">1 Jan 2026 -<br>31 Des 2026</span>
+          </div>
+          <div class="info-row">
+            <span class="info-row__label">
+              <span class="material-symbols-outlined" style="font-size:18px;">handshake</span>
+              Sistem Pembayaran
+            </span>
+            <span class="info-row__value text-xs" style="max-width:120px;text-align:right;">Setoran Harian Fleksibel</span>
+          </div>
+          <div class="info-row">
+            <span class="info-row__label">
+              <span class="material-symbols-outlined" style="font-size:18px;">verified_user</span>
+              Status Kios
+            </span>
+            <span class="badge badge--active" style="font-size:12px;text-transform:none;letter-spacing:0;font-weight:600;">
+              <span class="badge__dot badge__dot--pulse"></span>
+              Aktif Beroperasi
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Support Card -->
+      <section class="profile-card" style="text-align:left;padding:20px;">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-financial-sm" style="color:var(--on-surface);">Pusat Bantuan BPH</h3>
+            <p class="text-xs text-on-surface-variant mt-1">Butuh bantuan terkait operasional?</p>
+          </div>
+          <button class="btn btn--sm" style="background:#25D366;color:#fff;border-radius:var(--radius-full);font-size:14px;" onclick="window.open('https://wa.me/6281234567890','_blank')">
+            <span class="material-symbols-outlined" style="font-size:18px;">chat</span>
+            WhatsApp
+          </button>
+        </div>
+      </section>
+
+      <!-- Logout -->
+      <button class="btn btn--danger btn--block mt-4" style="border-radius:12px;padding:16px;" onclick="logout()">
+        <span class="material-symbols-outlined">logout</span>
+        Keluar Akun
+      </button>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav bottom-nav--pill">
+      <a href="beranda.html" class="bottom-nav__item">
+        <span class="material-symbols-outlined bottom-nav__icon">home</span>
+        <span class="bottom-nav__label">Beranda</span>
+      </a>
+      <a href="rekap.html" class="bottom-nav__item">
+        <span class="material-symbols-outlined bottom-nav__icon">calendar_month</span>
+        <span class="bottom-nav__label">Rekap</span>
+      </a>
+      <a href="profil.html" class="bottom-nav__item active">
+        <span class="material-symbols-outlined bottom-nav__icon">person</span>
+        <span class="bottom-nav__label">Profil</span>
+      </a>
+    </nav>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    const user = requireAuth('tenant');
+    if (user) {
+      document.getElementById('headerAvatar').textContent = user.initials;
+      document.getElementById('profileAvatar').textContent = user.initials;
+      document.getElementById('profileKios').textContent = user.kios || 'Kantin';
+      document.getElementById('profileName').textContent = user.name;
+    }
+  </script>
+</body>
+</html>

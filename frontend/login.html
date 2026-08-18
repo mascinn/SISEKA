@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - SISEKA WASI'I</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+</head>
+<body class="bg-login">
+  <div class="login-container">
+    <!-- Header Section -->
+    <header class="login-header">
+      <div class="login-logo">
+        <span class="material-symbols-outlined icon-fill" style="font-size:32px;">mosque</span>
+      </div>
+      <h1 class="font-headline-lg-mobile" style="color:#0f172a;">SISEKA WASI'I</h1>
+      <p class="text-xs text-muted" style="max-width:250px;line-height:1.6;margin-top:8px;">
+        Sistem Informasi Setoran Sewa Kantin<br>BPH Masjid Al-Wasi'i
+      </p>
+    </header>
+
+    <!-- Login Card -->
+    <main style="flex:1;display:flex;flex-direction:column;align-items:center;width:100%;padding:0 16px;">
+      <div class="login-card">
+        <form id="loginForm" class="space-y-4">
+          <!-- Username -->
+          <div class="input-group">
+            <label class="input-label" for="username">Username</label>
+            <div class="input-wrap">
+              <span class="material-symbols-outlined input-wrap__icon">person</span>
+              <input id="username" type="text" class="input" placeholder="admin" autocomplete="username" required>
+            </div>
+          </div>
+          <!-- Password -->
+          <div class="input-group">
+            <label class="input-label" for="password">Password</label>
+            <div class="input-wrap">
+              <span class="material-symbols-outlined input-wrap__icon">lock</span>
+              <input id="password" type="password" class="input" style="padding-right:48px;" placeholder="Masukkan password Anda" autocomplete="current-password" required>
+              <button type="button" class="input-wrap__action" onclick="togglePassword('password', this)">
+                <span class="material-symbols-outlined" style="font-size:20px;">visibility_off</span>
+              </button>
+            </div>
+          </div>
+          <!-- Error Message -->
+          <div id="loginError" class="hidden" style="background:#fef2f2;color:#dc2626;padding:10px 14px;border-radius:12px;font-size:13px;font-weight:600;text-align:center;border:1px solid #fecaca;">
+            Username atau password salah
+          </div>
+          <!-- Submit -->
+          <button type="submit" class="btn btn--primary-dark btn--block btn--lg" style="margin-top:24px;border-radius:12px;">
+            Masuk ke Sistem
+            <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
+          </button>
+        </form>
+        <!-- Support -->
+        <div class="text-center mt-6">
+          <p class="text-sm text-muted mb-1">Lupa akun atau butuh akses baru?</p>
+          <a href="#" class="text-sm font-bold text-primary-container" style="transition:color 0.15s;">Hubungi Pengurus BPH</a>
+        </div>
+      </div>
+
+      <!-- Demo Credentials -->
+      <div style="margin-top:24px;background:rgba(255,255,255,0.7);border-radius:16px;padding:16px;max-width:400px;width:100%;border:1px solid rgba(255,255,255,0.8);">
+        <p class="font-label-caps text-on-surface-variant mb-2" style="font-size:10px;">AKUN DEMO</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <button type="button" onclick="fillDemo('admin','1234')" class="btn btn--sm btn--ghost" style="border-radius:10px;font-size:11px;">
+            <span class="material-symbols-outlined" style="font-size:16px;">admin_panel_settings</span>
+            Admin BPH
+          </button>
+          <button type="button" onclick="fillDemo('aminah','1234')" class="btn btn--sm btn--ghost" style="border-radius:10px;font-size:11px;">
+            <span class="material-symbols-outlined" style="font-size:16px;">storefront</span>
+            Tenant
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="login-footer">
+      <p class="font-label-caps text-on-surface-variant">SISEKA WASI'I • Versi 1.0.0</p>
+    </footer>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script src="js/components.js"></script>
+  <script>
+    // If already logged in, redirect
+    const user = getCurrentUser();
+    if (user) {
+      window.location.href = user.role === 'admin' ? 'admin/penarikan.html' : 'tenant/beranda.html';
+    }
+
+    // Fill demo credentials
+    function fillDemo(username, password) {
+      document.getElementById('username').value = username;
+      document.getElementById('password').value = password;
+    }
+
+    // Login handler
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const errorEl = document.getElementById('loginError');
+
+      const submitBtn = this.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.style.opacity = '0.7';
+
+      try {
+        const user = await login(username, password);
+        if (user) {
+          errorEl.classList.add('hidden');
+          if (user.role === 'admin') {
+            window.location.href = 'admin/penarikan.html';
+          } else {
+            window.location.href = 'tenant/beranda.html';
+          }
+        } else {
+          errorEl.classList.remove('hidden');
+        }
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SISEKA WASI'I</title>
+  <script>
+    // Redirect to login or dashboard
+    const user = localStorage.getItem('siseka_user');
+    if (user) {
+      const parsed = JSON.parse(user);
+      window.location.href = parsed.role === 'admin' ? 'admin/penarikan.html' : 'tenant/beranda.html';
+    } else {
+      window.location.href = 'login.html';
+    }
+  </script>
+</head>
+<body></body>
+</html>
