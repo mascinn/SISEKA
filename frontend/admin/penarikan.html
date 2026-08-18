@@ -283,13 +283,24 @@
       });
     }
 
+    const kioskMap = new Map();
+    const depositMap = new Map();
+
     // 2. Render Dashboard UI
     function renderDashboard(data) {
       const { summary, data: list } = data;
 
+      // Cache kiosks in Map for safe lookup (handles special chars/quotes in names)
+      kioskMap.clear();
+      depositMap.clear();
+      list.forEach(k => {
+        kioskMap.set(k.id.toString(), k);
+        if (k.deposit_id) depositMap.set(k.deposit_id.toString(), k);
+      });
+
       // Update Hero Card
       document.getElementById('totalKasMasukText').textContent = formatRupiah(summary.total_kas_hari_ini);
-      document.getElementById('progresText').textContent = `${summary.total_dicatat} dari ${summary.total_kios} Kios Dicatat`;
+      document.getElementById('progresText').textContent = `${summary.total_dicatat} dari ${summary.total_kios} Unit Dicatat`;
       document.getElementById('progressBarFill').style.width = `${summary.progress_percent}%`;
       document.getElementById('countSetorText').textContent = summary.total_setor;
       document.getElementById('countLiburText').textContent = summary.total_libur;
@@ -307,6 +318,14 @@
 
       document.getElementById('listTitleHeader').textContent = `Daftar Setoran (${summary.total_kios})`;
 
+      // Dynamic Filter Chips Counters
+      const chipSemua = document.querySelector('#filterChips [data-filter="semua"]');
+      const chipBelum = document.querySelector('#filterChips [data-filter="belum"]');
+      const chipSetor = document.querySelector('#filterChips [data-filter="setor"]');
+      if (chipSemua) chipSemua.textContent = `Semua (${summary.total_kios})`;
+      if (chipBelum) chipBelum.textContent = `Belum Setor (${summary.total_belum})`;
+      if (chipSetor) chipSetor.textContent = `Sudah Setor (${summary.total_setor + summary.total_libur})`;
+
       // Render WA Preview
       renderWAPreview(list, summary.total_kas_hari_ini);
 
@@ -318,13 +337,12 @@
     function renderKioskList(list) {
       const container = document.getElementById('setoranList');
       if (!list || list.length === 0) {
-        container.innerHTML = '<div style="text-align:center;padding:24px;color:#94a3b8;">Tidak ada data kios</div>';
+        container.innerHTML = '<div style="text-align:center;padding:24px;color:#94a3b8;">Tidak ada data unit usaha</div>';
         return;
       }
 
       // Pisahkan berdasarkan kategori status
       const pendingItems = list.filter(item => item.deposit_status === 'belum');
-      // Untuk yang sudah setor, urutkan dari deposit_id terbesar (terbaru dicatat di paling atas!)
       const completedItems = list.filter(item => item.deposit_status === 'setor').sort((a, b) => (b.deposit_id || 0) - (a.deposit_id || 0));
       const closedItems = list.filter(item => item.deposit_status === 'libur');
 
@@ -355,7 +373,7 @@
                 </div>
               </div>
               <div class="list-item__right">
-                <button class="btn btn--primary btn--sm" style="border-radius:10px;padding:8px 14px;font-size:11px;box-shadow:var(--shadow-sm);" onclick="openCatatModal('${item.id}', '${displayName}')">
+                <button class="btn btn--primary btn--sm" style="border-radius:10px;padding:8px 14px;font-size:11px;box-shadow:var(--shadow-sm);" onclick="openCatatModalById('${item.id}')">
                   + Catat Setor
                 </button>
               </div>
@@ -394,7 +412,7 @@
               </div>
               <div class="list-item__right">
                 <span class="list-item__amount" style="color:var(--emerald-600);font-weight:700;">+${formatRupiah(item.nominal)}</span>
-                <button class="list-item__edit-btn" onclick="openKoreksiModal('${item.deposit_id}', '${displayName}', ${item.nominal}, '${item.catatan || ''}')" title="Koreksi nominal">
+                <button class="list-item__edit-btn" onclick="openKoreksiModalById('${item.deposit_id}')" title="Koreksi nominal">
                   <span class="material-symbols-outlined" style="font-size:14px;">edit</span>
                 </button>
               </div>
@@ -432,7 +450,7 @@
               </div>
               <div class="list-item__right">
                 <span class="list-item__amount list-item__amount--muted">Rp 0</span>
-                <button class="list-item__edit-btn" onclick="openKoreksiModal('${item.deposit_id}', '${displayName}', 0, '${item.catatan || ''}')" title="Koreksi status">
+                <button class="list-item__edit-btn" onclick="openKoreksiModalById('${item.deposit_id}')" title="Koreksi status">
                   <span class="material-symbols-outlined" style="font-size:14px;">edit</span>
                 </button>
               </div>
@@ -441,6 +459,13 @@
           `;
         });
       }
+
+      if (!html) {
+        container.innerHTML = '<div style="text-align:center;padding:24px;color:#94a3b8;">Tidak ada data untuk filter ini</div>';
+      } else {
+        container.innerHTML = html;
+      }
+    }
 
       if (!html) {
         container.innerHTML = '<div style="text-align:center;padding:24px;color:#94a3b8;">Tidak ada data untuk filter ini</div>';
@@ -506,6 +531,19 @@
     });
 
     // 6. Modal Openers & Submit Handlers
+    function openCatatModalById(kiosId) {
+      const item = kioskMap.get(kiosId.toString());
+      const displayName = item ? (item.nama_kantin || `Unit Usaha ${item.id}`) : `Unit Usaha ${kiosId}`;
+      openCatatModal(kiosId, displayName);
+    }
+
+    function openKoreksiModalById(depositId) {
+      const item = depositMap.get(depositId.toString());
+      if (!item) return;
+      const displayName = item.nama_kantin || `Unit Usaha ${item.id}`;
+      openKoreksiModal(item.deposit_id, displayName, item.nominal || 0, item.catatan || '');
+    }
+
     function openCatatModal(kiosId, kiosName) {
       document.getElementById('depositKiosId').value = kiosId;
       document.getElementById('depositKiosName').textContent = kiosName;
