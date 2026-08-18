@@ -217,6 +217,27 @@ router.put('/:id', authenticateToken, requireRole('admin'), async (req, res) => 
   }
 });
 
+// DELETE /api/deposits/:id - Batalkan / Hapus Setoran Hari Ini (Admin only)
+router.delete('/:id', authenticateToken, requireRole('admin'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const existing = await getAsync(`SELECT * FROM deposits WHERE id = ?`, [id]);
+    if (!existing) {
+      return res.status(404).json({ success: false, message: 'Data setoran tidak ditemukan.' });
+    }
+
+    await runAsync(`DELETE FROM deposits WHERE id = ?`, [id]);
+
+    res.json({
+      success: true,
+      message: 'Setoran berhasil dibatalkan.'
+    });
+  } catch (error) {
+    console.error('Error DELETE /api/deposits/:id:', error);
+    res.status(500).json({ success: false, message: 'Gagal membatalkan setoran.' });
+  }
+});
+
 // GET /api/deposits/tenant/current - Ambil Dashboard & Riwayat Setoran Tenant Aktif
 router.get('/tenant/current', authenticateToken, requireRole('tenant'), async (req, res) => {
   try {

@@ -139,16 +139,17 @@
               <label class="font-label-caps text-on-surface-variant">NOMINAL SETORAN</label>
               <div style="display:flex;align-items:center;background:#fff;border:2px solid rgba(192,201,192,0.3);border-radius:12px;padding:12px;gap:8px;">
                 <span class="font-financial-xl" style="color:var(--on-surface-variant);opacity:0.5;">Rp</span>
-                <input id="nominalInput" type="text" value="50.000" style="flex:1;border:none;outline:none;font-family:'Inter',sans-serif;font-size:36px;font-weight:700;background:transparent;color:var(--on-surface);width:100%;">
+                <input id="nominalInput" type="text" value="" placeholder="0" style="flex:1;border:none;outline:none;font-family:'Inter',sans-serif;font-size:36px;font-weight:700;background:transparent;color:var(--on-surface);width:100%;">
                 <span class="material-symbols-outlined" style="color:var(--outline-variant);">payments</span>
               </div>
             </div>
 
             <!-- Quick Amounts -->
-            <div class="quick-amounts" id="quickAmounts">
-              <button type="button" class="quick-amount" data-amount="25000">+Rp 25.000</button>
-              <button type="button" class="quick-amount active" data-amount="50000">+Rp 50.000 (Pas)</button>
-              <button type="button" class="quick-amount" data-amount="100000">+Rp 100.000</button>
+            <div class="quick-amounts" id="quickAmounts" style="display:grid;grid-template-columns:repeat(4, 1fr);gap:6px;">
+              <button type="button" class="quick-amount" data-amount="30000" style="padding:8px 2px;font-size:12px;text-align:center;font-weight:700;">30.000</button>
+              <button type="button" class="quick-amount" data-amount="50000" style="padding:8px 2px;font-size:12px;text-align:center;font-weight:700;">50.000</button>
+              <button type="button" class="quick-amount" data-amount="70000" style="padding:8px 2px;font-size:12px;text-align:center;font-weight:700;">70.000</button>
+              <button type="button" class="quick-amount" data-amount="100000" style="padding:8px 2px;font-size:12px;text-align:center;font-weight:700;">100.000</button>
             </div>
 
             <!-- Payment Method -->
@@ -169,7 +170,7 @@
           </div>
 
           <!-- Submit -->
-          <button type="submit" class="btn btn--primary btn--block btn--xl" style="margin-top:8px;border-radius:12px;box-shadow:0 10px 25px rgba(4,120,87,0.2);">
+          <button type="submit" class="btn btn--primary btn--block btn--xl" style="margin-top:8px;border-radius:12px;box-shadow:0 10px 25px rgba(0,56,32,0.2);">
             <span class="material-symbols-outlined">check_circle</span>
             Simpan Setoran Hari Ini
           </button>
@@ -198,9 +199,14 @@
             <span class="material-symbols-outlined input-wrap__icon" style="font-size:18px;">edit_note</span>
             <input type="text" id="editDepositCatatan" class="input" style="padding-left:40px;background:var(--surface-container-low);border:none;" placeholder="Alasan koreksi / catatan...">
           </div>
-          <div class="flex gap-3">
-            <button type="button" class="btn btn--outline flex-1" style="border-radius:12px;" onclick="closeModal('editSetoranModal')">Batal</button>
-            <button type="submit" class="btn btn--primary flex-1" style="border-radius:12px;">Simpan</button>
+          <div style="display:flex;gap:8px;margin-top:16px;">
+            <button type="button" class="btn btn--danger flex-1" style="border-radius:12px;padding:12px;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:4px;" onclick="deleteCurrentDeposit()">
+              <span class="material-symbols-outlined" style="font-size:18px;">delete</span>
+              Batalkan
+            </button>
+            <button type="submit" class="btn btn--primary" style="flex:1.5;border-radius:12px;padding:12px;font-size:13px;font-weight:700;">
+              Simpan
+            </button>
           </div>
         </form>
       </div>
@@ -399,19 +405,19 @@
           const displayName = item.nama_kantin || `Unit Usaha ${item.id}`;
           const timeText = item.waktu ? `${item.waktu} WIB` : 'Tercatat';
           html += `
-            <div style="background:#ffffff;border:1px solid rgba(192,201,192,0.4);box-shadow:var(--shadow-sm);border-radius:20px;padding:16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-              <div style="display:flex;align-items:center;gap:12px;">
+            <div style="background:#ffffff;border:1px solid rgba(192,201,192,0.4);box-shadow:var(--shadow-sm);border-radius:20px;padding:16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:12px;">
+              <div style="display:flex;align-items:center;gap:12px;min-width:0;flex:1;">
                 <div style="width:42px;height:42px;border-radius:50%;background:#f0fdf4;border:1px solid #dcfce7;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                   <span class="material-symbols-outlined" style="font-size:22px;color:#003820;">check_circle</span>
                 </div>
-                <div>
-                  <h4 style="font-size:14px;font-weight:700;color:#0f172a;margin:0 0 2px 0;">${displayName}</h4>
+                <div style="min-width:0;">
+                  <h4 style="font-size:14px;font-weight:700;color:#0f172a;margin:0 0 2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${displayName}</h4>
                   <p style="font-size:12px;color:#64748b;margin:0;">${timeText}${item.catatan ? ' • ' + item.catatan : ''}</p>
                 </div>
               </div>
-              <div style="display:flex;align-items:center;gap:8px;">
-                <span style="font-size:15px;font-weight:800;color:#003820;">+${formatRupiah(item.nominal)}</span>
-                <button onclick="openKoreksiModalById('${item.deposit_id}')" title="Koreksi nominal" style="background:none;border:none;padding:6px;cursor:pointer;color:#94a3b8;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+              <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;white-space:nowrap;">
+                <span style="font-size:15px;font-weight:800;color:#003820;white-space:nowrap;line-height:1;">+${formatRupiah(item.nominal)}</span>
+                <button onclick="openKoreksiModalById('${item.deposit_id}')" title="Koreksi nominal" style="background:none;border:none;padding:6px;cursor:pointer;color:#94a3b8;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                   <span class="material-symbols-outlined" style="font-size:18px;">edit</span>
                 </button>
               </div>
@@ -433,19 +439,19 @@
         closedItems.forEach((item) => {
           const displayName = item.nama_kantin || `Unit Usaha ${item.id}`;
           html += `
-            <div style="background:#ffffff;border:1px solid rgba(192,201,192,0.3);box-shadow:var(--shadow-sm);border-radius:20px;padding:16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;opacity:0.85;">
-              <div style="display:flex;align-items:center;gap:12px;">
+            <div style="background:#ffffff;border:1px solid rgba(192,201,192,0.3);box-shadow:var(--shadow-sm);border-radius:20px;padding:16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;opacity:0.85;gap:12px;">
+              <div style="display:flex;align-items:center;gap:12px;min-width:0;flex:1;">
                 <div style="width:42px;height:42px;border-radius:50%;background:#f8fafc;border:1px solid #e2e8f0;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                   <span class="material-symbols-outlined" style="font-size:22px;color:#64748b;">bedtime</span>
                 </div>
-                <div>
-                  <h4 style="font-size:14px;font-weight:700;color:#0f172a;margin:0 0 2px 0;">${displayName}</h4>
+                <div style="min-width:0;">
+                  <h4 style="font-size:14px;font-weight:700;color:#0f172a;margin:0 0 2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${displayName}</h4>
                   <p style="font-size:12px;color:#64748b;margin:0;">${item.catatan || 'Libur / Tutup'}</p>
                 </div>
               </div>
-              <div style="display:flex;align-items:center;gap:8px;">
-                <span style="font-size:14px;font-weight:600;color:#94a3b8;">Rp 0</span>
-                <button onclick="openKoreksiModalById('${item.deposit_id}')" title="Koreksi status" style="background:none;border:none;padding:6px;cursor:pointer;color:#94a3b8;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+              <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;white-space:nowrap;">
+                <span style="font-size:14px;font-weight:600;color:#94a3b8;white-space:nowrap;line-height:1;">Rp 0</span>
+                <button onclick="openKoreksiModalById('${item.deposit_id}')" title="Koreksi status" style="background:none;border:none;padding:6px;cursor:pointer;color:#94a3b8;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                   <span class="material-symbols-outlined" style="font-size:18px;">edit</span>
                 </button>
               </div>
@@ -534,9 +540,12 @@
     function openCatatModal(kiosId, kiosName) {
       document.getElementById('depositKiosId').value = kiosId;
       document.getElementById('depositKiosName').textContent = kiosName;
-      document.getElementById('nominalInput').value = '50.000';
+      document.getElementById('nominalInput').value = '';
       document.getElementById('depositCatatanInput').value = '';
       document.getElementById('depositStatusMode').value = 'setor';
+
+      // Reset quick amount chips
+      document.querySelectorAll('#quickAmounts .quick-amount').forEach(b => b.classList.remove('active'));
 
       // Reset switcher
       document.querySelectorAll('#modeSwitcher .mode-switcher__btn').forEach((b, i) => {
@@ -550,10 +559,39 @@
     function openKoreksiModal(depositId, kiosName, nominal, catatan) {
       document.getElementById('editDepositId').value = depositId;
       document.getElementById('editDepositKiosTitle').textContent = kiosName;
-      document.getElementById('editDepositNominal').value = nominal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-      document.getElementById('editDepositCatatan').value = catatan;
+      document.getElementById('editDepositNominal').value = nominal ? nominal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '';
+      document.getElementById('editDepositCatatan').value = catatan || '';
 
       openModal('editSetoranModal');
+    }
+
+    // Delete / Cancel Setoran (Kembali ke Belum Dicatat)
+    async function deleteCurrentDeposit() {
+      const depositId = document.getElementById('editDepositId').value;
+      if (!depositId) return;
+
+      if (!confirm('Apakah Anda yakin ingin membatalkan setoran ini? Unit usaha akan kembali berstatus Belum Dicatat.')) {
+        return;
+      }
+
+      const token = getAuthToken();
+      try {
+        const res = await fetch(`${API_BASE_URL}/deposits/${depositId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const result = await res.json();
+        if (result.success) {
+          closeModal('editSetoranModal');
+          showToast('Setoran berhasil dibatalkan');
+          loadTodayDeposits();
+        } else {
+          showToast(result.message || 'Gagal membatalkan setoran', 'error');
+        }
+      } catch (err) {
+        console.error('Delete deposit error:', err);
+        showToast('Koneksi ke server gagal', 'error');
+      }
     }
 
     // Mode Switcher in Modal
