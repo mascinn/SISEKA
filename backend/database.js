@@ -1,5 +1,13 @@
-require('dotenv').config();
+const fs = require('fs');
 const path = require('path');
+const dotenv = require('dotenv');
+
+const envPaths = ['/etc/secrets/.env', path.join(__dirname, '.env'), path.join(__dirname, '../.env')];
+for (const p of envPaths) {
+  if (fs.existsSync(p)) dotenv.config({ path: p });
+}
+dotenv.config();
+
 const bcrypt = require('bcryptjs');
 
 const isTurso = Boolean(process.env.TURSO_DATABASE_URL);
