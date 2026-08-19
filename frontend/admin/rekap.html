@@ -133,11 +133,57 @@
       selectedMonth = month;
       const token = getAuthToken();
 
+      const heroSection = document.querySelector('.hero-card');
+      if (heroSection) {
+        heroSection.style.opacity = '0.7';
+        heroSection.style.transition = 'opacity 0.2s ease';
+      }
+
+      const container = document.getElementById('recapKioskList');
+      container.innerHTML = `
+        <div class="skeleton-card animate-fade-in">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div class="skeleton" style="width:40px;height:40px;border-radius:50%;"></div>
+              <div>
+                <div class="skeleton" style="width:130px;height:14px;margin-bottom:6px;"></div>
+                <div class="skeleton" style="width:85px;height:11px;"></div>
+              </div>
+            </div>
+            <div class="skeleton" style="width:90px;height:16px;"></div>
+          </div>
+          <div class="skeleton" style="height:6px;border-radius:9999px;margin-bottom:12px;"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div class="skeleton" style="width:120px;height:22px;border-radius:9999px;"></div>
+            <div class="skeleton" style="width:70px;height:14px;"></div>
+          </div>
+        </div>
+        <div class="skeleton-card animate-fade-in">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div class="skeleton" style="width:40px;height:40px;border-radius:50%;"></div>
+              <div>
+                <div class="skeleton" style="width:140px;height:14px;margin-bottom:6px;"></div>
+                <div class="skeleton" style="width:90px;height:11px;"></div>
+              </div>
+            </div>
+            <div class="skeleton" style="width:90px;height:16px;"></div>
+          </div>
+          <div class="skeleton" style="height:6px;border-radius:9999px;margin-bottom:12px;"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div class="skeleton" style="width:120px;height:22px;border-radius:9999px;"></div>
+            <div class="skeleton" style="width:70px;height:14px;"></div>
+          </div>
+        </div>
+      `;
+
       try {
         const res = await fetch(`${API_BASE_URL}/recap/admin/monthly?month=${month}`, {
           headers: { 'Authorization': 'Bearer ' + token }
         });
         const result = await res.json();
+
+        if (heroSection) heroSection.style.opacity = '1';
 
         if (result.success) {
           currentRecapData = result;
@@ -146,6 +192,7 @@
           fallbackLocalRecap();
         }
       } catch (err) {
+        if (heroSection) heroSection.style.opacity = '1';
         console.warn('Backend offline, fallback lokal:', err);
         fallbackLocalRecap();
       }
@@ -232,7 +279,7 @@
         }
 
         return `
-          <div style="background:#ffffff;border:1px solid rgba(192,201,192,0.4);border-radius:20px;padding:16px;box-shadow:var(--shadow-sm);transition:transform 0.15s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+          <div class="animate-fade-in" style="background:#ffffff;border:1px solid rgba(192,201,192,0.4);border-radius:20px;padding:16px;box-shadow:var(--shadow-sm);transition:transform 0.15s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;gap:8px;">
               <div style="display:flex;align-items:center;gap:12px;min-width:0;">
                 <div style="width:42px;height:42px;border-radius:50%;background:#f0fdf4;border:1px solid #dcfce7;display:flex;align-items:center;justify-content:center;flex-shrink:0;">

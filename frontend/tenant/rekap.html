@@ -51,11 +51,14 @@
         </div>
       </section>
 
-      <!-- Year Filter -->
-      <section class="filter-chips" id="yearFilterChips">
-        <button class="chip chip--active" data-year="2026" style="padding:8px 18px;font-size:13px;">Tahun 2026</button>
-        <button class="chip chip--default" data-year="2025" style="padding:8px 18px;font-size:13px;">Tahun 2025</button>
-      </section>
+      <!-- Year Header Badge -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:2px 4px;">
+        <span style="font-size:12px;font-weight:700;color:#003820;background:#f0fdf4;padding:6px 14px;border-radius:9999px;border:1px solid #dcfce7;display:inline-flex;align-items:center;gap:6px;">
+          <span class="material-symbols-outlined" style="font-size:16px;">calendar_today</span>
+          Tahun Buku 2026
+        </span>
+        <span style="font-size:11px;color:#64748b;font-weight:600;">8 Bulan Berjalan (Jan – Agt)</span>
+      </div>
 
       <!-- Monthly Cards Container -->
       <section class="space-y-3" id="monthlyCardsContainer">
@@ -103,9 +106,32 @@
       }
     }
 
-    async function loadTenantRecap(year) {
+    async function loadTenantRecap(year = '2026') {
       selectedYear = year;
       const token = getAuthToken();
+
+      const container = document.getElementById('monthlyCardsContainer');
+      container.innerHTML = `
+        <div class="skeleton-card animate-fade-in">
+          <div class="skeleton" style="height:20px;width:40%;margin-bottom:14px;"></div>
+          <div style="display:flex;gap:8px;margin-bottom:14px;">
+            <div class="skeleton" style="flex:1;height:52px;border-radius:12px;"></div>
+            <div class="skeleton" style="flex:1;height:52px;border-radius:12px;"></div>
+            <div class="skeleton" style="flex:1;height:52px;border-radius:12px;"></div>
+          </div>
+          <div class="skeleton" style="height:36px;border-radius:12px;"></div>
+        </div>
+        <div class="skeleton-card animate-fade-in">
+          <div class="skeleton" style="height:20px;width:35%;margin-bottom:14px;"></div>
+          <div style="display:flex;gap:8px;margin-bottom:14px;">
+            <div class="skeleton" style="flex:1;height:52px;border-radius:12px;"></div>
+            <div class="skeleton" style="flex:1;height:52px;border-radius:12px;"></div>
+            <div class="skeleton" style="flex:1;height:52px;border-radius:12px;"></div>
+          </div>
+          <div class="skeleton" style="height:36px;border-radius:12px;"></div>
+        </div>
+      `;
+
       try {
         const res = await fetchWithTimeout(`${API_BASE_URL}/recap/tenant/monthly-history?year=${year}`, {
           headers: { 'Authorization': 'Bearer ' + token }
@@ -307,7 +333,7 @@
         }
 
         return `
-          <div style="background:#ffffff;border:1px solid rgba(192,201,192,0.4);border-radius:20px;padding:18px;box-shadow:var(--shadow-sm);margin-bottom:14px;">
+          <div class="animate-fade-in" style="background:#ffffff;border:1px solid rgba(192,201,192,0.4);border-radius:20px;padding:18px;box-shadow:var(--shadow-sm);margin-bottom:14px;">
             <!-- Card Header -->
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
               <div>
