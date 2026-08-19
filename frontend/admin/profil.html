@@ -24,7 +24,7 @@
 
     <main style="padding:20px 16px 0;" class="space-y-4">
       <!-- Profile Identity Card -->
-      <section style="background:#ffffff;border:1px solid rgba(192,201,192,0.4);border-radius:24px;padding:24px;text-align:center;box-shadow:var(--shadow-sm);">
+      <section class="animate-fade-in" style="background:#ffffff;border:1px solid rgba(192,201,192,0.4);border-radius:24px;padding:24px;text-align:center;box-shadow:var(--shadow-sm);">
         <div style="width:72px;height:72px;border-radius:50%;background:#003820;color:#ffffff;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;margin:0 auto 12px;border:3px solid #dcfce7;box-shadow:var(--shadow-md);">
           AD
         </div>
@@ -38,7 +38,7 @@
       </section>
 
       <!-- System Info Card -->
-      <section class="space-y-2">
+      <section class="space-y-2 animate-fade-in">
         <h2 class="font-bold text-xs px-1" style="color:#64748b;text-transform:uppercase;letter-spacing:0.05em;">Informasi Sistem &amp; Otoritas</h2>
         <div style="background:#ffffff;border:1px solid rgba(192,201,192,0.4);border-radius:20px;padding:16px;box-shadow:var(--shadow-sm);">
           <div class="info-row" style="padding:10px 0;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">
@@ -46,14 +46,14 @@
               <span class="material-symbols-outlined" style="font-size:18px;color:#003820;">badge</span>
               Username
             </span>
-            <span style="font-size:13px;font-weight:700;color:#0f172a;">admin</span>
+            <span style="font-size:13px;font-weight:700;color:#0f172a;" id="adminUsername">bph</span>
           </div>
           <div class="info-row" style="padding:10px 0;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">
             <span style="font-size:12px;color:#64748b;display:flex;align-items:center;gap:8px;">
               <span class="material-symbols-outlined" style="font-size:18px;color:#003820;">database</span>
               Basis Data
             </span>
-            <span style="font-size:13px;font-weight:700;color:#003820;">SQLite (Lokal Terenkripsi)</span>
+            <span style="font-size:13px;font-weight:700;color:#003820;">Cloud Database (Turso LibSQL)</span>
           </div>
           <div class="info-row" style="padding:10px 0;display:flex;justify-content:space-between;align-items:center;">
             <span style="font-size:12px;color:#64748b;display:flex;align-items:center;gap:8px;">
@@ -61,7 +61,7 @@
               Sistem Autentikasi
             </span>
             <span style="font-size:12px;font-weight:700;color:#003820;background:#f0fdf4;padding:4px 10px;border-radius:8px;border:1px solid #dcfce7;">
-              JWT &amp; Password
+              JWT &amp; Bcrypt Encrypted
             </span>
           </div>
         </div>

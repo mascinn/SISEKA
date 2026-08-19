@@ -104,24 +104,43 @@
       const errorEl = document.getElementById('loginError');
 
       const submitBtn = this.querySelector('button[type="submit"]');
+      const originalBtnHtml = submitBtn.innerHTML;
+
       submitBtn.disabled = true;
-      submitBtn.style.opacity = '0.7';
+      submitBtn.style.opacity = '0.9';
+      submitBtn.innerHTML = `
+        <span class="spinner-sm" style="margin-right:8px;"></span>
+        <span>Memverifikasi Akun...</span>
+      `;
+      errorEl.classList.add('hidden');
 
       try {
         const user = await login(username, password);
         if (user) {
-          errorEl.classList.add('hidden');
-          if (user.role === 'admin') {
-            window.location.href = 'admin/penarikan.html';
-          } else {
-            window.location.href = 'tenant/beranda.html';
-          }
+          submitBtn.style.background = '#059669';
+          submitBtn.style.color = '#ffffff';
+          submitBtn.innerHTML = `
+            <span class="material-symbols-outlined" style="font-size:18px;margin-right:6px;">check_circle</span>
+            <span>Berhasil! Mengalihkan...</span>
+          `;
+          setTimeout(() => {
+            if (user.role === 'admin') {
+              window.location.href = 'admin/penarikan.html';
+            } else {
+              window.location.href = 'tenant/beranda.html';
+            }
+          }, 350);
         } else {
           errorEl.classList.remove('hidden');
+          submitBtn.disabled = false;
+          submitBtn.style.opacity = '';
+          submitBtn.innerHTML = originalBtnHtml;
         }
-      } finally {
+      } catch (err) {
+        errorEl.classList.remove('hidden');
         submitBtn.disabled = false;
         submitBtn.style.opacity = '';
+        submitBtn.innerHTML = originalBtnHtml;
       }
     });
   </script>
