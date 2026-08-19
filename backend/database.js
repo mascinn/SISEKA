@@ -1,47 +1,81 @@
-const sqlite3 = require('sqlite3').verbose();
+require('dotenv').config();
 const path = require('path');
 const bcrypt = require('bcryptjs');
 
-const dbPath = path.join(__dirname, 'siseka.db');
-let db = new sqlite3.Database(dbPath, (err) => {
-  if (err) {
-    console.error('❌ Gagal membuka database SQLite:', err.message);
-  } else {
-    console.log('✅ Terhubung ke database SQLite:', dbPath);
-  }
-});
+const isTurso = Boolean(process.env.TURSO_DATABASE_URL);
+let runAsync, allAsync, getAsync, db;
 
-// Helper run SQL with Promise
-function runAsync(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.run(sql, params, function (err) {
-      if (err) reject(err);
-      else resolve(this);
-    });
+if (isTurso) {
+  const { createClient } = require('@libsql/client');
+  const tursoUrl = process.env.TURSO_DATABASE_URL.replace(/^libsql:\/\//, 'https://');
+  const client = createClient({
+    url: tursoUrl,
+    authToken: process.env.TURSO_AUTH_TOKEN
   });
+  console.log('✅ Terhubung ke database Cloud Turso (LibSQL):', tursoUrl);
+
+  runAsync = async function (sql, params = []) {
+    const res = await client.execute({ sql, args: params });
+    return {
+      lastID: res.lastInsertRowid !== undefined && res.lastInsertRowid !== null ? Number(res.lastInsertRowid) : undefined,
+      changes: res.rowsAffected
+    };
+  };
+
+  allAsync = async function (sql, params = []) {
+    const res = await client.execute({ sql, args: params });
+    return res.rows;
+  };
+
+  getAsync = async function (sql, params = []) {
+    const res = await client.execute({ sql, args: params });
+    return res.rows[0] || undefined;
+  };
+
+  db = client;
+} else {
+  const sqlite3 = require('sqlite3').verbose();
+  const dbPath = path.join(__dirname, 'siseka.db');
+  db = new sqlite3.Database(dbPath, (err) => {
+    if (err) {
+      console.error('❌ Gagal membuka database SQLite lokal:', err.message);
+    } else {
+      console.log('✅ Terhubung ke database SQLite lokal:', dbPath);
+    }
+  });
+
+  // Helper run SQL with Promise
+  runAsync = function (sql, params = []) {
+    return new Promise((resolve, reject) => {
+      db.run(sql, params, function (err) {
+        if (err) reject(err);
+        else resolve(this);
+      });
+    });
+  };
+
+  // Helper query all with Promise
+  allAsync = function (sql, params = []) {
+    return new Promise((resolve, reject) => {
+      db.all(sql, params, (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows);
+      });
+    });
+  };
+
+  // Helper query single with Promise
+  getAsync = function (sql, params = []) {
+    return new Promise((resolve, reject) => {
+      db.get(sql, params, (err, row) => {
+        if (err) reject(err);
+        else resolve(row);
+      });
+    });
+  };
 }
 
-// Helper query all with Promise
-function allAsync(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.all(sql, params, (err, rows) => {
-      if (err) reject(err);
-      else resolve(rows);
-    });
-  });
-}
-
-// Helper query single with Promise
-function getAsync(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.get(sql, params, (err, row) => {
-      if (err) reject(err);
-      else resolve(row);
-    });
-  });
-}
-
-// Inisialisasi Tabel & Seed Data: 1 Admin & 2 Tenant (Hari ini belum dicatat agar bisa ditest input)
+// Inisialisasi Tabel & Seed Data
 async function initDatabase(forceReset = false) {
   try {
     if (forceReset) {
@@ -98,7 +132,7 @@ async function initDatabase(forceReset = false) {
 
     // Cek apakah data sudah ada
     const userCount = await getAsync('SELECT COUNT(*) as count FROM users');
-    if (userCount.count === 0) {
+    if (!userCount || userCount.count === 0) {
       console.log('🌱 Melakukan inisialisasi akun tunggal Admin BPH...');
 
       const salt = await bcrypt.genSalt(10);

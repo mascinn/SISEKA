@@ -3,7 +3,6 @@ const { allAsync } = require('../database');
 const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyqAIzZNRAAUC1Y4logwJKg4ZuwcOoN7s7diMMkPg543MSUsPhmaYP6mzm7VHU3bLtR/exec';
 const GOOGLE_SHEETS_VIEW_URL = 'https://docs.google.com/spreadsheets/d/1gn-bMpqieiROnOWAGpxl8EZKjvtQxILDmpts9Ue8idw/edit?usp=sharing';
 
-// Indonesian day and month names
 const DAYS_ID = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', "Jum'at", 'Sabtu'];
 const MONTHS_ID = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
@@ -27,99 +26,140 @@ function getDaysInMonth(year, month) {
 }
 
 /**
- * Sinkronkan seluruh rekap unit usaha ke Google Sheets per tab / sheet
- * @param {string} monthCode - Format 'YYYY-MM', misal '2026-08'
+ * Sinkronkan seluruh rekap unit usaha ke Google Sheets per tab dengan format tabel per bulan & total
  */
-async function syncRecapToGoogleSheets(monthCode) {
+async function syncRecapToGoogleSheets(year = '2026') {
   try {
-    if (!monthCode) {
-      const now = new Date();
-      const y = now.getFullYear();
-      const m = String(now.getMonth() + 1).padStart(2, '0');
-      monthCode = `${y}-${m}`;
-    }
-
-    const [yearStr, monthStr] = monthCode.split('-');
-    const year = parseInt(yearStr, 10);
-    const month = parseInt(monthStr, 10);
-    const totalDays = getDaysInMonth(year, month);
-
+    const currentMonthNum = 8; // Agustus
     const kiosks = await allAsync(`SELECT * FROM kiosks ORDER BY id ASC`);
     const allDeposits = await allAsync(
       `SELECT * FROM deposits WHERE tanggal LIKE ? ORDER BY tanggal ASC, id ASC`,
-      [`${monthCode}-%`]
+      [`${year}-%`]
     );
 
-    const kioskPayloads = kiosks.map(k => {
-      const kioskDeposits = allDeposits.filter(d => d.kiosk_id === k.id);
-      const depositMap = new Map();
-      kioskDeposits.forEach(d => depositMap.set(d.tanggal, d));
+    // 1. Susun Data Ringkasan Eksekutif Semua Unit
+    let totalSemuaSetor = 0;
+    let totalSemuaTarget = 0;
 
-      let totalSetor = 0;
-      const dailyRows = [];
+    const ringkasanSemuaUnit = kiosks.map((k, idx) => {
+      const kDeposits = allDeposits.filter(d => d.kiosk_id === k.id);
+      const sumNominal = kDeposits.reduce((acc, curr) => acc + (curr.nominal || 0), 0);
+      const targetTahunan = (k.tarif_sewa || 0) * currentMonthNum;
+      const saldo = sumNominal - targetTahunan;
 
-      for (let day = 1; day <= totalDays; day++) {
-        const dStr = `${yearStr}-${monthStr}-${String(day).padStart(2, '0')}`;
-        const dObj = new Date(`${dStr}T00:00:00`);
-        const dayName = DAYS_ID[dObj.getDay()];
-        const isSunday = dObj.getDay() === 0;
+      totalSemuaSetor += sumNominal;
+      totalSemuaTarget += targetTahunan;
 
-        const record = depositMap.get(dStr);
-        let status = 'belum';
-        let nominal = 0;
-        let keterangan = '';
+      return {
+        no: idx + 1,
+        kiosk_id: k.id,
+        nama_kantin: k.nama_kantin,
+        nama_penyewa: k.nama_penyewa,
+        nomor_hp: k.nomor_hp || '-',
+        tarif_sewa: k.tarif_sewa || 0,
+        total_setor: sumNominal,
+        target_sewa: targetTahunan,
+        saldo: saldo,
+        status: saldo >= 0 ? (saldo === 0 ? 'Lunas' : 'Surplus') : 'Kurang Bayar'
+      };
+    });
 
-        if (record) {
-          status = record.status;
-          nominal = record.status === 'setor' ? record.nominal : 0;
-          keterangan = record.catatan || (record.status === 'libur' ? 'Libur / Tutup' : `Setoran ${dayName}`);
-        } else {
-          if (isSunday) {
+    // 2. Susun Data Per Kios (Tabel Terpisah Per Bulan + Total)
+    const kioskTabs = kiosks.map(k => {
+      const kDeposits = allDeposits.filter(d => d.kiosk_id === k.id);
+      const monthlyTables = [];
+
+      for (let m = 1; m <= currentMonthNum; m++) {
+        const mStr = String(m).padStart(2, '0');
+        const monthCode = `${year}-${mStr}`;
+        const monthLabel = `${MONTHS_ID[m - 1]} ${year}`;
+        const daysInMonth = getDaysInMonth(parseInt(year, 10), m);
+
+        const mDeposits = kDeposits.filter(d => d.tanggal.startsWith(monthCode));
+        const depositMap = new Map();
+        mDeposits.forEach(d => depositMap.set(d.tanggal, d));
+
+        let mTotalSetor = 0;
+        let mHariSetor = 0;
+        let mHariLibur = 0;
+        const dailyRows = [];
+
+        for (let day = 1; day <= daysInMonth; day++) {
+          const dStr = `${year}-${mStr}-${String(day).padStart(2, '0')}`;
+          const dObj = new Date(`${dStr}T00:00:00`);
+          const dayName = DAYS_ID[dObj.getDay()];
+          const isWeekend = dObj.getDay() === 0 || dObj.getDay() === 6;
+
+          const record = depositMap.get(dStr);
+          let status = 'libur';
+          let nominal = 0;
+          let keterangan = '';
+
+          if (record) {
+            status = record.status;
+            nominal = record.nominal || 0;
+            keterangan = record.catatan || (status === 'libur' ? 'Libur / Tutup' : `Setoran ${dayName}`);
+          } else {
             status = 'libur';
             nominal = 0;
-            keterangan = 'Libur Akhir Pekan (Minggu)';
-          } else {
-            status = 'belum';
-            nominal = 0;
-            keterangan = `Belum Dicatat (${dayName})`;
+            keterangan = isWeekend ? `Libur Akhir Pekan (${dayName})` : 'Libur Operasional';
           }
+
+          if (status === 'setor') {
+            mTotalSetor += nominal;
+            mHariSetor++;
+          } else {
+            mHariLibur++;
+          }
+
+          dailyRows.push({
+            no: day,
+            tanggal: dStr,
+            hari: dayName,
+            jam: record?.waktu || '16:00',
+            status: status.toUpperCase(),
+            nominal: nominal,
+            keterangan: keterangan
+          });
         }
 
-        if (status === 'setor') {
-          totalSetor += nominal;
-        }
+        const mSaldo = mTotalSetor - (k.tarif_sewa || 0);
+        const mStatus = mSaldo >= 0 
+          ? (mSaldo === 0 ? 'LUNAS' : `SURPLUS (+Rp ${mSaldo.toLocaleString('id-ID')})`) 
+          : `KURANG (-Rp ${Math.abs(mSaldo).toLocaleString('id-ID')})`;
 
-        dailyRows.push({
-          tanggal: dStr,
-          hari: dayName,
-          hari_tanggal_label: formatDateIndo(dStr),
-          status: status,
-          nominal: nominal,
-          keterangan: keterangan
+        monthlyTables.push({
+          bulan_code: monthCode,
+          bulan_nama: monthLabel,
+          target_sewa: k.tarif_sewa || 0,
+          total_setor: mTotalSetor,
+          saldo: mSaldo,
+          status_keuangan: mStatus,
+          hari_setor: mHariSetor,
+          hari_libur: mHariLibur,
+          rows: dailyRows
         });
       }
 
-      const displayName = k.nama_kantin 
-        ? `${k.nama_kantin} (${k.nama_penyewa || 'Stan'})`
-        : `Unit Usaha ${k.id}`;
-
       return {
         id: k.id,
-        nama_kantin: displayName,
-        penyewa: k.nama_penyewa,
-        tarif_sewa: k.tarif_sewa || 1000000,
-        total_setor: totalSetor,
-        deposits: dailyRows
+        nama_kantin: k.nama_kantin,
+        nama_penyewa: k.nama_penyewa,
+        nomor_hp: k.nomor_hp || '-',
+        tarif_sewa: k.tarif_sewa || 0,
+        monthly_tables: monthlyTables
       };
     });
 
     const payload = {
-      bulan_code: monthCode,
-      bulan_label: formatMonthLabel(monthCode),
-      kiosks: kioskPayloads
+      tahun: year,
+      total_semua_setor: totalSemuaSetor,
+      total_semua_target: totalSemuaTarget,
+      ringkasan_semua: ringkasanSemuaUnit,
+      kiosks: kioskTabs
     };
 
-    console.log(`📡 [GoogleSheets] Mengirim ${kiosks.length} unit usaha untuk periode ${payload.bulan_label}...`);
+    console.log(`📡 [GoogleSheets] Mengirim data ${kiosks.length} unit usaha lengkap dengan format Tabel Per Bulan...`);
 
     const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
       method: 'POST',

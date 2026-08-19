@@ -24,47 +24,28 @@
 
     <!-- Main Content -->
     <main style="padding:20px 16px 0;">
-      <!-- Admin Identity & Date Switcher -->
+      <!-- Admin Identity & Operational Day -->
       <div style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
         <div>
           <span style="font-size:11px;font-weight:700;color:#003820;background:#f0fdf4;padding:4px 10px;border-radius:8px;border:1px solid #dcfce7;letter-spacing:0.05em;text-transform:uppercase;">Petugas Kolektor BPH</span>
-          <h1 class="page-title font-bold text-xl" style="color:var(--on-surface);margin:4px 0 0 0;" id="pageTitleText">Penarikan Setoran</h1>
+          <h1 class="page-title font-bold text-xl" style="color:var(--on-surface);margin:4px 0 0 0;">Penarikan Setoran</h1>
         </div>
-      </div>
-
-      <!-- Date Switcher Toolbar -->
-      <div style="background:#ffffff;border:1px solid rgba(192,201,192,0.4);border-radius:20px;padding:8px 12px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow-sm);">
-        <div style="display:flex;align-items:center;gap:4px;">
-          <button type="button" class="btn btn--ghost btn--sm" style="padding:6px;border-radius:50%;width:34px;height:34px;" onclick="shiftSelectedDate(-1)" title="Hari Sebelumnya">
-            <span class="material-symbols-outlined" style="font-size:20px;color:#003820;">chevron_left</span>
-          </button>
-          
-          <div style="position:relative;display:inline-block;">
-            <input type="date" id="selectedDatePickerInput" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2;" onchange="onDatePickerChange(this.value)">
-            <div style="display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:12px;background:#f8fafc;border:1px solid #f1f5f9;cursor:pointer;">
-              <span class="material-symbols-outlined" style="font-size:18px;color:#003820;">calendar_month</span>
-              <span style="font-size:13px;font-weight:700;color:#0f172a;" id="displaySelectedDateText">Selasa, 18 Agt 2026</span>
-              <span class="material-symbols-outlined" style="font-size:16px;color:#94a3b8;">arrow_drop_down</span>
-            </div>
+        <div style="text-align:right;">
+          <div style="font-size:11px;color:var(--outline);font-weight:600;">Hari Operasional</div>
+          <div style="font-size:13px;font-weight:800;color:#003820;display:flex;align-items:center;gap:4px;" id="todayDate">
+            <span class="material-symbols-outlined" style="font-size:16px;color:#003820;">calendar_today</span>
+            Memuat...
           </div>
-
-          <button type="button" class="btn btn--ghost btn--sm" style="padding:6px;border-radius:50%;width:34px;height:34px;" onclick="shiftSelectedDate(1)" title="Hari Berikutnya">
-            <span class="material-symbols-outlined" style="font-size:20px;color:#003820;">chevron_right</span>
-          </button>
         </div>
-
-        <button type="button" class="btn btn--sm" id="todayQuickBtn" style="background:#f0fdf4;border:1px solid #dcfce7;color:#003820;border-radius:9999px;font-size:11px;font-weight:700;padding:6px 12px;" onclick="goToTodayDate()">
-          Hari Ini
-        </button>
       </div>
 
       <!-- Hero Card -->
-      <section class="hero-card mb-4" style="margin-top:4px;padding:24px;background:#003820;box-shadow:var(--shadow-hero);position:relative;overflow:hidden;border-radius:24px;">
+      <section class="hero-card mb-4" style="margin-top:8px;padding:24px;background:#003820;box-shadow:var(--shadow-hero);position:relative;overflow:hidden;border-radius:24px;">
         <div class="hero-card__decoration" style="top:0;right:0;width:128px;height:128px;background:rgba(255,255,255,0.05);border-radius:50%;filter:none;transform:translate(40px,-40px);pointer-events:none;position:absolute;"></div>
         <div class="hero-card__decoration" style="bottom:0;left:0;width:96px;height:96px;background:rgba(255,255,255,0.05);border-radius:50%;filter:none;transform:translate(-20px,40px);pointer-events:none;position:absolute;"></div>
         <div class="relative z-10">
           <div class="flex justify-between items-center mb-2">
-            <h2 style="font-size:12px;color:var(--primary-fixed-dim);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;" id="heroDateTitle">Total Setoran: 18 Agt 2026</h2>
+            <h2 style="font-size:12px;color:var(--primary-fixed-dim);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Total Setoran Hari Ini</h2>
             <div id="completeBadge" style="font-size:11px;font-weight:700;padding:4px 12px;border-radius:9999px;background:rgba(255,255,255,0.12);color:#ffffff;border:1px solid rgba(255,255,255,0.15);display:inline-flex;align-items:center;gap:4px;">
               <span id="completeBadgeText">0/2 Unit</span>
             </div>
@@ -297,68 +278,20 @@
   <script>
     requireAuth('admin');
 
+    document.getElementById('todayDate').innerHTML = `<span class="material-symbols-outlined" style="font-size:16px;color:#003820;">calendar_today</span> ${getTodayString()}`;
+    document.getElementById('modalDate').textContent = getTodayShort();
     document.getElementById('waSvgIcon').innerHTML = getWhatsAppSVG(14);
     document.getElementById('waIconBox').innerHTML = getWhatsAppSVG(16);
 
     let todayDataCache = null;
     let selectedPaymentMethod = 'Tunai';
     let currentFilter = 'semua';
-    let currentSelectedDate = getIsoDateString(new Date());
 
-    function getIsoDateString(dateObj) {
-      const y = dateObj.getFullYear();
-      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
-      const d = String(dateObj.getDate()).padStart(2, '0');
-      return `${y}-${m}-${d}`;
-    }
-
-    function formatHumanDate(isoStr) {
-      const d = new Date(isoStr + 'T00:00:00');
-      const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', "Jum'at", 'Sabtu'];
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'];
-      return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
-    }
-
-    function updateDateUI() {
-      const isToday = currentSelectedDate === getIsoDateString(new Date());
-      document.getElementById('displaySelectedDateText').textContent = formatHumanDate(currentSelectedDate);
-      document.getElementById('selectedDatePickerInput').value = currentSelectedDate;
-      document.getElementById('heroDateTitle').textContent = `Total Setoran: ${formatHumanDate(currentSelectedDate)}`;
-      document.getElementById('modalDate').textContent = formatHumanDate(currentSelectedDate);
-      
-      const todayBtn = document.getElementById('todayQuickBtn');
-      if (todayBtn) {
-        todayBtn.style.opacity = isToday ? '0.6' : '1';
-        todayBtn.style.background = isToday ? '#e2e8f0' : '#f0fdf4';
-      }
-    }
-
-    function onDatePickerChange(val) {
-      if (!val) return;
-      currentSelectedDate = val;
-      updateDateUI();
-      loadTodayDeposits(currentSelectedDate);
-    }
-
-    function shiftSelectedDate(deltaDays) {
-      const d = new Date(currentSelectedDate + 'T00:00:00');
-      d.setDate(d.getDate() + deltaDays);
-      currentSelectedDate = getIsoDateString(d);
-      updateDateUI();
-      loadTodayDeposits(currentSelectedDate);
-    }
-
-    function goToTodayDate() {
-      currentSelectedDate = getIsoDateString(new Date());
-      updateDateUI();
-      loadTodayDeposits(currentSelectedDate);
-    }
-
-    // 1. Load Deposits for Selected Date from Backend
-    async function loadTodayDeposits(dateStr = currentSelectedDate) {
+    // 1. Load Today Deposits from Backend
+    async function loadTodayDeposits() {
       const token = getAuthToken();
       try {
-        const res = await fetch(`${API_BASE_URL}/deposits/today?date=${dateStr}`, {
+        const res = await fetch(`${API_BASE_URL}/deposits/today`, {
           headers: { 'Authorization': 'Bearer ' + token }
         });
         const result = await res.json();
@@ -765,7 +698,6 @@
 
       const payload = {
         kiosk_id: kioskId,
-        tanggal: currentSelectedDate,
         nominal: nominal,
         status: mode,
         metode: mode === 'libur' ? null : selectedPaymentMethod,
@@ -785,7 +717,7 @@
         if (result.success) {
           closeModal('depositModal');
           showToast('Setoran berhasil disimpan!');
-          loadTodayDeposits(currentSelectedDate);
+          loadTodayDeposits();
         } else {
           showToast(result.message || 'Gagal menyimpan setoran', 'error');
         }
@@ -816,7 +748,7 @@
         if (result.success) {
           closeModal('editSetoranModal');
           showToast('Setoran berhasil dikoreksi!');
-          loadTodayDeposits(currentSelectedDate);
+          loadTodayDeposits();
         } else {
           showToast(result.message || 'Gagal koreksi setoran', 'error');
         }
@@ -827,8 +759,7 @@
     });
 
     // Initial Load
-    updateDateUI();
-    loadTodayDeposits(currentSelectedDate);
+    loadTodayDeposits();
   </script>
 </body>
 </html>

@@ -11,6 +11,7 @@ backend/node_modules/
 npm-debug.log*
 .DS_Store
 Thumbs.db
+~$*.xlsx
 
 # SQLite local database (can be tracked or untracked; let's keep database or ignore local cache)
 # backend/siseka.db
