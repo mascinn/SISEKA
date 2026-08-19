@@ -83,7 +83,30 @@
         </div>
 
         <div class="card card--flush space-y-1" id="riwayatList">
-          <div style="text-align:center;padding:24px;color:var(--on-surface-variant);">Memuat riwayat setoran...</div>
+          <div class="skeleton-card animate-fade-in" style="margin:8px;padding:12px;border-radius:14px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div class="skeleton" style="width:36px;height:36px;border-radius:50%;"></div>
+                <div>
+                  <div class="skeleton" style="width:120px;height:14px;margin-bottom:6px;"></div>
+                  <div class="skeleton" style="width:80px;height:10px;"></div>
+                </div>
+              </div>
+              <div class="skeleton" style="width:70px;height:16px;"></div>
+            </div>
+          </div>
+          <div class="skeleton-card animate-fade-in" style="margin:8px;padding:12px;border-radius:14px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div class="skeleton" style="width:36px;height:36px;border-radius:50%;"></div>
+                <div>
+                  <div class="skeleton" style="width:110px;height:14px;margin-bottom:6px;"></div>
+                  <div class="skeleton" style="width:75px;height:10px;"></div>
+                </div>
+              </div>
+              <div class="skeleton" style="width:70px;height:16px;"></div>
+            </div>
+          </div>
         </div>
       </section>
     </main>
@@ -215,7 +238,7 @@
 
         if (isSetor) {
           return `
-            <div class="list-item">
+            <div class="list-item animate-fade-in">
               <div class="list-item__left">
                 <div class="list-item__icon list-item__icon--surface list-item__icon--lg">
                   <span class="material-symbols-outlined" style="font-size:20px;">payments</span>
@@ -231,7 +254,7 @@
           `;
         } else {
           return `
-            <div class="list-item" style="opacity:0.75;">
+            <div class="list-item animate-fade-in" style="opacity:0.75;">
               <div class="list-item__left">
                 <div class="list-item__icon list-item__icon--surface list-item__icon--lg">
                   <span class="material-symbols-outlined" style="font-size:20px;">weekend</span>

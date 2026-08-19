@@ -1,51 +1,75 @@
-const { allAsync, getAsync, runAsync } = require('../database');
+const { allAsync, runAsync, db } = require('../database');
 
 /**
  * Otomatis mendeteksi dan mencatat hari-hari lampau yang tidak diinput admin
- * sebagai 'libur' di database SQLite:
- * - Jika hari Sabtu / Minggu -> Catatan: 'Libur Akhir Pekan'
- * - Jika hari kerja (Senin - Jumat) -> Catatan: 'Libur / Tutup'
+ * sebagai 'libur' secara efisien (1 Query Check + 1 Batch Insert).
  */
 async function autoReconcileUnrecordedDeposits() {
   try {
     const today = new Date();
-    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth() + 1;
+    const currentDay = today.getDate();
 
-    // Ambil semua kios aktif
+    if (currentDay <= 1) return; // Tanggal 1 tidak ada hari lampau dalam bulan ini
+
+    const startDateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}-01`;
+    const todayStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(currentDay).padStart(2, '0')}`;
+
+    // 1. Ambil semua kios aktif
     const activeKiosks = await allAsync(`SELECT id FROM kiosks WHERE status = 'aktif'`);
     if (!activeKiosks || activeKiosks.length === 0) return;
 
-    const currentYear = today.getFullYear();
-    const currentMonth = today.getMonth() + 1; // 1 - 12
-    const currentDay = today.getDate();
+    // 2. Ambil seluruh catatan setoran yang sudah ada di bulan ini (1 single query!)
+    const existingRows = await allAsync(
+      `SELECT kiosk_id, tanggal FROM deposits WHERE tanggal >= ? AND tanggal < ?`,
+      [startDateStr, todayStr]
+    );
 
-    // Loop dari tanggal 1 bulan ini sampai kemarin (hari-hari yang sudah selesai)
+    const existingSet = new Set(existingRows.map(r => `${r.kiosk_id}_${r.tanggal}`));
+    const missingInserts = [];
+
+    // 3. Cari tanggal yang belum tercatat
     for (let day = 1; day < currentDay; day++) {
       const dayStr = String(day).padStart(2, '0');
-      const monthStr = String(currentMonth).padStart(2, '0');
-      const dateStr = `${currentYear}-${monthStr}-${dayStr}`;
+      const dateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${dayStr}`;
 
       const dateObj = new Date(currentYear, currentMonth - 1, day);
-      const dayOfWeek = dateObj.getDay(); // 0 = Minggu, 6 = Sabtu
-      const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
-      const autoCatatan = isWeekend ? 'Libur Akhir Pekan' : 'Libur / Tutup';
+      const dayOfWeek = dateObj.getDay();
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+      const dayName = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', "Jum'at", 'Sabtu'][dayOfWeek];
+      const autoCatatan = isWeekend ? `Libur Akhir Pekan (${dayName})` : 'Libur / Tutup';
 
       for (const kiosk of activeKiosks) {
-        // Cek apakah sudah ada baris di database untuk tanggal ini
-        const existing = await getAsync(
-          `SELECT id FROM deposits WHERE kiosk_id = ? AND tanggal = ?`,
-          [kiosk.id, dateStr]
-        );
-
-        if (!existing) {
-          // Belum ada baris -> Otomatis buat baris libur di SQLite
-          await runAsync(
-            `INSERT INTO deposits (kiosk_id, tanggal, waktu, nominal, status, metode, catatan)
-             VALUES (?, ?, NULL, 0, 'libur', NULL, ?)`,
-            [kiosk.id, dateStr, autoCatatan]
-          );
-          console.log(`🤖 [Auto-Reconcile] Dicatat otomatis: Kios ${kiosk.id} pada ${dateStr} sebagai ${autoCatatan}`);
+        const key = `${kiosk.id}_${dateStr}`;
+        if (!existingSet.has(key)) {
+          missingInserts.push({
+            kiosk_id: kiosk.id,
+            tanggal: dateStr,
+            catatan: autoCatatan
+          });
         }
+      }
+    }
+
+    if (missingInserts.length === 0) return;
+
+    console.log(`🤖 [Auto-Reconcile] Menambahkan ${missingInserts.length} catatan hari libur yang terlewat...`);
+
+    // 4. Batch insert jika ada yang terlewat
+    const isTurso = Boolean(process.env.TURSO_DATABASE_URL);
+    if (isTurso && typeof db.batch === 'function') {
+      const statements = missingInserts.map(item => ({
+        sql: `INSERT INTO deposits (kiosk_id, tanggal, waktu, nominal, status, metode, catatan) VALUES (?, ?, '16:00', 0, 'libur', NULL, ?)`,
+        args: [item.kiosk_id, item.tanggal, item.catatan]
+      }));
+      await db.batch(statements);
+    } else {
+      for (const item of missingInserts) {
+        await runAsync(
+          `INSERT INTO deposits (kiosk_id, tanggal, waktu, nominal, status, metode, catatan) VALUES (?, ?, '16:00', 0, 'libur', NULL, ?)`,
+          [item.kiosk_id, item.tanggal, item.catatan]
+        );
       }
     }
   } catch (error) {

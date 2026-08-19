@@ -113,9 +113,34 @@
           <button class="chip chip--default" data-filter="setor">Sudah Setor</button>
         </div>
 
-        <!-- Dynamic List Container -->
+        <!-- Dynamic List Container with Skeleton -->
         <div id="setoranList" class="space-y-3">
-          <div style="text-align:center;padding:24px;color:var(--on-surface-variant);">Memuat data setoran...</div>
+          <div class="skeleton-card animate-fade-in">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div class="skeleton" style="width:40px;height:40px;border-radius:50%;"></div>
+                <div>
+                  <div class="skeleton" style="width:140px;height:14px;margin-bottom:6px;"></div>
+                  <div class="skeleton" style="width:90px;height:11px;"></div>
+                </div>
+              </div>
+              <div class="skeleton" style="width:80px;height:24px;border-radius:9999px;"></div>
+            </div>
+            <div class="skeleton" style="height:38px;border-radius:12px;"></div>
+          </div>
+          <div class="skeleton-card animate-fade-in">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div class="skeleton" style="width:40px;height:40px;border-radius:50%;"></div>
+                <div>
+                  <div class="skeleton" style="width:130px;height:14px;margin-bottom:6px;"></div>
+                  <div class="skeleton" style="width:80px;height:11px;"></div>
+                </div>
+              </div>
+              <div class="skeleton" style="width:80px;height:24px;border-radius:9999px;"></div>
+            </div>
+            <div class="skeleton" style="height:38px;border-radius:12px;"></div>
+          </div>
         </div>
       </section>
     </main>
@@ -290,6 +315,37 @@
     // 1. Load Today Deposits from Backend
     async function loadTodayDeposits() {
       const token = getAuthToken();
+      const listEl = document.getElementById('setoranList');
+      if (listEl && (!todayDataCache || listEl.children.length === 0)) {
+        listEl.innerHTML = `
+          <div class="skeleton-card animate-fade-in">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div class="skeleton" style="width:40px;height:40px;border-radius:50%;"></div>
+                <div>
+                  <div class="skeleton" style="width:140px;height:14px;margin-bottom:6px;"></div>
+                  <div class="skeleton" style="width:90px;height:11px;"></div>
+                </div>
+              </div>
+              <div class="skeleton" style="width:80px;height:24px;border-radius:9999px;"></div>
+            </div>
+            <div class="skeleton" style="height:38px;border-radius:12px;"></div>
+          </div>
+          <div class="skeleton-card animate-fade-in">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div class="skeleton" style="width:40px;height:40px;border-radius:50%;"></div>
+                <div>
+                  <div class="skeleton" style="width:130px;height:14px;margin-bottom:6px;"></div>
+                  <div class="skeleton" style="width:80px;height:11px;"></div>
+                </div>
+              </div>
+              <div class="skeleton" style="width:80px;height:24px;border-radius:9999px;"></div>
+            </div>
+            <div class="skeleton" style="height:38px;border-radius:12px;"></div>
+          </div>
+        `;
+      }
       try {
         const res = await fetch(`${API_BASE_URL}/deposits/today`, {
           headers: { 'Authorization': 'Bearer ' + token }
@@ -417,7 +473,7 @@
         pendingItems.forEach((item) => {
           const displayName = item.nama_kantin || `Unit Usaha ${item.id}`;
           html += `
-            <div style="background:#ffffff;border:1px solid rgba(192,201,192,0.4);box-shadow:var(--shadow-sm);border-radius:20px;padding:16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <div class="animate-fade-in" style="background:#ffffff;border:1px solid rgba(192,201,192,0.4);box-shadow:var(--shadow-sm);border-radius:20px;padding:16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
               <div style="display:flex;align-items:center;gap:12px;">
                 <div style="width:42px;height:42px;border-radius:50%;background:#f0fdf4;border:1px solid #dcfce7;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                   <span class="material-symbols-outlined" style="font-size:22px;color:#003820;">storefront</span>
@@ -449,20 +505,23 @@
           const displayName = item.nama_kantin || `Unit Usaha ${item.id}`;
           const timeText = item.waktu ? `${item.waktu} WIB` : 'Tercatat';
           html += `
-            <div style="background:#ffffff;border:1px solid rgba(192,201,192,0.4);box-shadow:var(--shadow-sm);border-radius:20px;padding:16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:12px;">
+            <div class="animate-fade-in" style="background:#ffffff;border:1px solid rgba(192,201,192,0.4);box-shadow:var(--shadow-sm);border-radius:20px;padding:16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:12px;">
               <div style="display:flex;align-items:center;gap:12px;min-width:0;flex:1;">
                 <div style="width:42px;height:42px;border-radius:50%;background:#f0fdf4;border:1px solid #dcfce7;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                   <span class="material-symbols-outlined" style="font-size:22px;color:#003820;">check_circle</span>
                 </div>
                 <div style="min-width:0;">
                   <h4 style="font-size:14px;font-weight:700;color:#0f172a;margin:0 0 2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${displayName}</h4>
-                  <p style="font-size:12px;color:#64748b;margin:0;">${timeText}${item.catatan ? ' • ' + item.catatan : ''}</p>
+                  <p style="font-size:11px;color:#64748b;margin:0;display:flex;align-items:center;gap:4px;">
+                    <span class="badge badge--success" style="font-size:10px;padding:2px 8px;border-radius:9999px;">${item.metode || 'Tunai'}</span>
+                    <span>• ${timeText}</span>
+                  </p>
                 </div>
               </div>
-              <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;white-space:nowrap;">
-                <span style="font-size:15px;font-weight:800;color:#003820;white-space:nowrap;line-height:1;">+${formatRupiah(item.nominal)}</span>
-                <button onclick="openKoreksiModalById('${item.deposit_id}')" title="Koreksi nominal" style="background:none;border:none;padding:6px;cursor:pointer;color:#94a3b8;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                  <span class="material-symbols-outlined" style="font-size:18px;">edit</span>
+              <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+                <span class="font-bold text-sm" style="color:#003820;font-size:15px;">${formatRupiah(item.nominal)}</span>
+                <button type="button" class="btn btn--ghost btn--sm" style="padding:6px;border-radius:50%;width:32px;height:32px;" onclick="openKoreksiModalById('${item.deposit_id}')" title="Koreksi Setoran">
+                  <span class="material-symbols-outlined" style="font-size:18px;color:#64748b;">edit</span>
                 </button>
               </div>
             </div>
@@ -470,7 +529,7 @@
         });
       }
 
-      // Bagian 3: Libur / Tutup
+      // Bagian 3: Unit Libur / Tutup
       if ((currentFilter === 'semua' || currentFilter === 'setor') && closedItems.length > 0) {
         if (currentFilter === 'semua') {
           html += `
@@ -483,20 +542,19 @@
         closedItems.forEach((item) => {
           const displayName = item.nama_kantin || `Unit Usaha ${item.id}`;
           html += `
-            <div style="background:#ffffff;border:1px solid rgba(192,201,192,0.3);box-shadow:var(--shadow-sm);border-radius:20px;padding:16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;opacity:0.85;gap:12px;">
+            <div class="animate-fade-in" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:20px;padding:16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:12px;">
               <div style="display:flex;align-items:center;gap:12px;min-width:0;flex:1;">
-                <div style="width:42px;height:42px;border-radius:50%;background:#f8fafc;border:1px solid #e2e8f0;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                  <span class="material-symbols-outlined" style="font-size:22px;color:#64748b;">bedtime</span>
+                <div style="width:42px;height:42px;border-radius:50%;background:#f1f5f9;border:1px solid #e2e8f0;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <span class="material-symbols-outlined" style="font-size:22px;color:#64748b;">beach_access</span>
                 </div>
                 <div style="min-width:0;">
-                  <h4 style="font-size:14px;font-weight:700;color:#0f172a;margin:0 0 2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${displayName}</h4>
-                  <p style="font-size:12px;color:#64748b;margin:0;">${item.catatan || 'Libur / Tutup'}</p>
+                  <h4 style="font-size:14px;font-weight:700;color:#64748b;margin:0 0 2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${displayName}</h4>
+                  <p style="font-size:11px;color:#94a3b8;margin:0;">Status: Libur (Rp 0)</p>
                 </div>
               </div>
-              <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;white-space:nowrap;">
-                <span style="font-size:14px;font-weight:600;color:#94a3b8;white-space:nowrap;line-height:1;">Rp 0</span>
-                <button onclick="openKoreksiModalById('${item.deposit_id}')" title="Koreksi status" style="background:none;border:none;padding:6px;cursor:pointer;color:#94a3b8;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                  <span class="material-symbols-outlined" style="font-size:18px;">edit</span>
+              <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+                <button type="button" class="btn btn--ghost btn--sm" style="padding:6px;border-radius:50%;width:32px;height:32px;" onclick="openKoreksiModalById('${item.deposit_id}')" title="Koreksi Status">
+                  <span class="material-symbols-outlined" style="font-size:18px;color:#64748b;">edit</span>
                 </button>
               </div>
             </div>
@@ -504,11 +562,7 @@
         });
       }
 
-      if (!html) {
-        container.innerHTML = '<div style="text-align:center;padding:24px;color:#94a3b8;">Tidak ada data untuk filter ini</div>';
-      } else {
-        container.innerHTML = html;
-      }
+      container.innerHTML = html;
     }
 
     // 4. WhatsApp Message Generator

@@ -138,6 +138,10 @@ async function initDatabase(forceReset = false) {
       )
     `);
 
+    // Indexes for fast querying
+    await runAsync(`CREATE INDEX IF NOT EXISTS idx_deposits_kiosk_tanggal ON deposits(kiosk_id, tanggal)`);
+    await runAsync(`CREATE INDEX IF NOT EXISTS idx_deposits_tanggal ON deposits(tanggal)`);
+
     // Cek apakah data sudah ada
     const userCount = await getAsync('SELECT COUNT(*) as count FROM users');
     if (!userCount || userCount.count === 0) {
