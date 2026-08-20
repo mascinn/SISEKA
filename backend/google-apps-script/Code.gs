@@ -3,20 +3,6 @@
  * SISEKA - GOOGLE APPS SCRIPT WEBHOOK ENGINE
  * Sistem Informasi Setoran Sewa Kantin - Masjid Al-Wasi'i
  * =========================================================================
- * 
- * CARA MEMASANG DI GOOGLE SPREADSHEET:
- * 1. Buka Google Spreadsheet SISEKA:
- *    https://docs.google.com/spreadsheets/d/1gn-bMpqieiROnOWAGpxl8EZKjvtQxILDmpts9Ue8idw/edit
- * 2. Klik menu: Extensions -> Apps Script
- * 3. Hapus semua kode yang ada di Code.gs, lalu paste seluruh isi file ini.
- * 4. Klik ikon "Save" (Disk).
- * 5. Klik tombol "Deploy" (Pojok kanan atas) -> "New deployment"
- *    - Type: Web app
- *    - Description: SISEKA Auto Sync Engine v2
- *    - Execute as: Me (email Anda)
- *    - Who has access: Anyone (Siapa saja)
- * 6. Klik "Deploy", izinkan akses (Authorize Access).
- * 7. Copy "Web app URL" (akhiran /exec) dan pastikan cocok dengan GOOGLE_APPS_SCRIPT_URL di SISEKA backend.
  */
 
 const TARGET_SPREADSHEET_ID = '1gn-bMpqieiROnOWAGpxl8EZKjvtQxILDmpts9Ue8idw';
@@ -29,10 +15,17 @@ function getSpreadsheet() {
   return SpreadsheetApp.openById(TARGET_SPREADSHEET_ID);
 }
 
+function padRow(arr, len) {
+  const res = arr ? arr.slice() : [];
+  while (res.length < len) {
+    res.push('');
+  }
+  return res;
+}
+
 function doPost(e) {
   const lock = LockService.getScriptLock();
   try {
-    // Kunci proses selama max 30 detik agar tidak terjadi konflik penulisan
     lock.waitLock(30000);
 
     let payload;
@@ -101,15 +94,15 @@ function updateSummarySheet(ss, payload) {
   sheet.setTabColor('#003820');
 
   const rows = [];
-  rows.push(['SISTEM INFORMASI SETORAN SEWA KANTIN (SISEKA WASI\'I)']);
-  rows.push(['BPH MASJID AL-WASI\'I • REKAPITULASI KEUANGAN TAHUN ' + (payload.tahun || '2026')]);
-  rows.push(['Terakhir Diperbarui: ' + Utilities.formatDate(new Date(), 'GMT+7', 'dd MMMM yyyy HH:mm:ss') + ' WIB']);
-  rows.push([]);
-  rows.push(['No', 'ID Unit', 'Nama Kantin / Unit Usaha', 'Penyewa', 'No HP', 'Tarif Sewa/Bln', 'Total Setor', 'Target Sewa', 'Saldo Keuangan', 'Status']);
+  rows.push(padRow(['SISTEM INFORMASI SETORAN SEWA KANTIN (SISEKA WASI\'I)'], 10));
+  rows.push(padRow(['BPH MASJID AL-WASI\'I • REKAPITULASI KEUANGAN TAHUN ' + (payload.tahun || '2026')], 10));
+  rows.push(padRow(['Terakhir Diperbarui: ' + Utilities.formatDate(new Date(), 'GMT+7', 'dd MMMM yyyy HH:mm:ss') + ' WIB'], 10));
+  rows.push(padRow([], 10));
+  rows.push(padRow(['No', 'ID Unit', 'Nama Kantin / Unit Usaha', 'Penyewa', 'No HP', 'Tarif Sewa/Bln', 'Total Setor', 'Target Sewa', 'Saldo Keuangan', 'Status'], 10));
 
   if (payload.ringkasan_semua && Array.isArray(payload.ringkasan_semua)) {
     payload.ringkasan_semua.forEach(function(item, idx) {
-      rows.push([
+      rows.push(padRow([
         idx + 1,
         item.kiosk_id,
         item.nama_kantin,
@@ -120,16 +113,16 @@ function updateSummarySheet(ss, payload) {
         item.target_sewa,
         item.saldo,
         item.status
-      ]);
+      ], 10));
     });
   }
 
   // Baris Total
-  rows.push([]);
+  rows.push(padRow([], 10));
   const totalSetor = payload.total_semua_setor || 0;
   const totalTarget = payload.total_semua_target || 0;
   const totalSaldo = totalSetor - totalTarget;
-  rows.push([
+  rows.push(padRow([
     'TOTAL KESELURUHAN',
     '',
     '',
@@ -140,10 +133,10 @@ function updateSummarySheet(ss, payload) {
     totalTarget,
     totalSaldo,
     totalSaldo >= 0 ? (totalSaldo === 0 ? 'LUNAS' : 'SURPLUS') : 'KURANG BAYAR'
-  ]);
+  ], 10));
 
   // Tulis ke sheet
-  sheet.getRange(1, 1, rows.length, rows[4].length).setValues(rows);
+  sheet.getRange(1, 1, rows.length, 10).setValues(rows);
 
   // STYLING SHEET RINGKASAN
   // Header Judul Banner
@@ -197,10 +190,10 @@ function updateKioskSheet(ss, kiosk, tahun) {
   sheet.setTabColor('#0A5C36');
 
   const rows = [];
-  rows.push(['UNIT USAHA: ' + kiosk.nama_kantin.toUpperCase()]);
-  rows.push(['Penyewa: ' + kiosk.nama_penyewa, '', 'No HP: ' + (kiosk.nomor_hp || '-'), '', 'Tarif Sewa: Rp ' + Number(kiosk.tarif_sewa || 0).toLocaleString('id-ID') + ' / Bulan']);
-  rows.push(['Tahun Buku: ' + tahun, '', 'Terakhir Diperbarui: ' + Utilities.formatDate(new Date(), 'GMT+7', 'dd MMMM yyyy HH:mm:ss') + ' WIB']);
-  rows.push([]);
+  rows.push(padRow(['UNIT USAHA: ' + kiosk.nama_kantin.toUpperCase()], 6));
+  rows.push(padRow(['Penyewa: ' + kiosk.nama_penyewa, '', 'No HP: ' + (kiosk.nomor_hp || '-'), '', 'Tarif Sewa: Rp ' + Number(kiosk.tarif_sewa || 0).toLocaleString('id-ID') + ' / Bulan'], 6));
+  rows.push(padRow(['Tahun Buku: ' + tahun, '', 'Terakhir Diperbarui: ' + Utilities.formatDate(new Date(), 'GMT+7', 'dd MMMM yyyy HH:mm:ss') + ' WIB'], 6));
+  rows.push(padRow([], 6));
 
   // Loop setiap tabel bulanan
   const monthlyTables = kiosk.monthly_tables || [];
@@ -210,33 +203,33 @@ function updateKioskSheet(ss, kiosk, tahun) {
     const startRow = rows.length + 1;
 
     // Header Bulan
-    rows.push(['TABEL SETORAN: ' + mTable.bulan_nama.toUpperCase(), '', '', '', '', '']);
+    rows.push(padRow(['TABEL SETORAN: ' + mTable.bulan_nama.toUpperCase()], 6));
     // Header Kolom
-    rows.push(['No', 'Hari / Tanggal', 'Jam', 'Status', 'Nominal (Rp)', 'Keterangan']);
+    rows.push(padRow(['No', 'Hari / Tanggal', 'Jam', 'Status', 'Nominal (Rp)', 'Keterangan'], 6));
 
     const dailyRows = mTable.rows || [];
     dailyRows.forEach(function(dRow) {
-      rows.push([
+      rows.push(padRow([
         dRow.no,
         dRow.hari + ', ' + dRow.tanggal,
         dRow.jam,
         dRow.status,
         dRow.nominal,
         dRow.keterangan
-      ]);
+      ], 6));
     });
 
     // Baris Total Bulan
-    const totalRow = [
+    const totalRow = padRow([
       'TOTAL ' + mTable.bulan_nama.toUpperCase(),
       mTable.hari_setor + ' Hari Setor | ' + mTable.hari_libur + ' Hari Libur',
       '',
       'TOTAL:',
       mTable.total_setor,
       'Target: Rp ' + Number(mTable.target_sewa).toLocaleString('id-ID') + ' | ' + mTable.status_keuangan
-    ];
+    ], 6);
     rows.push(totalRow);
-    rows.push([]); // Spasi baris kosong pemisah
+    rows.push(padRow([], 6)); // Spasi baris kosong pemisah
 
     stylingMeta.push({
       startRow: startRow,
