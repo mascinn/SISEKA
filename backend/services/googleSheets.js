@@ -25,12 +25,37 @@ function getDaysInMonth(year, month) {
   return new Date(year, month, 0).getDate();
 }
 
+let syncTimeout = null;
+
+/**
+ * Trigger background auto-sync dengan debouncing agar tidak membebani server/Google Apps Script
+ */
+function triggerAutoSync(delayMs = 3000) {
+  if (syncTimeout) {
+    clearTimeout(syncTimeout);
+  }
+  syncTimeout = setTimeout(async () => {
+    try {
+      console.log('🔄 [GoogleSheets Auto-Sync] Memperbarui seluruh data ke Google Sheets...');
+      await syncRecapToGoogleSheets();
+    } catch (err) {
+      console.error('⚠️ [GoogleSheets Auto-Sync] Gagal update otomatis:', err.message);
+    }
+  }, delayMs);
+}
+
 /**
  * Sinkronkan seluruh rekap unit usaha ke Google Sheets per tab dengan format tabel per bulan & total
  */
-async function syncRecapToGoogleSheets(year = '2026') {
+async function syncRecapToGoogleSheets(targetParam = '2026') {
   try {
-    const currentMonthNum = 8; // Agustus
+    const year = String(targetParam).split('-')[0] || '2026';
+    const now = new Date();
+    // Tentukan bulan berjalan (1-12)
+    const currentMonthNum = parseInt(year, 10) === now.getFullYear() 
+      ? Math.min(12, Math.max(1, now.getMonth() + 1))
+      : 8; // Default 8 (Agustus) untuk periode aktif SISEKA 2026
+
     const kiosks = await allAsync(`SELECT * FROM kiosks ORDER BY id ASC`);
     const allDeposits = await allAsync(
       `SELECT * FROM deposits WHERE tanggal LIKE ? ORDER BY tanggal ASC, id ASC`,
@@ -194,6 +219,7 @@ async function syncRecapToGoogleSheets(year = '2026') {
 
 module.exports = {
   syncRecapToGoogleSheets,
+  triggerAutoSync,
   GOOGLE_APPS_SCRIPT_URL,
   GOOGLE_SHEETS_VIEW_URL
 };

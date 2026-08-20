@@ -3,6 +3,7 @@ const router = express.Router();
 const { allAsync, getAsync, runAsync } = require('../database');
 const { authenticateToken, requireRole } = require('../middleware/auth');
 const { autoReconcileUnrecordedDeposits } = require('../utils/reconcile');
+const { triggerAutoSync } = require('../services/googleSheets');
 
 // Helper: Format tanggal YYYY-MM-DD lokal
 function getTodayDateString() {
@@ -152,6 +153,8 @@ router.post('/', authenticateToken, requireRole('admin'), async (req, res) => {
       );
 
       const updated = await getAsync(`SELECT * FROM deposits WHERE id = ?`, [existing.id]);
+      triggerAutoSync(); // Otomatis sync ke Google Sheets di background
+
       return res.json({
         success: true,
         message: 'Setoran berhasil diperbarui!',
@@ -167,6 +170,7 @@ router.post('/', authenticateToken, requireRole('admin'), async (req, res) => {
     );
 
     const newDeposit = await getAsync(`SELECT * FROM deposits WHERE id = ?`, [insertRes.lastID]);
+    triggerAutoSync(); // Otomatis sync ke Google Sheets di background
 
     res.status(201).json({
       success: true,
@@ -205,6 +209,7 @@ router.put('/:id', authenticateToken, requireRole('admin'), async (req, res) => 
     );
 
     const updated = await getAsync(`SELECT * FROM deposits WHERE id = ?`, [id]);
+    triggerAutoSync(); // Otomatis sync ke Google Sheets di background
 
     res.json({
       success: true,
@@ -227,6 +232,7 @@ router.delete('/:id', authenticateToken, requireRole('admin'), async (req, res) 
     }
 
     await runAsync(`DELETE FROM deposits WHERE id = ?`, [id]);
+    triggerAutoSync(); // Otomatis sync ke Google Sheets di background
 
     res.json({
       success: true,

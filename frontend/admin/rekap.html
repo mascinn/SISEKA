@@ -79,13 +79,9 @@
           <span style="font-size:12px;font-weight:700;color:#0f172a;" id="periodeLabel">01 – 31 Agustus 2026</span>
         </div>
         <div style="display:flex;align-items:center;gap:6px;">
-          <button class="btn btn--sm" style="background:#003820;color:#ffffff;border-radius:9999px;font-size:11px;font-weight:700;padding:8px 12px;display:flex;align-items:center;gap:4px;" onclick="exportMasterSpreadsheet()">
+          <button class="btn btn--sm" style="background:#003820;color:#ffffff;border-radius:9999px;font-size:11px;font-weight:700;padding:8px 14px;display:flex;align-items:center;gap:6px;box-shadow:0 2px 6px rgba(0,56,32,0.25);" onclick="openGoogleSpreadsheet()">
             <span class="material-symbols-outlined" style="font-size:16px;">table_chart</span>
-            Spreadsheet
-          </button>
-          <button class="btn btn--outline btn--sm" style="border-radius:9999px;font-size:11px;font-weight:700;padding:8px 12px;display:flex;align-items:center;gap:4px;color:#003820;border-color:rgba(0,56,32,0.3);" onclick="exportMonthlyReport()">
-            <span class="material-symbols-outlined" style="font-size:16px;">download</span>
-            Ekspor
+            Buka Spreadsheet
           </button>
         </div>
       </div>
@@ -328,41 +324,11 @@
       });
     });
 
-    // 4. Export & Live Google Sheets Sync
-    async function exportMasterSpreadsheet() {
-      const token = getAuthToken();
-      showToast('Menyinkronkan data ke Google Sheets...');
+    // 4. Langsung Buka Link Google Spreadsheet
+    const GOOGLE_SHEETS_VIEW_URL = 'https://docs.google.com/spreadsheets/d/1gn-bMpqieiROnOWAGpxl8EZKjvtQxILDmpts9Ue8idw/edit?usp=sharing';
 
-      try {
-        const res = await fetch(`${API_BASE_URL}/recap/sync-sheets?month=${selectedMonth}`, {
-          method: 'POST',
-          headers: { 'Authorization': 'Bearer ' + token }
-        });
-        const result = await res.json();
-
-        if (result.success && result.sheetsUrl) {
-          showToast('Data berhasil disinkronkan ke Google Sheets!', 'success');
-          window.open(result.sheetsUrl, '_blank');
-        } else {
-          window.open('https://docs.google.com/spreadsheets/d/1gn-bMpqieiROnOWAGpxl8EZKjvtQxILDmpts9Ue8idw/edit?usp=sharing', '_blank');
-        }
-      } catch (err) {
-        console.warn('Sync error, opening direct link:', err);
-        window.open('https://docs.google.com/spreadsheets/d/1gn-bMpqieiROnOWAGpxl8EZKjvtQxILDmpts9Ue8idw/edit?usp=sharing', '_blank');
-      }
-    }
-
-    function exportMonthlyReport() {
-      if (!currentRecapData) return;
-      const json = JSON.stringify(currentRecapData, null, 2);
-      const blob = new Blob([json], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `rekap-siseka-${selectedMonth}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      showToast('Laporan JSON berhasil diunduh!');
+    function openGoogleSpreadsheet() {
+      window.open(GOOGLE_SHEETS_VIEW_URL, '_blank');
     }
 
     // Initial Load
