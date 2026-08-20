@@ -72,23 +72,16 @@
         </div>
       </section>
 
-      <!-- Action & Export Toolbar -->
-      <div style="background:#ffffff;border:1px solid rgba(192,201,192,0.3);border-radius:18px;padding:14px 16px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:var(--shadow-sm);">
-        <div>
-          <span style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;display:block;">Tampilan Bulan Ini</span>
-          <span style="font-size:13px;font-weight:800;color:#0f172a;" id="periodeLabel">01 – 31 Agustus 2026</span>
-        </div>
-        <div>
-          <button class="btn btn--sm" style="background:#003820;color:#ffffff;border-radius:9999px;font-size:11px;font-weight:700;padding:8px 14px;display:flex;align-items:center;gap:6px;box-shadow:0 2px 6px rgba(0,56,32,0.25);white-space:nowrap;" onclick="openGoogleSpreadsheet()" title="Buka Master Rekap Tahunan Semua Unit (Januari - Desember)">
-            <span class="material-symbols-outlined" style="font-size:16px;">table_chart</span>
-            Master Spreadsheet 2026
+      <!-- Per Kios List Header with Spreadsheet Action -->
+      <div class="mt-4 mb-8">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px;padding:0 4px;">
+          <h3 class="font-bold text-sm" style="color:#0f172a;margin:0;" id="listTitleHeader">Rincian Per Unit Usaha</h3>
+          <button class="btn btn--sm" style="background:#003820;color:#ffffff;border-radius:9999px;font-size:11px;font-weight:700;padding:7px 12px;display:flex;align-items:center;gap:5px;box-shadow:0 2px 6px rgba(0,56,32,0.2);cursor:pointer;border:none;" onclick="openGoogleSpreadsheet()" title="Buka Master Google Spreadsheet 2026">
+            <span class="material-symbols-outlined" style="font-size:15px;">table_chart</span>
+            Spreadsheet 2026
+            <span class="material-symbols-outlined" style="font-size:13px;opacity:0.85;">open_in_new</span>
           </button>
         </div>
-      </div>
-
-      <!-- Per Kios List -->
-      <div class="mt-2 mb-8">
-        <h3 class="font-bold text-sm px-1 mb-3" style="color:#0f172a;" id="listTitleHeader">Rincian Per Unit Usaha</h3>
         <div id="recapKioskList" class="space-y-3">
           <div style="text-align:center;padding:24px;color:var(--on-surface-variant);">Memuat rekap...</div>
         </div>
@@ -237,7 +230,6 @@
       document.getElementById('heroRecapTargetText').textContent = `Total Target Sewa: ${formatRupiah(summary.total_target)} (${summary.total_kios} Unit Usaha)`;
       document.getElementById('heroRecapLunasText').textContent = `${summary.jumlah_lunas_surplus} Unit Lunas`;
       document.getElementById('heroRecapKurangText').textContent = `${summary.jumlah_kurang} Belum Lunas`;
-      document.getElementById('periodeLabel').textContent = `01 – 31 ${bulan_label}`;
       document.getElementById('heroProgressBarFill').style.width = `${Math.min(100, summary.persentase_tercapai)}%`;
 
       document.getElementById('listTitleHeader').textContent = `Rincian Per Unit Usaha (${summary.total_kios})`;
