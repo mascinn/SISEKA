@@ -1,4 +1,5 @@
 const { allAsync, runAsync, db } = require('../database');
+const { getWIBDateParts } = require('./date');
 
 /**
  * Otomatis mendeteksi dan mencatat hari-hari lampau yang tidak diinput admin
@@ -6,10 +7,10 @@ const { allAsync, runAsync, db } = require('../database');
  */
 async function autoReconcileUnrecordedDeposits() {
   try {
-    const today = new Date();
-    const currentYear = today.getFullYear();
-    const currentMonth = today.getMonth() + 1;
-    const currentDay = today.getDate();
+    const parts = getWIBDateParts();
+    const currentYear = parseInt(parts.year, 10);
+    const currentMonth = parseInt(parts.month, 10);
+    const currentDay = parseInt(parts.day, 10);
 
     if (currentDay <= 1) return; // Tanggal 1 tidak ada hari lampau dalam bulan ini
 

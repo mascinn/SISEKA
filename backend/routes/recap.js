@@ -3,12 +3,10 @@ const router = express.Router();
 const { allAsync, getAsync } = require('../database');
 const { authenticateToken, requireRole } = require('../middleware/auth');
 const { autoReconcileUnrecordedDeposits } = require('../utils/reconcile');
+const { getCurrentMonthWIB, getCurrentYearWIB } = require('../utils/date');
 
 function getCurrentMonthString() {
-  const d = new Date();
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  return `${year}-${month}`; // e.g. '2026-08'
+  return getCurrentMonthWIB();
 }
 
 const MONTH_NAMES = {

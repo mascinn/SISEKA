@@ -1,4 +1,5 @@
 const { allAsync } = require('../database');
+const { getWIBDateParts } = require('../utils/date');
 
 const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyqAIzZNRAAUC1Y4logwJKg4ZuwcOoN7s7diMMkPg543MSUsPhmaYP6mzm7VHU3bLtR/exec';
 const GOOGLE_SHEETS_VIEW_URL = 'https://docs.google.com/spreadsheets/d/1gn-bMpqieiROnOWAGpxl8EZKjvtQxILDmpts9Ue8idw/edit?usp=sharing';
@@ -50,10 +51,11 @@ function triggerAutoSync(delayMs = 3000) {
 async function syncRecapToGoogleSheets(targetParam = '2026') {
   try {
     const year = String(targetParam).split('-')[0] || '2026';
-    const now = new Date();
+    const parts = getWIBDateParts();
+    const currentYear = parseInt(parts.year, 10);
     // Tentukan bulan berjalan (1-12)
-    const currentMonthNum = parseInt(year, 10) === now.getFullYear() 
-      ? Math.min(12, Math.max(1, now.getMonth() + 1))
+    const currentMonthNum = parseInt(year, 10) === currentYear 
+      ? Math.min(12, Math.max(1, parseInt(parts.month, 10)))
       : 8; // Default 8 (Agustus) untuk periode aktif SISEKA 2026
 
     const kiosks = await allAsync(`SELECT * FROM kiosks ORDER BY id ASC`);

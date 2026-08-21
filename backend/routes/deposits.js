@@ -4,29 +4,13 @@ const { allAsync, getAsync, runAsync } = require('../database');
 const { authenticateToken, requireRole } = require('../middleware/auth');
 const { autoReconcileUnrecordedDeposits } = require('../utils/reconcile');
 const { triggerAutoSync } = require('../services/googleSheets');
-
-// Helper: Format tanggal YYYY-MM-DD lokal
-function getTodayDateString() {
-  const d = new Date();
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-
-// Helper: Format waktu HH:mm lokal
-function getCurrentTimeString() {
-  const d = new Date();
-  const hours = String(d.getHours()).padStart(2, '0');
-  const minutes = String(d.getMinutes()).padStart(2, '0');
-  return `${hours}:${minutes}`;
-}
+const { getTodayWIB, getCurrentTimeWIB } = require('../utils/date');
 
 // GET /api/deposits/today - Ambil rekap & status setoran hari ini (Admin only)
 router.get('/today', authenticateToken, requireRole('admin'), async (req, res) => {
   try {
     await autoReconcileUnrecordedDeposits();
-    const today = req.query.date || getTodayDateString();
+    const today = req.query.date || getTodayWIB();
 
     // 1. Ambil semua kios aktif
     const kiosks = await allAsync(
@@ -128,14 +112,14 @@ router.get('/today', authenticateToken, requireRole('admin'), async (req, res) =
 // POST /api/deposits - Catat Setoran Baru (Admin only)
 router.post('/', authenticateToken, requireRole('admin'), async (req, res) => {
   try {
-    const { kiosk_id, tanggal, nominal, status, metode, catatan } = req.body;
+    const { kiosk_id, tanggal, nominal, status, metode, catatan, waktu } = req.body;
 
     if (!kiosk_id) {
       return res.status(400).json({ success: false, message: 'ID Kios wajib diisi.' });
     }
 
-    const tgl = tanggal || getTodayDateString();
-    const wkt = getCurrentTimeString();
+    const tgl = tanggal || getTodayWIB();
+    const wkt = waktu || getCurrentTimeWIB();
     const stat = status || 'setor';
     const nom = stat === 'libur' ? 0 : (parseInt(nominal) || 0);
 
