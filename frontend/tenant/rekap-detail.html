@@ -77,6 +77,10 @@
 
     async function loadTenantMonthDetail() {
       const token = getAuthToken();
+      if (!token) {
+        window.location.href = '../login.html';
+        return;
+      }
       try {
         const res = await fetch(`${API_BASE_URL}/recap/tenant/month-detail?month=${month}`, {
           headers: { 'Authorization': 'Bearer ' + token }
@@ -86,29 +90,37 @@
         if (result.success) {
           renderTenantMonthDetail(result);
         } else {
-          fallbackLocalDetail();
+          fallbackLocalDetail(result.message);
         }
       } catch (err) {
-        console.warn('Backend offline, fallback lokal:', err);
-        fallbackLocalDetail();
+        console.warn('Backend offline / fetch error:', err);
+        fallbackLocalDetail('Koneksi terputus atau server sedang bangun (cold-start).');
       }
     }
 
-    function fallbackLocalDetail() {
-      renderTenantMonthDetail({
-        kiosk: { nama_kantin: user.kios || 'Kantin Berkah', tarif_sewa: 1000000 },
-        bulan_label: 'Agustus 2026',
-        summary: {
-          total_setor: 850000,
-          tarif_sewa: 1000000,
-          progress_percent: 85,
-          kekurangan: 150000,
-          hari_aktif: 17,
-          hari_libur: 2,
-          status: 'berjalan'
-        },
-        riwayat: TENANT_RIWAYAT
-      });
+    function fallbackLocalDetail(errorMessage) {
+      document.getElementById('headerMonthTitle').textContent = `Rekap`;
+      document.getElementById('totalAkumulasiText').textContent = 'Rp 0';
+      document.getElementById('tarifSewaText').textContent = 'Rp 0';
+      document.getElementById('hariAktifText').textContent = '0 Hari';
+      document.getElementById('hariLiburInfoText').textContent = 'Gagal memuat data server';
+
+      const badgeWrapper = document.getElementById('recapBadgeWrapper');
+      if (badgeWrapper) badgeWrapper.innerHTML = '';
+
+      const detailList = document.getElementById('detailRiwayatList');
+      if (detailList) {
+        detailList.innerHTML = `
+          <div style="text-align:center;padding:32px 16px;background:var(--surface-container-low);border-radius:16px;border:1px dashed #cbd5e1;margin-top:8px;">
+            <span class="material-symbols-outlined" style="font-size:36px;color:#ef4444;margin-bottom:6px;">cloud_off</span>
+            <p style="font-size:14px;font-weight:700;color:var(--on-surface);margin-bottom:4px;">Gagal Memuat Detail Rekap</p>
+            <p style="font-size:12px;color:var(--on-surface-variant);margin-bottom:14px;">${errorMessage || 'Server sedang cold-start atau offline.'}</p>
+            <button onclick="loadTenantMonthDetail()" style="padding:7px 18px;border-radius:20px;font-size:12px;font-weight:600;background:var(--primary);color:#fff;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+              <span class="material-symbols-outlined" style="font-size:16px;">refresh</span>Coba Muat Ulang
+            </button>
+          </div>
+        `;
+      }
     }
 
     function renderTenantMonthDetail(data) {

@@ -143,6 +143,10 @@
     // 1. Fetch Tenant Current Month Dashboard
     async function loadTenantDashboard() {
       const token = getAuthToken();
+      if (!token) {
+        window.location.href = '../login.html';
+        return;
+      }
       try {
         const res = await fetch(`${API_BASE_URL}/deposits/tenant/current`, {
           headers: { 'Authorization': 'Bearer ' + token }
@@ -152,28 +156,42 @@
         if (result.success) {
           renderTenantDashboard(result);
         } else {
-          fallbackLocalTenant();
+          fallbackLocalTenant(result.message);
         }
       } catch (err) {
-        console.warn('Backend offline, fallback lokal tenant:', err);
-        fallbackLocalTenant();
+        console.warn('Backend offline / fetch error:', err);
+        fallbackLocalTenant('Koneksi ke server terputus atau server sedang bangun (cold-start).');
       }
     }
 
-    function fallbackLocalTenant() {
-      renderTenantDashboard({
-        kiosk: { nama_kantin: user.kios || 'Kantin Berkah', tarif_sewa: 1000000 },
-        summary: {
-          bulan: '2026-08',
-          total_akumulasi: 850000,
-          tarif_sewa: 1000000,
-          progress_percent: 85,
-          kekurangan: 150000,
-          surplus: 0
-        },
-        deposit_today: { nominal: 50000, status: 'setor', waktu: '14:30' },
-        riwayat: TENANT_RIWAYAT
-      });
+    function fallbackLocalTenant(errorMessage) {
+      document.getElementById('heroTotalAkumulasi').textContent = 'Rp 0';
+      document.getElementById('heroProgressPercent').textContent = '0%';
+      document.getElementById('heroProgressBar').style.width = '0%';
+      document.getElementById('heroTarifSewa').textContent = 'Rp 0';
+      document.getElementById('heroSisaLabel').textContent = 'STATUS';
+      document.getElementById('heroSisaNominal').textContent = '-';
+
+      const todayDateEl = document.getElementById('todayShortDate');
+      const todayAmountEl = document.getElementById('todayStatusAmount');
+      const todayIconBox = document.getElementById('todayStatusIconBox');
+
+      todayDateEl.textContent = getTodayString();
+      todayIconBox.innerHTML = '<span class="material-symbols-outlined" style="color:#ef4444;">cloud_off</span>';
+      todayAmountEl.textContent = 'Gagal memuat';
+      todayAmountEl.style.color = '#ef4444';
+
+      const riwayatContainer = document.getElementById('riwayatList');
+      riwayatContainer.innerHTML = `
+        <div style="text-align:center;padding:28px 16px;background:var(--surface-container-low);border-radius:16px;border:1px dashed #cbd5e1;margin-top:8px;">
+          <span class="material-symbols-outlined" style="font-size:36px;color:#ef4444;margin-bottom:6px;">cloud_off</span>
+          <p style="font-size:14px;font-weight:700;color:var(--on-surface);margin-bottom:4px;">Gagal Memuat Data Server</p>
+          <p style="font-size:12px;color:var(--on-surface-variant);margin-bottom:14px;">${errorMessage || 'Server sedang cold-start atau offline.'}</p>
+          <button onclick="loadTenantDashboard()" style="padding:7px 18px;border-radius:20px;font-size:12px;font-weight:600;background:var(--primary);color:#fff;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+            <span class="material-symbols-outlined" style="font-size:16px;">refresh</span>Coba Muat Ulang
+          </button>
+        </div>
+      `;
     }
 
     // 2. Render UI

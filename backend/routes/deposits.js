@@ -237,7 +237,7 @@ router.get('/tenant/current', authenticateToken, requireRole('tenant'), async (r
       return res.status(404).json({ success: false, message: 'Kios untuk tenant ini tidak ditemukan.' });
     }
 
-    const today = getTodayDateString();
+    const today = getTodayWIB();
     const currentMonthPrefix = today.slice(0, 7); // 'YYYY-MM'
 
     // 2. Ambil semua setoran bulan ini

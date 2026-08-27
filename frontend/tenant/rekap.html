@@ -91,9 +91,7 @@
       document.getElementById('userAvatar').textContent = user.initials || 'TN';
     }
 
-    let selectedYear = '2026';
-
-    async function fetchWithTimeout(url, options = {}, timeoutMs = 2500) {
+    let selectedYear = '2026';    async function fetchWithTimeout(url, options = {}, timeoutMs = 15000) {
       const controller = new AbortController();
       const id = setTimeout(() => controller.abort(), timeoutMs);
       try {
@@ -109,6 +107,10 @@
     async function loadTenantRecap(year = '2026') {
       selectedYear = year;
       const token = getAuthToken();
+      if (!token) {
+        window.location.href = '../login.html';
+        return;
+      }
 
       const container = document.getElementById('monthlyCardsContainer');
       container.innerHTML = `
@@ -121,32 +123,23 @@
           </div>
           <div class="skeleton" style="height:36px;border-radius:12px;"></div>
         </div>
-        <div class="skeleton-card animate-fade-in">
-          <div class="skeleton" style="height:20px;width:35%;margin-bottom:14px;"></div>
-          <div style="display:flex;gap:8px;margin-bottom:14px;">
-            <div class="skeleton" style="flex:1;height:52px;border-radius:12px;"></div>
-            <div class="skeleton" style="flex:1;height:52px;border-radius:12px;"></div>
-            <div class="skeleton" style="flex:1;height:52px;border-radius:12px;"></div>
-          </div>
-          <div class="skeleton" style="height:36px;border-radius:12px;"></div>
-        </div>
       `;
 
       try {
         const res = await fetchWithTimeout(`${API_BASE_URL}/recap/tenant/monthly-history?year=${year}`, {
           headers: { 'Authorization': 'Bearer ' + token }
-        }, 2000);
+        }, 15000);
         const result = await res.json();
 
         if (result.success) {
           renderAccountSummary(result.summary_akumulasi);
           renderTenantMonthlyCards(result.data);
         } else {
-          fallbackLocalTenantRecap();
+          fallbackLocalTenantRecap(result.message);
         }
       } catch (err) {
-        console.warn('Backend offline/timeout, fallback lokal:', err);
-        fallbackLocalTenantRecap();
+        console.warn('Backend offline/timeout:', err);
+        fallbackLocalTenantRecap('Koneksi terputus atau server sedang bangun (cold-start).');
       }
     }
 
@@ -163,10 +156,10 @@
         badgeEl.style.background = 'rgba(255,255,255,0.2)';
         infoEl.innerHTML = `
           <span class="material-symbols-outlined" style="font-size:14px;vertical-align:text-bottom;color:var(--primary-fixed);">check_circle</span>
-          Anda memiliki saldo surplus sebesar <strong>+${formatRupiah(saldo)}</strong> yang akan otomatis dipotongkan untuk tagihan sewa bulan depan.
+          Total akumulasi setoran Anda melebihi target sewa.
         `;
       } else if (saldo === 0) {
-        nominalEl.textContent = 'Rp 0 (Lunas Pas)';
+        nominalEl.textContent = 'Rp 0';
         badgeEl.textContent = 'Lunas Pas';
         infoEl.innerHTML = `
           <span class="material-symbols-outlined" style="font-size:14px;vertical-align:text-bottom;color:var(--primary-fixed);">check</span>
@@ -188,46 +181,22 @@
           `;
         }
       }
-    }
+    function fallbackLocalTenantRecap(errorMessage) {
+      document.getElementById('saldoBersihNominal').textContent = 'Rp 0';
+      document.getElementById('saldoStatusBadge').textContent = 'Status';
+      document.getElementById('saldoKompensasiInfo').innerHTML = 'Silakan coba muat ulang data.';
 
-    function fallbackLocalTenantRecap() {
-      const sampleSummary = {
-        total_setor: 1950000,
-        total_target: 2000000,
-        total_surplus: 100000,
-        total_kekurangan: 150000,
-        saldo_bersih: 100000,
-        surplus_tersedia_saat_ini: 100000
-      };
-      renderAccountSummary(sampleSummary);
-
-      renderTenantMonthlyCards([
-        {
-          bulan_code: '2026-08',
-          bulan_label: 'Agustus 2026',
-          status: 'berjalan',
-          is_current: true,
-          total_setor: 850000,
-          tarif_sewa: 1000000,
-          progress_percent: 85,
-          kekurangan: 150000,
-          kompensasi_surplus_diterima: 0,
-          sisa_kewajiban_setelah_kompensasi: 150000,
-          hari_aktif: 16,
-          hari_libur: 2
-        },
-        {
-          bulan_code: '2026-07',
-          bulan_label: 'Juli 2026',
-          status: 'surplus',
-          is_current: false,
-          total_setor: 1100000,
-          tarif_sewa: 1000000,
-          selisih: 100000,
-          hari_aktif: 22,
-          hari_libur: 9
-        }
-      ]);
+      const container = document.getElementById('monthlyCardsContainer');
+      container.innerHTML = `
+        <div style="text-align:center;padding:32px 16px;background:var(--surface-container-low);border-radius:16px;border:1px dashed #cbd5e1;margin-top:8px;">
+          <span class="material-symbols-outlined" style="font-size:36px;color:#ef4444;margin-bottom:6px;">cloud_off</span>
+          <p style="font-size:14px;font-weight:700;color:var(--on-surface);margin-bottom:4px;">Gagal Memuat Riwayat Rekap</p>
+          <p style="font-size:12px;color:var(--on-surface-variant);margin-bottom:14px;">${errorMessage || 'Server sedang cold-start atau offline.'}</p>
+          <button onclick="loadTenantRecap(selectedYear)" style="padding:7px 18px;border-radius:20px;font-size:12px;font-weight:600;background:var(--primary);color:#fff;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+            <span class="material-symbols-outlined" style="font-size:16px;">refresh</span>Coba Muat Ulang
+          </button>
+        </div>
+      `;
     }
 
     function renderTenantMonthlyCards(list) {
