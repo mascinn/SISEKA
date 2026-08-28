@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: #F8FAFC;
+    color: #0F172A;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  .font-financial {
+    font-variant-numeric: tabular-nums lining-nums;
+    letter-spacing: -0.01em;
+  }
+}
+
+/* Institutional Clean Palette (Guaranteed Explicit CSS) */
+.card-hero-emerald {
+  background: linear-gradient(140deg, #064E3B 0%, #022C22 100%) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 12px 28px -8px rgba(6, 78, 59, 0.3) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+.bg-emerald-brand {
+  background-color: #064E3B !important;
+  color: #FFFFFF !important;
+}
+
+.btn-emerald-brand {
+  background-color: #064E3B !important;
+  color: #FFFFFF !important;
+}
+.btn-emerald-brand:hover {
+  background-color: #022C22 !important;
+}
+
+.card-clean {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.03), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+}
+
+/* Skeleton Loading Shimmer Effect */
+@keyframes shimmerWave {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%);
+  background-size: 200% 100%;
+  animation: shimmerWave 1.6s ease-in-out infinite;
+}
+
+/* Hide scrollbars */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

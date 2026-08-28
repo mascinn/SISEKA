@@ -177,6 +177,109 @@ router.get('/admin/kiosk/:id', authenticateToken, requireRole('admin'), async (r
   }
 });
 
+// 2b. GET /api/recap/admin/kiosk/:id/yearly - Rekap Tahunan Seluruh Bulan 1 Kios (Admin only)
+router.get('/admin/kiosk/:id/yearly', authenticateToken, requireRole('admin'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const kiosk = await getAsync(`SELECT * FROM kiosks WHERE id = ?`, [id]);
+    if (!kiosk) {
+      return res.status(404).json({ success: false, message: 'Kios tidak ditemukan.' });
+    }
+
+    const year = req.query.year || new Date().getFullYear().toString();
+    const currentMonth = getCurrentMonthString();
+
+    const allDeposits = await allAsync(
+      `SELECT * FROM deposits WHERE kiosk_id = ? AND tanggal LIKE ? ORDER BY tanggal DESC`,
+      [kiosk.id, `${year}-%`]
+    );
+
+    const currentMonthNum = parseInt(currentMonth.split('-')[1]);
+    const startMonthNum = 1;
+    const monthsInYear = [];
+    for (let m = currentMonthNum; m >= startMonthNum; m--) {
+      const mStr = String(m).padStart(2, '0');
+      monthsInYear.push(`${year}-${mStr}`);
+    }
+
+    const tarifSewa = kiosk.tarif_sewa || 1000000;
+
+    const rawMonths = monthsInYear.map(mCode => {
+      const depositsInMonth = allDeposits.filter(d => d.tanggal.startsWith(mCode));
+      let totalSetor = 0;
+      let hariAktif = 0;
+      let hariLibur = 0;
+
+      depositsInMonth.forEach(d => {
+        if (d.status === 'setor') {
+          totalSetor += d.nominal;
+          hariAktif++;
+        } else if (d.status === 'libur') {
+          hariLibur++;
+        }
+      });
+
+      const isCurrent = mCode === currentMonth;
+      const rawSelisih = totalSetor - tarifSewa;
+      let status = 'kurang';
+      if (rawSelisih > 0) status = 'surplus';
+      else if (rawSelisih === 0) status = 'lunas';
+
+      return {
+        bulan_code: mCode,
+        bulan_label: formatMonthTitle(mCode),
+        is_current: isCurrent,
+        total_setor: totalSetor,
+        tarif_sewa: tarifSewa,
+        selisih: rawSelisih,
+        status: status,
+        progress_percent: tarifSewa > 0 ? Math.min(100, Math.round((totalSetor / tarifSewa) * 100)) : 0,
+        kekurangan: Math.max(0, tarifSewa - totalSetor),
+        surplus: Math.max(0, totalSetor - tarifSewa),
+        hari_aktif: hariAktif,
+        hari_libur: hariLibur
+      };
+    });
+
+    let totalSetorTahun = 0;
+    let totalTargetTahun = 0;
+    let countLunas = 0;
+    let countKurang = 0;
+
+    rawMonths.forEach(m => {
+      totalSetorTahun += m.total_setor;
+      totalTargetTahun += m.tarif_sewa;
+      if (m.status === 'lunas' || m.status === 'surplus') countLunas++;
+      else countKurang++;
+    });
+
+    const progressTahun = totalTargetTahun > 0 ? Math.min(100, Math.round((totalSetorTahun / totalTargetTahun) * 100)) : 0;
+
+    res.json({
+      success: true,
+      tahun: year,
+      kiosk: {
+        id: kiosk.id,
+        nama_kantin: kiosk.nama_kantin,
+        nama_penyewa: kiosk.nama_penyewa,
+        nomor_hp: kiosk.nomor_hp,
+        tarif_sewa: tarifSewa
+      },
+      summary_akumulasi: {
+        total_setor: totalSetorTahun,
+        total_target: totalTargetTahun,
+        persentase_tercapai: progressTahun,
+        bulan_lunas: countLunas,
+        bulan_belum: countKurang
+      },
+      data: rawMonths
+    });
+  } catch (error) {
+    console.error('Error GET /api/recap/admin/kiosk/:id/yearly:', error);
+    res.status(500).json({ success: false, message: 'Gagal mengambil rekap tahunan unit usaha.' });
+  }
+});
+
 // 3. GET /api/recap/tenant/monthly-history - Histori Rekap Bulanan Tenant (Tenant only)
 router.get('/tenant/monthly-history', authenticateToken, requireRole('tenant'), async (req, res) => {
   try {

@@ -238,7 +238,7 @@ router.get('/tenant/current', authenticateToken, requireRole('tenant'), async (r
     }
 
     const today = getTodayWIB();
-    const currentMonthPrefix = today.slice(0, 7); // 'YYYY-MM'
+    const currentMonthPrefix = req.query.month || today.slice(0, 7); // 'YYYY-MM'
 
     // 2. Ambil semua setoran bulan ini
     const monthlyDeposits = await allAsync(

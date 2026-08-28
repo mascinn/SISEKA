@@ -1,20 +1,19 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SISEKA WASI'I</title>
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <script>
-    // Redirect to login or dashboard
-    const user = localStorage.getItem('siseka_user');
-    if (user) {
-      const parsed = JSON.parse(user);
-      window.location.href = parsed.role === 'admin' ? 'admin/penarikan.html' : 'tenant/beranda.html';
-    } else {
-      window.location.href = 'login.html';
-    }
-  </script>
-</head>
-<body></body>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>SISEKA WASI'I — Sistem Informasi Setoran Sewa Kantin</title>
+    <meta name="description" content="Sistem Informasi Setoran Sewa Kantin Masjid Al-Wasi'i — Modern Neobanking Canteen Management" />
+    
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  </head>
+  <body class="bg-brand-surface text-brand-charcoal font-sans antialiased min-h-screen selection:bg-brand-lime selection:text-brand-midnight">
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
