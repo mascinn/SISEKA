@@ -491,86 +491,92 @@ export default function AdminRekapView({ onShowToast }) {
                   </span>
                 </div>
 
-                <div>
-                  <div className="text-3xl font-black font-financial tracking-tight text-white">
+                {/* Total Setoran Display */}
+                <div className="space-y-1 pt-0.5">
+                  <span className="text-[11px] font-semibold text-emerald-200/90 tracking-wide uppercase block">
+                    Total Setoran Terkumpul
+                  </span>
+                  <div className="text-3xl sm:text-4xl font-black font-financial tracking-tight text-white whitespace-nowrap">
                     {formatRupiah(yearlyData?.summary_akumulasi?.total_setor)}
                   </div>
-                  <p className="text-xs font-medium text-emerald-100/90 mt-0.5">
-                    Target Kewajiban Setahun: <span className="font-bold text-white">{formatRupiah(yearlyData?.summary_akumulasi?.total_target)}</span>
+                  <p className="text-xs text-emerald-100/90 pt-0.5 font-medium flex items-center gap-1.5">
+                    <span>Target Kewajiban:</span>
+                    <span className="font-bold text-white font-financial">{formatRupiah(yearlyData?.summary_akumulasi?.total_target)}</span>
                   </p>
                 </div>
 
-                {/* Saldo Bersih Highlight Box */}
-                <div className="p-3 rounded-2xl bg-white/15 backdrop-blur-xs flex items-center justify-between gap-3 border border-white/20">
-                  <div className="flex items-center gap-2">
-                    {(yearlyData?.summary_akumulasi?.saldo_bersih || 0) >= 0 ? (
-                      <div className="w-8 h-8 rounded-full bg-emerald-400/30 flex items-center justify-center text-emerald-200">
-                        <TrendingUp className="w-4 h-4" />
-                      </div>
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-rose-400/30 flex items-center justify-center text-rose-200">
-                        <TrendingDown className="w-4 h-4" />
-                      </div>
-                    )}
-                    <div>
-                      <span className="text-[10px] text-emerald-100/80 font-bold uppercase tracking-wider block">
-                        Saldo Bersih Akun
-                      </span>
-                      <span className="text-xs sm:text-sm font-black text-white font-financial">
-                        {(yearlyData?.summary_akumulasi?.saldo_bersih || 0) > 0
-                          ? `Surplus Bersih +${formatRupiah(yearlyData?.summary_akumulasi?.saldo_bersih)}`
-                          : (yearlyData?.summary_akumulasi?.saldo_bersih || 0) < 0
-                          ? `Sisa Kewajiban -${formatRupiah(Math.abs(yearlyData?.summary_akumulasi?.saldo_bersih))}`
-                          : 'Lunas Pas (Rp 0)'}
-                      </span>
-                    </div>
-                  </div>
-
-                  {(yearlyData?.summary_akumulasi?.surplus_tersedia_saat_ini || 0) > 0 && (
-                    <div className="text-right shrink-0">
-                      <span className="text-[9px] text-emerald-200 block font-semibold">Surplus Tersedia</span>
-                      <span className="text-xs font-extrabold text-emerald-300 font-financial">+{formatRupiah(yearlyData?.summary_akumulasi?.surplus_tersedia_saat_ini)}</span>
-                    </div>
-                  )}
-                </div>
-
                 {/* Progress Bar Tahunan */}
-                <div className="space-y-1 pt-1">
+                <div className="space-y-1.5 pt-1">
                   <div className="flex items-center justify-between text-xs font-bold">
-                    <span className="text-emerald-100">Ketercapaian Tahunan</span>
-                    <span className="text-emerald-300 font-financial">
+                    <span className="text-emerald-100 font-medium">Ketercapaian Target Tahunan</span>
+                    <span className="text-emerald-300 font-financial font-extrabold">
                       {yearlyData?.summary_akumulasi?.persentase_tercapai}%
                     </span>
                   </div>
-                  <div className="w-full h-2.5 rounded-full bg-white/20 overflow-hidden">
+                  <div className="w-full h-2.5 rounded-full bg-black/20 overflow-hidden p-0.5">
                     <div
-                      className="h-full bg-emerald-300 rounded-full transition-all duration-500"
+                      className="h-full bg-gradient-to-r from-emerald-400 to-emerald-300 rounded-full transition-all duration-500 shadow-sm"
                       style={{ width: `${yearlyData?.summary_akumulasi?.persentase_tercapai}%` }}
                     />
                   </div>
                 </div>
 
-                {/* Status Breakdown Bulan Lunas vs Kurang */}
-                <div className="grid grid-cols-2 gap-2 pt-1 border-t border-white/15">
-                  <div className="bg-white/10 rounded-2xl p-3 flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-xl bg-emerald-400/20 text-emerald-300 flex items-center justify-center font-bold">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+                {/* 2-Column Balanced Stat Glass Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 border-t border-white/15">
+                  {/* Card 1: Saldo Bersih */}
+                  <div className="p-3.5 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/15 flex items-center gap-3">
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                      (yearlyData?.summary_akumulasi?.saldo_bersih || 0) > 0
+                        ? 'bg-emerald-400/25 text-emerald-300'
+                        : (yearlyData?.summary_akumulasi?.saldo_bersih || 0) < 0
+                        ? 'bg-rose-400/25 text-rose-300'
+                        : 'bg-white/20 text-white'
+                    }`}>
+                      {(yearlyData?.summary_akumulasi?.saldo_bersih || 0) > 0 ? (
+                        <TrendingUp className="w-5 h-5" />
+                      ) : (yearlyData?.summary_akumulasi?.saldo_bersih || 0) < 0 ? (
+                        <TrendingDown className="w-5 h-5" />
+                      ) : (
+                        <CheckCircle2 className="w-5 h-5" />
+                      )}
                     </div>
-                    <div>
-                      <span className="text-[10px] text-emerald-100/80 font-semibold block">Bulan Lunas</span>
-                      <span className="text-xs font-extrabold text-white font-financial">
-                        {yearlyData?.summary_akumulasi?.bulan_lunas} Bulan
+                    <div className="min-w-0">
+                      <span className="text-[10px] text-emerald-100/80 font-bold uppercase tracking-wider block">
+                        {(yearlyData?.summary_akumulasi?.saldo_bersih || 0) > 0
+                          ? 'Saldo Surplus'
+                          : (yearlyData?.summary_akumulasi?.saldo_bersih || 0) < 0
+                          ? 'Sisa Tunggakan'
+                          : 'Status Saldo'}
+                      </span>
+                      <span className={`text-sm sm:text-base font-black font-financial truncate block ${
+                        (yearlyData?.summary_akumulasi?.saldo_bersih || 0) > 0
+                          ? 'text-emerald-300'
+                          : (yearlyData?.summary_akumulasi?.saldo_bersih || 0) < 0
+                          ? 'text-rose-300'
+                          : 'text-white'
+                      }`}>
+                        {(yearlyData?.summary_akumulasi?.saldo_bersih || 0) > 0
+                          ? `+${formatRupiah(yearlyData?.summary_akumulasi?.saldo_bersih)}`
+                          : (yearlyData?.summary_akumulasi?.saldo_bersih || 0) < 0
+                          ? `-${formatRupiah(Math.abs(yearlyData?.summary_akumulasi?.saldo_bersih))}`
+                          : 'Lunas Pas (Rp 0)'}
                       </span>
                     </div>
                   </div>
-                  <div className="bg-white/10 rounded-2xl p-3 flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-xl bg-amber-400/20 text-amber-300 flex items-center justify-center font-bold">
-                      <TrendingDown className="w-4 h-4 text-amber-300" />
+
+                  {/* Card 2: Status Pemenuhan Bulan */}
+                  <div className="p-3.5 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/15 flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-400/25 text-emerald-300 flex items-center justify-center shrink-0">
+                      <CheckCircle2 className="w-5 h-5" />
                     </div>
-                    <div>
-                      <span className="text-[10px] text-emerald-100/80 font-semibold block">Belum Genap</span>
-                      <span className="text-xs font-extrabold text-white font-financial">
-                        {yearlyData?.summary_akumulasi?.bulan_belum} Bulan
+                    <div className="min-w-0">
+                      <span className="text-[10px] text-emerald-100/80 font-bold uppercase tracking-wider block">
+                        Kepatuhan Sewa
+                      </span>
+                      <span className="text-sm sm:text-base font-black text-white font-financial truncate block">
+                        {(yearlyData?.summary_akumulasi?.bulan_belum || 0) === 0
+                          ? `${yearlyData?.summary_akumulasi?.bulan_lunas} Bulan Lunas Penuh`
+                          : `${yearlyData?.summary_akumulasi?.bulan_lunas} Lunas • ${yearlyData?.summary_akumulasi?.bulan_belum} Belum`}
                       </span>
                     </div>
                   </div>
