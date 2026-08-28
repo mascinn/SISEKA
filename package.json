@@ -4,7 +4,7 @@
   "private": true,
   "description": "Sistem Informasi Setoran Sewa Kantin • BPH Masjid Al-Wasi'i",
   "scripts": {
-    "build": "cd frontend && npm install && npm run build",
+    "build": "cd frontend && npm install && npm run build && node -e \"const fs=require('fs'); if(fs.existsSync('dist')){fs.cpSync('dist', 'frontend/dist', {recursive:true});}\"",
     "start": "node backend/server.js"
   },
   "dependencies": {
