@@ -151,44 +151,90 @@ export default function TenantRekapView({ onShowToast }) {
               </div>
             </div>
 
-            {/* Compact Info Strips (Full Width, Zero Truncation) */}
-            <div className="pt-1.5 border-t border-white/10 space-y-1.5">
-              {/* Row 1: Saldo Bersih */}
-              <div className="px-3 py-2 rounded-xl bg-white/10 backdrop-blur-xs border border-white/10 flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 shrink-0">
-                  {saldoBersih > 0 ? (
-                    <TrendingUp className="w-3.5 h-3.5 text-emerald-300" />
-                  ) : saldoBersih < 0 ? (
-                    <TrendingDown className="w-3.5 h-3.5 text-rose-300" />
-                  ) : (
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
-                  )}
-                  <span className="text-[11px] font-bold text-emerald-100/90">
-                    {saldoBersih > 0 ? 'Saldo Surplus' : saldoBersih < 0 ? 'Sisa Tunggakan' : 'Status Saldo'}
-                  </span>
+            {/* 3 Dedicated Distinct Elements (Full Saldo Ribbon + 2 Stat Tiles) */}
+            <div className="pt-2 border-t border-white/10 space-y-2">
+              {/* Element 1: Saldo Bersih Banner (Full Width, Never Truncates) */}
+              <div className={`p-3 rounded-2xl border backdrop-blur-xs flex items-center justify-between gap-2.5 ${
+                saldoBersih > 0
+                  ? 'bg-emerald-400/20 border-emerald-300/30'
+                  : saldoBersih < 0
+                  ? 'bg-rose-500/20 border-rose-300/30'
+                  : 'bg-white/10 border-white/15'
+              }`}>
+                <div className="flex items-center gap-2">
+                  <div className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 ${
+                    saldoBersih > 0
+                      ? 'bg-emerald-400/30 text-emerald-200'
+                      : saldoBersih < 0
+                      ? 'bg-rose-400/30 text-rose-200'
+                      : 'bg-white/20 text-white'
+                  }`}>
+                    {saldoBersih > 0 ? (
+                      <TrendingUp className="w-4 h-4" />
+                    ) : saldoBersih < 0 ? (
+                      <TrendingDown className="w-4 h-4" />
+                    ) : (
+                      <CheckCircle2 className="w-4 h-4" />
+                    )}
+                  </div>
+                  <div>
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-200/80 block">
+                      {saldoBersih > 0 ? 'Saldo Surplus' : saldoBersih < 0 ? 'Sisa Tunggakan' : 'Status Saldo'}
+                    </span>
+                    <span className={`text-xs sm:text-sm font-black font-financial ${
+                      saldoBersih > 0 ? 'text-emerald-300' : saldoBersih < 0 ? 'text-rose-300' : 'text-white'
+                    }`}>
+                      {saldoBersih > 0
+                        ? `+${formatRupiah(saldoBersih)}`
+                        : saldoBersih < 0
+                        ? `-${formatRupiah(Math.abs(saldoBersih))}`
+                        : 'Lunas Pas (Rp 0)'}
+                    </span>
+                  </div>
                 </div>
-                <span className={`text-xs sm:text-sm font-black font-financial whitespace-nowrap ${
-                  saldoBersih > 0 ? 'text-emerald-300' : saldoBersih < 0 ? 'text-rose-300' : 'text-white'
-                }`}>
-                  {saldoBersih > 0
-                    ? `+${formatRupiah(saldoBersih)}`
+
+                <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold shrink-0 ${
+                  saldoBersih > 0
+                    ? 'bg-emerald-400/30 text-emerald-200'
                     : saldoBersih < 0
-                    ? `-${formatRupiah(Math.abs(saldoBersih))}`
-                    : 'Lunas Pas (Rp 0)'}
+                    ? 'bg-rose-400/30 text-rose-200'
+                    : 'bg-white/20 text-white'
+                }`}>
+                  {saldoBersih > 0 ? 'Surplus' : saldoBersih < 0 ? 'Tunggakan' : 'Lunas'}
                 </span>
               </div>
 
-              {/* Row 2: Status Pemenuhan Bulan */}
-              <div className="px-3 py-2 rounded-xl bg-white/10 backdrop-blur-xs border border-white/10 flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
-                  <span className="text-[11px] font-bold text-emerald-100/90">
-                    Kepatuhan Sewa
-                  </span>
+              {/* 2 Dedicated Separate Elements: Bulan Lunas & Belum Genap */}
+              <div className="grid grid-cols-2 gap-2">
+                {/* Element 2: Bulan Lunas */}
+                <div className="p-2.5 rounded-2xl bg-white/10 border border-white/15 flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-lg bg-emerald-400/20 text-emerald-300 flex items-center justify-center shrink-0">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-200/80 block truncate">
+                      Bulan Lunas
+                    </span>
+                    <span className="text-xs font-black text-white font-financial block">
+                      {bulanLunas} Bulan
+                    </span>
+                  </div>
                 </div>
-                <span className="text-xs sm:text-sm font-black text-white font-financial whitespace-nowrap">
-                  {bulanBelum === 0 ? `${bulanLunas} Bulan Lunas Penuh` : `${bulanLunas} Lunas • ${bulanBelum} Belum`}
-                </span>
+
+                {/* Element 3: Belum Genap */}
+                <div className="p-2.5 rounded-2xl bg-white/10 border border-white/15 flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-lg bg-amber-400/20 text-amber-300 flex items-center justify-center shrink-0">
+                    <TrendingDown className="w-3.5 h-3.5" />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-200/80 block truncate">
+                      Belum Genap
+                    </span>
+                    <span className="text-xs font-black text-amber-200 font-financial block">
+                      {bulanBelum} Bulan
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
