@@ -68,7 +68,7 @@ export default function TenantRekapView({ onShowToast }) {
     return (
       <div className="space-y-4 pb-24">
         <div className="w-36 h-6 rounded-full skeleton-shimmer" />
-        <div className="w-full h-56 rounded-3xl skeleton-shimmer border border-slate-200" />
+        <div className="w-full h-48 rounded-3xl skeleton-shimmer border border-slate-200" />
         <div className="space-y-2.5">
           {[1, 2, 3].map((i) => (
             <div key={i} className="w-full h-24 rounded-3xl skeleton-shimmer border border-slate-200" />
@@ -90,7 +90,7 @@ export default function TenantRekapView({ onShowToast }) {
             Kilas balik pemenuhan sewa kantin tahun {currentYear}
           </p>
         </div>
-        <span className="px-3.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold shadow-2xs">
+        <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold shadow-2xs">
           Tahun {currentYear}
         </span>
       </div>
@@ -111,40 +111,39 @@ export default function TenantRekapView({ onShowToast }) {
         </div>
       ) : (
         <>
-          {/* Annual Summary Hero Card (Ultra-Premium Emerald FinTech Card) */}
-          <div className="card-hero-emerald rounded-3xl p-6 space-y-4 shadow-elevated">
+          {/* Annual Summary Hero Card (Ultra-Compact FinTech Layout - No Truncation) */}
+          <div className="card-hero-emerald rounded-3xl p-4 sm:p-5 space-y-3 shadow-elevated">
             {/* Header Card */}
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold tracking-wider text-emerald-200 uppercase flex items-center gap-1.5">
-                <BarChart3 className="w-4 h-4 text-emerald-300" />
+              <span className="text-[10px] sm:text-[11px] font-bold tracking-wider text-emerald-200 uppercase flex items-center gap-1.5">
+                <BarChart3 className="w-3.5 h-3.5 text-emerald-300" />
                 Akumulasi Tahun {currentYear}
               </span>
-              <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-white/15 text-white border border-white/10 backdrop-blur-xs">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/15 text-white border border-white/10 backdrop-blur-xs">
                 {historyData?.kiosk?.nama_kantin || 'Kantin Anda'}
               </span>
             </div>
 
             {/* Total Setoran Display */}
-            <div className="space-y-1 pt-0.5">
-              <span className="text-[11px] font-semibold text-emerald-200/90 tracking-wide uppercase block">
+            <div className="space-y-0.5">
+              <span className="text-[10px] font-bold text-emerald-200/80 tracking-wide uppercase block">
                 Total Setoran Terkumpul
               </span>
-              <div className="text-3xl sm:text-4xl font-black font-financial tracking-tight text-white whitespace-nowrap">
+              <div className="text-2xl sm:text-3xl font-black font-financial tracking-tight text-white whitespace-nowrap">
                 {formatRupiah(totalSetorTahun)}
               </div>
-              <p className="text-xs text-emerald-100/90 pt-0.5 font-medium flex items-center gap-1.5">
-                <span>Target Kewajiban:</span>
-                <span className="font-bold text-white font-financial">{formatRupiah(totalTargetTahun)}</span>
+              <p className="text-[11px] text-emerald-100/85 font-medium">
+                Target Kewajiban: <span className="font-bold text-white font-financial">{formatRupiah(totalTargetTahun)}</span>
               </p>
             </div>
 
-            {/* Progress Bar */}
-            <div className="space-y-1.5 pt-1">
-              <div className="flex items-center justify-between text-xs font-bold">
-                <span className="text-emerald-100 font-medium">Ketercapaian Target Tahunan</span>
+            {/* Slim Modern Progress Bar */}
+            <div className="space-y-1 pt-0.5">
+              <div className="flex items-center justify-between text-[11px] font-bold">
+                <span className="text-emerald-100 font-medium">Ketercapaian Target</span>
                 <span className="text-emerald-300 font-financial font-extrabold">{persentaseTahun}%</span>
               </div>
-              <div className="w-full h-2.5 rounded-full bg-black/20 overflow-hidden p-0.5">
+              <div className="w-full h-2 rounded-full bg-black/25 overflow-hidden p-0.5">
                 <div
                   className="h-full bg-gradient-to-r from-emerald-400 to-emerald-300 rounded-full transition-all duration-500 shadow-sm"
                   style={{ width: `${Math.min(100, persentaseTahun)}%` }}
@@ -152,54 +151,44 @@ export default function TenantRekapView({ onShowToast }) {
               </div>
             </div>
 
-            {/* 2-Column Balanced Stat Glass Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 border-t border-white/15">
-              {/* Card 1: Saldo Bersih */}
-              <div className="p-3.5 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/15 flex items-center gap-3">
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                  saldoBersih > 0
-                    ? 'bg-emerald-400/25 text-emerald-300'
-                    : saldoBersih < 0
-                    ? 'bg-rose-400/25 text-rose-300'
-                    : 'bg-white/20 text-white'
-                }`}>
+            {/* Compact Info Strips (Full Width, Zero Truncation) */}
+            <div className="pt-1.5 border-t border-white/10 space-y-1.5">
+              {/* Row 1: Saldo Bersih */}
+              <div className="px-3 py-2 rounded-xl bg-white/10 backdrop-blur-xs border border-white/10 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5 shrink-0">
                   {saldoBersih > 0 ? (
-                    <TrendingUp className="w-5 h-5" />
+                    <TrendingUp className="w-3.5 h-3.5 text-emerald-300" />
                   ) : saldoBersih < 0 ? (
-                    <TrendingDown className="w-5 h-5" />
+                    <TrendingDown className="w-3.5 h-3.5 text-rose-300" />
                   ) : (
-                    <CheckCircle2 className="w-5 h-5" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
                   )}
-                </div>
-                <div className="min-w-0">
-                  <span className="text-[10px] text-emerald-100/80 font-bold uppercase tracking-wider block">
+                  <span className="text-[11px] font-bold text-emerald-100/90">
                     {saldoBersih > 0 ? 'Saldo Surplus' : saldoBersih < 0 ? 'Sisa Tunggakan' : 'Status Saldo'}
                   </span>
-                  <span className={`text-sm sm:text-base font-black font-financial truncate block ${
-                    saldoBersih > 0 ? 'text-emerald-300' : saldoBersih < 0 ? 'text-rose-300' : 'text-white'
-                  }`}>
-                    {saldoBersih > 0
-                      ? `+${formatRupiah(saldoBersih)}`
-                      : saldoBersih < 0
-                      ? `-${formatRupiah(Math.abs(saldoBersih))}`
-                      : 'Lunas Pas (Rp 0)'}
-                  </span>
                 </div>
+                <span className={`text-xs sm:text-sm font-black font-financial whitespace-nowrap ${
+                  saldoBersih > 0 ? 'text-emerald-300' : saldoBersih < 0 ? 'text-rose-300' : 'text-white'
+                }`}>
+                  {saldoBersih > 0
+                    ? `+${formatRupiah(saldoBersih)}`
+                    : saldoBersih < 0
+                    ? `-${formatRupiah(Math.abs(saldoBersih))}`
+                    : 'Lunas Pas (Rp 0)'}
+                </span>
               </div>
 
-              {/* Card 2: Status Pemenuhan Bulan */}
-              <div className="p-3.5 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/15 flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-emerald-400/25 text-emerald-300 flex items-center justify-center shrink-0">
-                  <CheckCircle2 className="w-5 h-5" />
-                </div>
-                <div className="min-w-0">
-                  <span className="text-[10px] text-emerald-100/80 font-bold uppercase tracking-wider block">
+              {/* Row 2: Status Pemenuhan Bulan */}
+              <div className="px-3 py-2 rounded-xl bg-white/10 backdrop-blur-xs border border-white/10 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
+                  <span className="text-[11px] font-bold text-emerald-100/90">
                     Kepatuhan Sewa
                   </span>
-                  <span className="text-sm sm:text-base font-black text-white font-financial truncate block">
-                    {bulanBelum === 0 ? `${bulanLunas} Bulan Lunas Penuh` : `${bulanLunas} Lunas • ${bulanBelum} Belum`}
-                  </span>
                 </div>
+                <span className="text-xs sm:text-sm font-black text-white font-financial whitespace-nowrap">
+                  {bulanBelum === 0 ? `${bulanLunas} Bulan Lunas Penuh` : `${bulanLunas} Lunas • ${bulanBelum} Belum`}
+                </span>
               </div>
             </div>
           </div>
