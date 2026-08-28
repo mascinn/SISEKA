@@ -91,7 +91,7 @@ export default function TenantRekapView({ onShowToast }) {
             Kilas balik pemenuhan sewa kantin tahun {currentYear}
           </p>
         </div>
-        <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold">
+        <span className="px-3.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold">
           Tahun {currentYear}
         </span>
       </div>
@@ -112,8 +112,9 @@ export default function TenantRekapView({ onShowToast }) {
         </div>
       ) : (
         <>
-          {/* Annual Summary Hero Card */}
+          {/* Annual Summary Hero Card (Prestigious Forest Emerald) */}
           <div className="card-hero-emerald rounded-3xl p-6 space-y-4 shadow-elevated">
+            {/* Header Card */}
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold tracking-wider text-emerald-200 uppercase flex items-center gap-1.5">
                 <BarChart3 className="w-4 h-4 text-emerald-300" />
@@ -124,53 +125,52 @@ export default function TenantRekapView({ onShowToast }) {
               </span>
             </div>
 
-            <div>
-              <div className="text-3xl font-black font-financial tracking-tight text-white">
-                {formatRupiah(totalSetorTahun)}
+            {/* Big Numbers & Saldo Bersih Card */}
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 pt-1">
+              <div>
+                <span className="text-[11px] text-emerald-200/90 font-medium block">Total Setoran Terkumpul</span>
+                <div className="text-3xl sm:text-4xl font-black font-financial tracking-tight text-white">
+                  {formatRupiah(totalSetorTahun)}
+                </div>
+                <p className="text-xs font-medium text-emerald-100/90 mt-0.5">
+                  Target Sewa 1 Tahun: <span className="font-bold text-white">{formatRupiah(totalTargetTahun)}</span>
+                </p>
               </div>
-              <p className="text-xs font-medium text-emerald-100/90 mt-0.5">
-                Target Kewajiban: <span className="font-bold text-white">{formatRupiah(totalTargetTahun)}</span>
-              </p>
-            </div>
 
-            {/* Saldo Bersih Highlight Box */}
-            <div className="p-3 rounded-2xl bg-white/15 backdrop-blur-xs flex items-center justify-between gap-3 border border-white/20">
-              <div className="flex items-center gap-2">
-                {saldoBersih >= 0 ? (
-                  <div className="w-8 h-8 rounded-full bg-emerald-400/30 flex items-center justify-center text-emerald-200">
-                    <TrendingUp className="w-4 h-4" />
-                  </div>
+              {/* Saldo Bersih Pill Box */}
+              <div className={`px-4 py-2.5 rounded-2xl border backdrop-blur-xs flex items-center gap-2.5 self-start sm:self-auto ${
+                saldoBersih > 0
+                  ? 'bg-emerald-400/20 border-emerald-300/40 text-emerald-100'
+                  : saldoBersih < 0
+                  ? 'bg-rose-500/20 border-rose-300/40 text-rose-100'
+                  : 'bg-white/15 border-white/20 text-white'
+              }`}>
+                {saldoBersih > 0 ? (
+                  <TrendingUp className="w-5 h-5 text-emerald-300 shrink-0" />
+                ) : saldoBersih < 0 ? (
+                  <TrendingDown className="w-5 h-5 text-rose-300 shrink-0" />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-rose-400/30 flex items-center justify-center text-rose-200">
-                    <TrendingDown className="w-4 h-4" />
-                  </div>
+                  <CheckCircle2 className="w-5 h-5 text-emerald-300 shrink-0" />
                 )}
                 <div>
-                  <span className="text-[10px] text-emerald-100/80 font-bold uppercase tracking-wider block">
-                    Saldo Bersih Akun
+                  <span className="text-[10px] text-white/80 font-bold uppercase tracking-wider block">
+                    {saldoBersih > 0 ? 'Saldo Surplus' : saldoBersih < 0 ? 'Sisa Tunggakan' : 'Status Saldo'}
                   </span>
-                  <span className="text-xs sm:text-sm font-black text-white font-financial">
+                  <span className="text-sm sm:text-base font-black text-white font-financial">
                     {saldoBersih > 0
-                      ? `Surplus Bersih +${formatRupiah(saldoBersih)}`
+                      ? `+${formatRupiah(saldoBersih)}`
                       : saldoBersih < 0
-                      ? `Sisa Kewajiban -${formatRupiah(Math.abs(saldoBersih))}`
+                      ? `-${formatRupiah(Math.abs(saldoBersih))}`
                       : 'Lunas Pas (Rp 0)'}
                   </span>
                 </div>
               </div>
-
-              {surplusTersedia > 0 && (
-                <div className="text-right shrink-0">
-                  <span className="text-[9px] text-emerald-200 block font-semibold">Surplus Tersedia</span>
-                  <span className="text-xs font-extrabold text-emerald-300 font-financial">+{formatRupiah(surplusTersedia)}</span>
-                </div>
-              )}
             </div>
 
-            {/* Annual Progress */}
-            <div className="space-y-1 pt-1">
+            {/* Annual Progress Bar */}
+            <div className="space-y-1.5 pt-1">
               <div className="flex items-center justify-between text-xs font-bold">
-                <span className="text-emerald-100">Ketercapaian Tahunan</span>
+                <span className="text-emerald-100">Ketercapaian Target Tahunan</span>
                 <span className="text-emerald-300 font-financial">{persentaseTahun}%</span>
               </div>
               <div className="w-full h-2.5 rounded-full bg-white/20 overflow-hidden">
@@ -181,10 +181,10 @@ export default function TenantRekapView({ onShowToast }) {
               </div>
             </div>
 
-            {/* Status Breakdown */}
-            <div className="grid grid-cols-2 gap-2 pt-1 border-t border-white/15">
+            {/* 3 Metrics Grid Breakdown */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1 border-t border-white/15">
               <div className="bg-white/10 rounded-2xl p-3 flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-xl bg-emerald-400/20 text-emerald-300 flex items-center justify-center font-bold">
+                <div className="w-7 h-7 rounded-xl bg-emerald-400/20 text-emerald-300 flex items-center justify-center font-bold shrink-0">
                   <CheckCircle2 className="w-4 h-4 text-emerald-300" />
                 </div>
                 <div>
@@ -192,13 +192,24 @@ export default function TenantRekapView({ onShowToast }) {
                   <span className="text-xs font-extrabold text-white font-financial">{bulanLunas} Bulan</span>
                 </div>
               </div>
+
               <div className="bg-white/10 rounded-2xl p-3 flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-xl bg-amber-400/20 text-amber-300 flex items-center justify-center font-bold">
+                <div className="w-7 h-7 rounded-xl bg-amber-400/20 text-amber-300 flex items-center justify-center font-bold shrink-0">
                   <TrendingDown className="w-4 h-4 text-amber-300" />
                 </div>
                 <div>
                   <span className="text-[10px] text-emerald-100/80 font-semibold block">Belum Genap</span>
                   <span className="text-xs font-extrabold text-white font-financial">{bulanBelum} Bulan</span>
+                </div>
+              </div>
+
+              <div className="col-span-2 sm:col-span-1 bg-white/10 rounded-2xl p-3 flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-xl bg-emerald-400/20 text-emerald-300 flex items-center justify-center font-bold shrink-0">
+                  <Sparkles className="w-4 h-4 text-emerald-300" />
+                </div>
+                <div>
+                  <span className="text-[10px] text-emerald-100/80 font-semibold block">Surplus Tersedia</span>
+                  <span className="text-xs font-extrabold text-emerald-300 font-financial">+{formatRupiah(surplusTersedia)}</span>
                 </div>
               </div>
             </div>
@@ -216,11 +227,10 @@ export default function TenantRekapView({ onShowToast }) {
             </div>
 
             {months.map((m) => {
-              const isSurplus = m.surplus > 0 || m.selisih > 0;
+              const isSurplus = (m.surplus || 0) > 0 || (m.selisih || 0) > 0;
               const isLunasMurni = m.selisih === 0;
               const isLunasKompensasi = m.status_kompensasi === 'lunas_kompensasi';
-              const isKurang = m.kekurangan > 0 && !isLunasKompensasi;
-              const progress = m.progress_percent || 0;
+              const progress = isLunasKompensasi ? 100 : (m.progress_percent || 0);
               const label = m.bulan_label || formatMonthLabel(m.bulan_code || m.bulan);
 
               return (
@@ -266,9 +276,9 @@ export default function TenantRekapView({ onShowToast }) {
 
                   {/* Keterangan Kompensasi Surplus jika ada */}
                   {isLunasKompensasi && (
-                    <div className="px-3 py-1.5 rounded-xl bg-emerald-50/70 border border-emerald-100 text-[10px] text-emerald-800 font-semibold flex items-center gap-1.5">
-                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                      <span>Setoran {formatRupiah(m.total_setor)} (kurang {formatRupiah(m.kekurangan)}), lunas ditutup kompensasi surplus.</span>
+                    <div className="px-3.5 py-2 rounded-2xl bg-emerald-50/80 border border-emerald-200/80 text-[11px] text-emerald-800 font-semibold flex items-center gap-2">
+                      <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span>Setoran {formatRupiah(m.total_setor)} (kurang {formatRupiah(m.kekurangan)}), <strong>lunas ditutupi kompensasi saldo surplus</strong>.</span>
                     </div>
                   )}
 
