@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { apiFetch, formatRupiah, formatMonthLabel, formatIndoDate } from '../utils/api';
 import { 
   BarChart3, TrendingUp, TrendingDown, CheckCircle2, FileSpreadsheet, 
-  Eye, RefreshCw, X, ArrowUpRight, ChevronRight, Calendar, Store 
+  Eye, RefreshCw, X, ArrowUpRight, ChevronRight, Calendar, Store,
+  Sparkles, ShieldCheck
 } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
 
@@ -499,6 +500,40 @@ export default function AdminRekapView({ onShowToast }) {
                   </p>
                 </div>
 
+                {/* Saldo Bersih Highlight Box */}
+                <div className="p-3 rounded-2xl bg-white/15 backdrop-blur-xs flex items-center justify-between gap-3 border border-white/20">
+                  <div className="flex items-center gap-2">
+                    {(yearlyData?.summary_akumulasi?.saldo_bersih || 0) >= 0 ? (
+                      <div className="w-8 h-8 rounded-full bg-emerald-400/30 flex items-center justify-center text-emerald-200">
+                        <TrendingUp className="w-4 h-4" />
+                      </div>
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-rose-400/30 flex items-center justify-center text-rose-200">
+                        <TrendingDown className="w-4 h-4" />
+                      </div>
+                    )}
+                    <div>
+                      <span className="text-[10px] text-emerald-100/80 font-bold uppercase tracking-wider block">
+                        Saldo Bersih Akun
+                      </span>
+                      <span className="text-xs sm:text-sm font-black text-white font-financial">
+                        {(yearlyData?.summary_akumulasi?.saldo_bersih || 0) > 0
+                          ? `Surplus Bersih +${formatRupiah(yearlyData?.summary_akumulasi?.saldo_bersih)}`
+                          : (yearlyData?.summary_akumulasi?.saldo_bersih || 0) < 0
+                          ? `Sisa Kewajiban -${formatRupiah(Math.abs(yearlyData?.summary_akumulasi?.saldo_bersih))}`
+                          : 'Lunas Pas (Rp 0)'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {(yearlyData?.summary_akumulasi?.surplus_tersedia_saat_ini || 0) > 0 && (
+                    <div className="text-right shrink-0">
+                      <span className="text-[9px] text-emerald-200 block font-semibold">Surplus Tersedia</span>
+                      <span className="text-xs font-extrabold text-emerald-300 font-financial">+{formatRupiah(yearlyData?.summary_akumulasi?.surplus_tersedia_saat_ini)}</span>
+                    </div>
+                  )}
+                </div>
+
                 {/* Progress Bar Tahunan */}
                 <div className="space-y-1 pt-1">
                   <div className="flex items-center justify-between text-xs font-bold">
@@ -554,8 +589,9 @@ export default function AdminRekapView({ onShowToast }) {
                 </div>
 
                 {(yearlyData?.data || []).map((m) => {
-                  const isSurplus = m.status === 'surplus';
-                  const isLunas = m.status === 'lunas';
+                  const isSurplus = (m.surplus || 0) > 0 || (m.selisih || 0) > 0;
+                  const isLunasMurni = m.selisih === 0;
+                  const isLunasKompensasi = m.status_kompensasi === 'lunas_kompensasi';
                   const progress = m.progress_percent || 0;
 
                   return (
@@ -573,22 +609,37 @@ export default function AdminRekapView({ onShowToast }) {
                           </p>
                         </div>
 
-                        {isSurplus ? (
-                          <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1">
-                            <TrendingUp className="w-3 h-3 text-emerald-600" />
-                            Surplus +{formatRupiah(m.selisih)}
-                          </span>
-                        ) : isLunas ? (
-                          <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                            Lunas Pas
-                          </span>
-                        ) : (
-                          <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-rose-800 border border-rose-200 flex items-center gap-1">
-                            <TrendingDown className="w-3 h-3 text-rose-600" />
-                            Kurang {formatRupiah(Math.abs(m.selisih))}
-                          </span>
-                        )}
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {isSurplus ? (
+                            <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1">
+                              <TrendingUp className="w-3 h-3 text-emerald-600" />
+                              Surplus +{formatRupiah(m.surplus || m.selisih)}
+                            </span>
+                          ) : isLunasKompensasi ? (
+                            <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1" title="Kekurangan bulan ini lunas ditutup kompensasi surplus">
+                              <Sparkles className="w-3 h-3 text-emerald-600" />
+                              Ditutup Surplus (Lunas)
+                            </span>
+                          ) : isLunasMurni ? (
+                            <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                              Lunas Pas
+                            </span>
+                          ) : (
+                            <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-rose-800 border border-rose-200 flex items-center gap-1">
+                              <TrendingDown className="w-3 h-3 text-rose-600" />
+                              Kurang {formatRupiah(m.sisa_kewajiban_setelah_kompensasi || m.kekurangan || Math.abs(m.selisih))}
+                            </span>
+                          )}
+                        </div>
                       </div>
+
+                      {/* Keterangan Kompensasi Surplus jika ada */}
+                      {isLunasKompensasi && (
+                        <div className="px-3 py-1.5 rounded-xl bg-emerald-50/70 border border-emerald-100 text-[10px] text-emerald-800 font-semibold flex items-center gap-1.5">
+                          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          <span>Setoran {formatRupiah(m.total_setor)} (kurang {formatRupiah(m.kekurangan)}), lunas ditutup kompensasi surplus.</span>
+                        </div>
+                      )}
 
                       {/* Progress & Numbers */}
                       <div className="space-y-1.5">
@@ -602,7 +653,7 @@ export default function AdminRekapView({ onShowToast }) {
                         <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
                           <div
                             className={`h-full rounded-full ${
-                              isSurplus ? 'bg-emerald-500' : isLunas ? 'bg-emerald-800' : 'bg-amber-500'
+                              (isSurplus || isLunasMurni || isLunasKompensasi) ? 'bg-emerald-500' : 'bg-amber-500'
                             }`}
                             style={{ width: `${Math.min(100, progress)}%` }}
                           />

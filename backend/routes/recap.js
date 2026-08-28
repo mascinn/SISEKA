@@ -177,6 +177,155 @@ router.get('/admin/kiosk/:id', authenticateToken, requireRole('admin'), async (r
   }
 });
 
+// Shared Helper: Menghitung Rekapitulasi Tahunan Lengkap + Kompensasi Silang Antar-Bulan
+async function calculateKioskYearlyRecap(kiosk, year) {
+  const currentMonth = getCurrentMonthString();
+  const allDeposits = await allAsync(
+    `SELECT * FROM deposits WHERE kiosk_id = ? AND tanggal LIKE ? ORDER BY tanggal DESC`,
+    [kiosk.id, `${year}-%`]
+  );
+
+  const currentMonthNum = parseInt(currentMonth.split('-')[1]);
+  const startMonthNum = 1; // Perekapan resmi dimulai Januari 2026
+  const monthsInYear = [];
+  for (let m = currentMonthNum; m >= startMonthNum; m--) {
+    const mStr = String(m).padStart(2, '0');
+    monthsInYear.push(`${year}-${mStr}`);
+  }
+
+  const tarifSewa = kiosk.tarif_sewa || 1000000;
+
+  // 1. Hitung data dasar tiap bulan
+  const rawMonths = monthsInYear.map(mCode => {
+    const depositsInMonth = allDeposits.filter(d => d.tanggal.startsWith(mCode));
+    let totalSetor = 0;
+    let hariAktif = 0;
+    let hariLibur = 0;
+
+    depositsInMonth.forEach(d => {
+      if (d.status === 'setor') {
+        totalSetor += d.nominal;
+        hariAktif++;
+      } else if (d.status === 'libur') {
+        hariLibur++;
+      }
+    });
+
+    const isCurrent = mCode === currentMonth;
+    const rawSelisih = totalSetor - tarifSewa;
+    let status = 'kurang';
+    if (rawSelisih > 0) {
+      status = 'surplus';
+    } else if (rawSelisih === 0) {
+      status = 'lunas';
+    } else {
+      status = isCurrent ? 'berjalan' : 'kurang';
+    }
+
+    const surplusVal = Math.max(0, rawSelisih);
+    const kekuranganVal = Math.max(0, -rawSelisih);
+
+    return {
+      bulan_code: mCode,
+      bulan_label: formatMonthTitle(mCode),
+      is_current: isCurrent,
+      total_setor: totalSetor,
+      tarif_sewa: tarifSewa,
+      selisih: rawSelisih,
+      status: status, // 'surplus' | 'lunas' | 'berjalan' | 'kurang'
+      progress_percent: tarifSewa > 0 ? Math.min(100, Math.round((totalSetor / tarifSewa) * 100)) : 0,
+      kekurangan: kekuranganVal,
+      surplus: surplusVal,
+      kompensasi_surplus_diterima: 0,
+      sisa_kewajiban_setelah_kompensasi: kekuranganVal,
+      status_kompensasi: status === 'surplus' ? 'surplus' : (status === 'lunas' ? 'lunas' : 'belum'),
+      hari_aktif: hariAktif,
+      hari_libur: hariLibur
+    };
+  });
+
+  // 2. Kumpulkan total pool surplus dari seluruh bulan yang surplus (termasuk bulan berjalan jika surplus)
+  let totalSurplusPool = 0;
+  rawMonths.forEach(m => {
+    if (m.surplus > 0) {
+      totalSurplusPool += m.surplus;
+    }
+  });
+
+  const initialSurplusPool = totalSurplusPool;
+
+  // 3. Alokasikan surplus untuk menutup kekurangan bulan-bulan yang minus (mulai dari bulan paling lama: kronologis)
+  const deficitMonthsChronological = rawMonths
+    .filter(m => m.kekurangan > 0)
+    .sort((a, b) => a.bulan_code.localeCompare(b.bulan_code));
+
+  deficitMonthsChronological.forEach(m => {
+    if (totalSurplusPool > 0) {
+      const comp = Math.min(totalSurplusPool, m.kekurangan);
+      m.kompensasi_surplus_diterima = comp;
+      m.sisa_kewajiban_setelah_kompensasi = m.kekurangan - comp;
+      totalSurplusPool -= comp;
+
+      if (m.sisa_kewajiban_setelah_kompensasi === 0) {
+        m.status_kompensasi = 'lunas_kompensasi';
+      }
+    }
+  });
+
+  // 4. Hitung ringkasan akumulasi tahunan & saldo bersih
+  let totalTahunanSetor = 0;
+  let totalTahunanTarget = 0;
+  let totalTahunanSurplus = 0;
+  let totalTahunanKekurangan = 0;
+  let countLunas = 0;
+  let countKurang = 0;
+
+  rawMonths.forEach(m => {
+    totalTahunanSetor += m.total_setor;
+    totalTahunanTarget += m.tarif_sewa;
+    if (m.surplus > 0) totalTahunanSurplus += m.surplus;
+    if (m.kekurangan > 0) totalTahunanKekurangan += m.kekurangan;
+
+    // Jika lunas murni atau lunas terkompensasi surplus
+    if (m.status === 'surplus' || m.status === 'lunas' || m.status_kompensasi === 'lunas_kompensasi') {
+      countLunas++;
+    } else {
+      countKurang++;
+    }
+  });
+
+  const saldoBersih = totalTahunanSetor - totalTahunanTarget;
+  const progressTahunan = totalTahunanTarget > 0 ? Math.min(100, Math.round((totalTahunanSetor / totalTahunanTarget) * 100)) : 0;
+
+  return {
+    success: true,
+    tahun: year,
+    year: year,
+    kiosk: {
+      id: kiosk.id,
+      nama_kantin: kiosk.nama_kantin,
+      nama_penyewa: kiosk.nama_penyewa,
+      nomor_hp: kiosk.nomor_hp,
+      tarif_sewa: tarifSewa
+    },
+    summary_akumulasi: {
+      total_setor: totalTahunanSetor,
+      total_target: totalTahunanTarget,
+      total_surplus: totalTahunanSurplus,
+      total_kekurangan: totalTahunanKekurangan,
+      saldo_bersih: saldoBersih,
+      is_surplus: saldoBersih > 0,
+      is_lunas: saldoBersih === 0,
+      is_kurang: saldoBersih < 0,
+      surplus_tersedia_saat_ini: totalSurplusPool,
+      persentase_tercapai: progressTahunan,
+      bulan_lunas: countLunas,
+      bulan_belum: countKurang
+    },
+    data: rawMonths
+  };
+}
+
 // 2b. GET /api/recap/admin/kiosk/:id/yearly - Rekap Tahunan Seluruh Bulan 1 Kios (Admin only)
 router.get('/admin/kiosk/:id/yearly', authenticateToken, requireRole('admin'), async (req, res) => {
   try {
@@ -187,93 +336,8 @@ router.get('/admin/kiosk/:id/yearly', authenticateToken, requireRole('admin'), a
     }
 
     const year = req.query.year || new Date().getFullYear().toString();
-    const currentMonth = getCurrentMonthString();
-
-    const allDeposits = await allAsync(
-      `SELECT * FROM deposits WHERE kiosk_id = ? AND tanggal LIKE ? ORDER BY tanggal DESC`,
-      [kiosk.id, `${year}-%`]
-    );
-
-    const currentMonthNum = parseInt(currentMonth.split('-')[1]);
-    const startMonthNum = 1;
-    const monthsInYear = [];
-    for (let m = currentMonthNum; m >= startMonthNum; m--) {
-      const mStr = String(m).padStart(2, '0');
-      monthsInYear.push(`${year}-${mStr}`);
-    }
-
-    const tarifSewa = kiosk.tarif_sewa || 1000000;
-
-    const rawMonths = monthsInYear.map(mCode => {
-      const depositsInMonth = allDeposits.filter(d => d.tanggal.startsWith(mCode));
-      let totalSetor = 0;
-      let hariAktif = 0;
-      let hariLibur = 0;
-
-      depositsInMonth.forEach(d => {
-        if (d.status === 'setor') {
-          totalSetor += d.nominal;
-          hariAktif++;
-        } else if (d.status === 'libur') {
-          hariLibur++;
-        }
-      });
-
-      const isCurrent = mCode === currentMonth;
-      const rawSelisih = totalSetor - tarifSewa;
-      let status = 'kurang';
-      if (rawSelisih > 0) status = 'surplus';
-      else if (rawSelisih === 0) status = 'lunas';
-
-      return {
-        bulan_code: mCode,
-        bulan_label: formatMonthTitle(mCode),
-        is_current: isCurrent,
-        total_setor: totalSetor,
-        tarif_sewa: tarifSewa,
-        selisih: rawSelisih,
-        status: status,
-        progress_percent: tarifSewa > 0 ? Math.min(100, Math.round((totalSetor / tarifSewa) * 100)) : 0,
-        kekurangan: Math.max(0, tarifSewa - totalSetor),
-        surplus: Math.max(0, totalSetor - tarifSewa),
-        hari_aktif: hariAktif,
-        hari_libur: hariLibur
-      };
-    });
-
-    let totalSetorTahun = 0;
-    let totalTargetTahun = 0;
-    let countLunas = 0;
-    let countKurang = 0;
-
-    rawMonths.forEach(m => {
-      totalSetorTahun += m.total_setor;
-      totalTargetTahun += m.tarif_sewa;
-      if (m.status === 'lunas' || m.status === 'surplus') countLunas++;
-      else countKurang++;
-    });
-
-    const progressTahun = totalTargetTahun > 0 ? Math.min(100, Math.round((totalSetorTahun / totalTargetTahun) * 100)) : 0;
-
-    res.json({
-      success: true,
-      tahun: year,
-      kiosk: {
-        id: kiosk.id,
-        nama_kantin: kiosk.nama_kantin,
-        nama_penyewa: kiosk.nama_penyewa,
-        nomor_hp: kiosk.nomor_hp,
-        tarif_sewa: tarifSewa
-      },
-      summary_akumulasi: {
-        total_setor: totalSetorTahun,
-        total_target: totalTargetTahun,
-        persentase_tercapai: progressTahun,
-        bulan_lunas: countLunas,
-        bulan_belum: countKurang
-      },
-      data: rawMonths
-    });
+    const result = await calculateKioskYearlyRecap(kiosk, year);
+    res.json(result);
   } catch (error) {
     console.error('Error GET /api/recap/admin/kiosk/:id/yearly:', error);
     res.status(500).json({ success: false, message: 'Gagal mengambil rekap tahunan unit usaha.' });
@@ -289,144 +353,8 @@ router.get('/tenant/monthly-history', authenticateToken, requireRole('tenant'), 
     }
 
     const year = req.query.year || new Date().getFullYear().toString();
-    const currentMonth = getCurrentMonthString();
-
-    // Ambil seluruh setoran tenant pada tahun tersebut
-    const allDeposits = await allAsync(
-      `SELECT * FROM deposits WHERE kiosk_id = ? AND tanggal LIKE ? ORDER BY tanggal DESC`,
-      [kiosk.id, `${year}-%`]
-    );
-
-    // Grouping per bulan (Mulai dari Januari/01 sesuai histori 2026)
-    const currentMonthNum = parseInt(currentMonth.split('-')[1]);
-    const startMonthNum = 1; // Perekapan resmi dimulai Januari 2026
-    const monthsInYear = [];
-    for (let m = currentMonthNum; m >= startMonthNum; m--) {
-      const mStr = String(m).padStart(2, '0');
-      monthsInYear.push(`${year}-${mStr}`);
-    }
-
-    const tarifSewa = kiosk.tarif_sewa || 1000000;
-
-    // 1. Hitung data dasar tiap bulan dalam tahun
-    const rawMonths = monthsInYear.map(mCode => {
-      const depositsInMonth = allDeposits.filter(d => d.tanggal.startsWith(mCode));
-      let totalSetor = 0;
-      let hariAktif = 0;
-      let hariLibur = 0;
-
-      depositsInMonth.forEach(d => {
-        if (d.status === 'setor') {
-          totalSetor += d.nominal;
-          hariAktif++;
-        } else if (d.status === 'libur') {
-          hariLibur++;
-        }
-      });
-
-      const isCurrent = mCode === currentMonth;
-      const rawSelisih = totalSetor - tarifSewa;
-      
-      let status = 'kurang';
-      if (isCurrent) {
-        status = 'berjalan';
-      } else if (rawSelisih > 0) {
-        status = 'surplus';
-      } else if (rawSelisih === 0) {
-        status = 'lunas';
-      }
-
-      return {
-        bulan_code: mCode,
-        bulan_label: formatMonthTitle(mCode),
-        is_current: isCurrent,
-        total_setor: totalSetor,
-        tarif_sewa: tarifSewa,
-        selisih: rawSelisih,
-        status: status,
-        progress_percent: tarifSewa > 0 ? Math.min(100, Math.round((totalSetor / tarifSewa) * 100)) : 0,
-        kekurangan: Math.max(0, tarifSewa - totalSetor),
-        kompensasi_surplus_diterima: 0,
-        sisa_kewajiban_setelah_kompensasi: Math.max(0, tarifSewa - totalSetor),
-        surplus_yang_dialokasikan: 0,
-        surplus_tersisa: 0,
-        hari_aktif: hariAktif,
-        hari_libur: hariLibur
-      };
-    });
-
-    // 2. Kumpulkan total surplus dari SELURUH bulan masa lalu yang sudah tutup
-    let totalSurplusPool = 0;
-    rawMonths.forEach(m => {
-      if (!m.is_current && m.selisih > 0) {
-        totalSurplusPool += m.selisih;
-      }
-    });
-
-    const initialSurplusPool = totalSurplusPool;
-
-    // 3. Alokasikan surplus untuk melunasi bulan-bulan masa lalu yang minus, MULAI DARI BULAN PALING LAMA (Oldest Deficit First)
-    const pastDeficitMonthsChronological = rawMonths
-      .filter(m => !m.is_current && m.selisih < 0)
-      .sort((a, b) => a.bulan_code.localeCompare(b.bulan_code));
-
-    pastDeficitMonthsChronological.forEach(m => {
-      if (totalSurplusPool > 0) {
-        const comp = Math.min(totalSurplusPool, m.kekurangan);
-        m.kompensasi_surplus_diterima = comp;
-        m.sisa_kewajiban_setelah_kompensasi = m.kekurangan - comp;
-        totalSurplusPool -= comp;
-      }
-    });
-
-    // 4. Catat berapa surplus tiap bulan yang telah terpakai melunasi utang
-    let usedSurplus = initialSurplusPool - totalSurplusPool;
-    rawMonths.forEach(m => {
-      if (!m.is_current && m.selisih > 0) {
-        const allocated = Math.min(m.selisih, usedSurplus);
-        m.surplus_yang_dialokasikan = allocated;
-        m.surplus_tersisa = m.selisih - allocated;
-        usedSurplus -= allocated;
-      }
-    });
-
-    // Summary Akumulasi Tahunan & Saldo Bersih
-    let totalTahunanSetor = 0;
-    let totalTahunanTarget = 0;
-    let totalTahunanSurplus = 0;
-    let totalTahunanKekurangan = 0;
-
-    rawMonths.forEach(m => {
-      totalTahunanSetor += m.total_setor;
-      totalTahunanTarget += m.tarif_sewa;
-      if (m.selisih > 0) totalTahunanSurplus += m.selisih;
-      if (m.selisih < 0) totalTahunanKekurangan += Math.abs(m.selisih);
-    });
-
-    const saldoBersihAkun = totalTahunanSetor - totalTahunanTarget;
-
-    res.json({
-      success: true,
-      year: year,
-      kiosk: {
-        id: kiosk.id,
-        nama_kantin: kiosk.nama_kantin,
-        nama_penyewa: kiosk.nama_penyewa,
-        tarif_sewa: tarifSewa
-      },
-      summary_akumulasi: {
-        total_setor: totalTahunanSetor,
-        total_target: totalTahunanTarget,
-        total_surplus: totalTahunanSurplus,
-        total_kekurangan: totalTahunanKekurangan,
-        saldo_bersih: saldoBersihAkun,
-        is_surplus: saldoBersihAkun > 0,
-        is_lunas: saldoBersihAkun === 0,
-        is_kurang: saldoBersihAkun < 0,
-        surplus_tersedia_saat_ini: totalSurplusPool
-      },
-      data: rawMonths
-    });
+    const result = await calculateKioskYearlyRecap(kiosk, year);
+    res.json(result);
   } catch (error) {
     console.error('Error GET /api/recap/tenant/monthly-history:', error);
     res.status(500).json({ success: false, message: 'Gagal mengambil histori rekap bulanan.' });
