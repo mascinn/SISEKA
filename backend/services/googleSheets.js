@@ -53,10 +53,10 @@ async function syncRecapToGoogleSheets(targetParam = '2026') {
     const year = String(targetParam).split('-')[0] || '2026';
     const parts = getWIBDateParts();
     const currentYear = parseInt(parts.year, 10);
-    // Tentukan bulan berjalan (1-12)
+    // Tentukan bulan berjalan dinamis (1-12)
     const currentMonthNum = parseInt(year, 10) === currentYear 
       ? Math.min(12, Math.max(1, parseInt(parts.month, 10)))
-      : 8; // Default 8 (Agustus) untuk periode aktif SISEKA 2026
+      : (parseInt(year, 10) < currentYear ? 12 : Math.min(12, Math.max(1, parseInt(parts.month, 10))));
 
     const kiosks = await allAsync(`SELECT * FROM kiosks ORDER BY id ASC`);
     const allDeposits = await allAsync(

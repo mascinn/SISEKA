@@ -159,12 +159,21 @@ export default function AdminRekapView({ onShowToast }) {
     jumlah_kurang: 0
   };
 
-  const monthsAvailable = [
-    { code: '2026-08', label: 'Agustus 2026' },
-    { code: '2026-07', label: 'Juli 2026' },
-    { code: '2026-06', label: 'Juni 2026' },
-    { code: '2026-05', label: 'Mei 2026' },
-  ];
+  const monthsAvailable = React.useMemo(() => {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1;
+    const list = [];
+    for (let m = currentMonth; m >= 1; m--) {
+      const mStr = String(m).padStart(2, '0');
+      const code = `${currentYear}-${mStr}`;
+      list.push({
+        code,
+        label: formatMonthLabel(code)
+      });
+    }
+    return list;
+  }, []);
 
   return (
     <div className="space-y-4 pb-24">
